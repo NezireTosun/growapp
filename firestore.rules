@@ -1,0 +1,213 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Yardımcı fonksiyonlar ───────────────────────────────────────────────
+
+    // İstek yapan kullanıcı giriş yapmış mı?
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // İstek yapan kullanıcı belirtilen uid'e ait mi?
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Kullanıcı belirtilen business'a üye mi?
+    function isBusinessMember(businessId) {
+      return isAuth() && exists(
+        /databases/$(database)/documents/business_members/$(businessId + '_' + request.auth.uid)
+      );
+    }
+
+    // ─── users ───────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['created_at', 'uid']);
+      allow delete: if false; // Hesap silme backend üzerinden
+    }
+
+    // ─── businesses ──────────────────────────────────────────────────────────
+    match /businesses/{businessId} {
+      allow read: if isAuth()
+        && (resource.data.owner_id == request.auth.uid
+            || isBusinessMember(businessId));
+      allow create: if isAuth()
+        && request.resource.data.owner_id == request.auth.uid;
+      allow update: if isAuth()
+        && resource.data.owner_id == request.auth.uid;
+      allow delete: if isAuth()
+        && resource.data.owner_id == request.auth.uid;
+    }
+
+    // ─── business_members ────────────────────────────────────────────────────
+    match /business_members/{memberId} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+        && request.resource.data.user_id == request.auth.uid;
+      allow delete: if isAuth()
+        && resource.data.user_id == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ─── user_tasks (kullanıcıya atanmış günlük görevler) ───────────────────
+    match /user_tasks/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Sadece backend yazar
+    }
+
+    // ─── task_feedback ───────────────────────────────────────────────────────
+    match /task_feedback/{feedbackId} {
+      allow read: if isAuth()
+        && resource.data.user_id == request.auth.uid;
+      allow create: if isAuth()
+        && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ─── password_resets ─────────────────────────────────────────────────────
+    match /password_resets/{email} {
+      // SECURITY FIX: Hesap çalma (Account Takeover) zafiyetini kapatmak için public erişim yasaklandı.
+      // Şifre sıfırlama işlemi Firebase Auth'un dahili mekanizmalarına (OOB Code) taşınmıştır.
+      allow read, write: if false;
+    }
+
+    // ─── email_verifications ─────────────────────────────────────────────────
+    match /email_verifications/{userId} {
+      // SECURITY FIX: E-posta onayı Firebase Auth'un dahili doğrulama mekanizmalarına taşınmıştır.
+      allow read, write: if false;
+    }
+
+    // ─── blog_posts ──────────────────────────────────────────────────────────
+    match /blog_posts/{postId} {
+      allow read: if isAuth();
+      allow update: if isAuth()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['like_count']);
+      allow create, delete: if false; // Sadece admin yazar
+    }
+
+    // ─── blog_likes ──────────────────────────────────────────────────────────
+    // Provider blog_likes/{userId} doc'una yazar — doc ID = userId
+    match /blog_likes/{likeId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && likeId == request.auth.uid;
+      allow update: if isAuth() && likeId == request.auth.uid;
+      allow delete: if isAuth() && likeId == request.auth.uid;
+    }
+
+    // ─── notifications ───────────────────────────────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if isAuth()
+        && resource.data.user_id == request.auth.uid;
+      allow create: if isAuth()
+        && request.resource.data.user_id == request.auth.uid;
+      allow update: if isAuth()
+        && resource.data.user_id == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['is_read', 'read_at']);
+      allow delete: if isAuth()
+        && resource.data.user_id == request.auth.uid;
+    }
+
+    // ─── privacy_policy ──────────────────────────────────────────────────────
+    match /privacy_policy/{docId} {
+      allow read: if true; // Herkese açık — giriş gerekmez
+      allow write: if false; // Sadece Firebase Admin SDK (Functions/backend)
+    }
+
+    // ─── plans ───────────────────────────────────────────────────────────────
+    match /plans/{planId} {
+      allow read: if isAuth();
+      allow write: if false; // Sadece admin
+    }
+
+    // ─── onboarding_steps ────────────────────────────────────────────────────
+    match /onboarding_steps/{docId} {
+      allow read: if isAuth();
+      allow write: if false;
+    }
+
+    // ─── business_types ──────────────────────────────────────────────────────
+    match /business_types/{docId} {
+      allow read: if isAuth();
+      allow write: if false;
+    }
+
+    // ─── questions ───────────────────────────────────────────────────────────
+    match /questions/{docId} {
+      allow read: if isAuth();
+      allow write: if false;
+
+      match /options/{optionId} {
+        allow read: if isAuth();
+        allow write: if false;
+      }
+    }
+
+    // ─── pain_points ─────────────────────────────────────────────────────────
+    match /pain_points/{docId} {
+      allow read: if isAuth();
+      allow write: if false;
+    }
+
+    // ─── onboarding_responses ────────────────────────────────────────────────
+    match /onboarding_responses/{docId} {
+      allow read: if isAuth() && resource.data.user_id == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ─── user_plans ──────────────────────────────────────────────────────────
+    match /user_plans/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Sadece backend (purchase doğrulama sonrası)
+    }
+
+    // ─── onboarding ──────────────────────────────────────────────────────────
+    match /onboarding/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ─── tasks ───────────────────────────────────────────────────────────────
+    match /tasks/{taskId} {
+      allow read: if isAuth();
+      allow write: if false;
+
+      match /task_steps/{stepId} {
+        allow read: if isAuth();
+        allow write: if false;
+      }
+    }
+
+    // ─── task_history ────────────────────────────────────────────────────────
+    match /task_history/{docId} {
+      allow read: if isAuth()
+        && docId.matches(request.auth.uid + '_.*');
+      allow write: if isAuth()
+        && docId.matches(request.auth.uid + '_.*');
+    }
+
+    // ─── daily_assignments ───────────────────────────────────────────────────
+    match /daily_assignments/{docId} {
+      // docId formatı: {userId}_{businessId}_{date} — prefix kontrolü yeterli
+      allow get: if isAuth()
+        && docId.matches(request.auth.uid + '_.*');
+      allow list: if isAuth();
+      allow create: if isAuth()
+        && request.resource.data.user_id == request.auth.uid;
+      allow update: if isAuth()
+        && docId.matches(request.auth.uid + '_.*');
+      allow delete: if false;
+    }
+
+    // Tanımlı olmayan tüm collection'lara erişimi kapat
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

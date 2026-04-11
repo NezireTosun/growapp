@@ -1,0 +1,401 @@
+{
+  "@@locale": "tr",
+  "signIn": "Giriş Yap",
+  "signUp": "Üye olmak",
+  "welcomeBack": "Tekrar hoş geldiniz! Devam etmek için giriş yapın.",
+  "createAccount": "Kişisel bilgilerinizle hesabınızı oluşturun.",
+  "email": "E-posta",
+  "password": "Şifre",
+  "confirmPassword": "Şifreyi Onayla",
+  "fullName": "Ad Soyad",
+  "phoneNumber": "Telefon Numarası",
+  "forgotPassword": "Parolanızı mı unuttunuz?",
+  "forgotPasswordDesc": "E-posta adresinizi girin, 6 haneli doğrulama kodu göndereceğiz.",
+  "resetPasswordButton": "Şifreyi Sıfırla",
+  "resetPasswordSent": "Kod Gönderildi!",
+  "resetPasswordSentDesc": "{email} adresine 6 haneli kod gönderdik. Lütfen gelen kutunuzu kontrol edin.",
+  "@resetPasswordSentDesc": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "enterResetCode": "E-postanıza gönderilen 6 haneli kodu girin.",
+  "createNewPassword": "Yeni Şifre Oluştur",
+  "createNewPasswordDesc": "Yeni şifreniz en az 6 karakter olmalıdır.",
+  "newPassword": "Yeni Şifre",
+  "newPasswordHint": "Yeni şifrenizi girin",
+  "confirmNewPassword": "Yeni Şifreyi Onayla",
+  "confirmNewPasswordHint": "Yeni şifrenizi tekrar girin",
+  "resetPasswordSuccess": "Şifre başarıyla güncellendi!",
+  "resetPasswordSuccessDesc": "Şifreniz değiştirildi. Yeni şifrenizle giriş yapabilirsiniz.",
+  "passwordResetExpired": "Kodun süresi doldu. Lütfen yeni bir kod isteyin.",
+  "backToLogin": "Girişe Dön",
+  "dontHaveAccount": "Hesabınız yok mu?",
+  "alreadyHaveAccount": "Zaten hesabınız var mı?",
+  "emailHint": "example@email.com",
+  "fullNameHint": "Adınız ve soyadınız",
+  "phoneHint": "5XX XXX XX XX",
+  "enterEmail": "Lütfen e-posta adresinizi girin.",
+  "validEmail": "Lütfen geçerli bir e-posta adresi girin.",
+  "enterPassword": "Lütfen şifrenizi girin.",
+  "enterAPassword": "Lütfen bir şifre girin.",
+  "passwordMinLength": "Parola en az 6 karakter uzunluğunda olmalıdır.",
+  "confirmYourPassword": "Lütfen şifrenizi onaylayın.",
+  "passwordsNotMatch": "Şifreler eşleşmiyor.",
+  "enterName": "Lütfen adınızı girin.",
+  "enterPhone": "Lütfen telefon numaranızı girin.",
+  "continueButton": "Devam etmek",
+  "businessNameFallback": "İşletmenizin Adı",
+  "enterBusinessName": "İşletme adınızı girin",
+  "businessTypeFallback": "İşletmenizin türü nedir?",
+  "comingSoon": "YAKINDA GELECEK",
+  "analysisStep1": "Yanıtlarınızı inceliyorum...",
+  "analysisStep2": "İşletme türünüzü analiz ediyoruz...",
+  "analysisStep3": "Büyüme fırsatlarını belirlemek...",
+  "analysisStep4": "Kişiselleştirilmiş görevler hazırlanıyor...",
+  "analysisStep5": "Neredeyse hazır!",
+  "aiAnalyzingTitle": "Yapay zeka işletmenizi analiz ediyor.",
+  "aiAnalyzingSubtitle": "Bu işlem yalnızca bir dakika sürecek.",
+  "welcome": "HOŞ GELDİN",
+  "helloName": "Merhaba {name}",
+  "@helloName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "boostSales": "Bugün satışlarınızı artıralım!",
+  "dailyGoalsProgress": "Günlük hedeflerin {completed} tanesinden {total} tanesi tamamlandı",
+  "@dailyGoalsProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "details": "Detaylar",
+  "statusCompleted": "TAMAMLANMIŞ",
+  "statusViewed": "GÖRÜNTÜLENDİ",
+  "statusWontDo": "YAPMAYACAĞIM",
+  "statusDontSuggest": "ÖNERMEYİN",
+  "highImpact": "YÜKSEK ETKİ",
+  "medImpact": "TIBBİ ETKİ",
+  "lowImpact": "DÜŞÜK ETKİLİ",
+  "minutesBadge": "{minutes} DAKİKA",
+  "@minutesBadge": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "navHome": "Ev",
+  "navAnalytics": "Analitik",
+  "navBlog": "Blog",
+  "navProfile": "Profil",
+  "taskDetails": "Görev Ayrıntıları",
+  "dailyTaskCounter": "GÜNLÜK GÖREV {current}/{total}",
+  "@dailyTaskCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "whyItMakesMoney": "Neden Para Kazandırıyor?",
+  "howToDoIt": "Nasıl Yapılır",
+  "readyMadeTemplate": "Hazır Şablon",
+  "copied": "Kopyalandı",
+  "copy": "Kopyala",
+  "wereHereToHelp": "Yardımcı olmak için buradayız.",
+  "needHelpTask": "Bu görevi tamamlamakta yardıma mı ihtiyacınız var?\n\nHemen ekibimizle iletişime geçin.",
+  "contactUs": "Bize Ulaşın",
+  "done": "Yaptım",
+  "illDoIt": "Yapacağım",
+  "snooze": "Daha Sonra",
+  "wontDo": "Yapmayacağım",
+  "dontSuggest": "Bir Daha Önerme",
+  "myBusiness": "İşletmem",
+  "growthLevel": "Büyüme Seviyesi 2",
+  "levelProgress": "Seviye İlerlemesi",
+  "businessInfo": "İŞ BİLGİLERİ",
+  "personalInfo": "KİŞİSEL BİLGİLER",
+  "name": "İsim",
+  "phone": "Telefon",
+  "instagram": "Instagram",
+  "city": "Şehir",
+  "cityHint": "Örn. İstanbul",
+  "updateInfo": "Güncelleme Bilgileri",
+  "settings": "AYARLAR",
+  "notifications": "Bildirimler",
+  "subscriptionPlan": "Abonelik Planı",
+  "proPlan": "Profesyonel Plan",
+  "aboutUs": "Hakkımızda",
+  "aboutUsPageTitle": "Hakkımızda",
+  "aboutUsDesc": "GrowApp, kafe ve restoran sahiplerinin işletmelerini büyütmelerine yardımcı olan yapay zeka destekli bir platformdur.",
+  "aboutUsMission": "Misyonumuz",
+  "aboutUsMissionDesc": "Her küçük işletme sahibine, büyük şirketlerin sahip olduğu büyüme stratejilerini erişilebilir kılmak. Yapay zeka ile kişiselleştirilmiş günlük görevler sunarak işletmenizi adım adım büyütüyoruz.",
+  "aboutUsFeatures": "Ne Sunuyoruz?",
+  "aboutUsFeature1": "Kişiselleştirilmiş günlük görevler",
+  "aboutUsFeature2": "Yapay zeka destekli iş danışmanlığı",
+  "aboutUsFeature3": "Hazır pazarlama şablonları",
+  "aboutUsFeature4": "İlerleme takibi ve analitik",
+  "aboutUsFeature5": "WhatsApp üzerinden görev bildirimleri",
+  "aboutUsVersion": "Versiyon",
+  "aboutUsTeam": "Ekip",
+  "aboutUsTeamDesc": "Prag merkezli, küçük işletmelere tutkuyla bağlı bir ekip tarafından geliştirilmektedir.",
+  "contact": "İletişim",
+  "contactPageTitle": "İletişim",
+  "contactPageDesc": "Sorularınız veya geri bildirimleriniz için bize ulaşabilirsiniz.",
+  "contactEmail": "E-posta",
+  "contactEmailValue": "info@salesgrowthsteps.com",
+  "contactPhone": "Telefon",
+  "contactPhoneValue": "+90 850 123 45 67",
+  "contactWhatsapp": "WhatsApp",
+  "contactAddress": "Adres",
+  "contactAddressValue": "Prag, Çek Cumhuriyeti",
+  "contactWorkingHours": "Çalışma Saatleri",
+  "contactWorkingHoursValue": "Pzt-Cum 09:00 - 18:00",
+  "sendUsMessage": "Bize Mesaj Gönderin",
+  "messageSubject": "Konu",
+  "messageSubjectHint": "Mesajınızın konusu",
+  "messageBody": "Mesaj",
+  "messageBodyHint": "Mesajınızı buraya yazın...",
+  "sendMessage": "Mesaj Gönder",
+  "messageSent": "Mesajınız gönderildi!",
+  "messageSentDesc": "En kısa sürede size dönüş yapacağız.",
+  "deleteAccount": "Hesabı Sil",
+  "signOut": "Oturumu Kapat",
+  "cancel": "İptal etmek",
+  "deleteAccountMessage": "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinecektir.",
+  "signOutMessage": "Oturumu kapatmak istediğinizden emin misiniz? Günlük görev ilerlemeniz kaydedilecektir.",
+  "editProfile": "Profil Düzenle",
+  "businessNameLabel": "İşletme Adı",
+  "businessNameHint": "İşletmenizin adı",
+  "enterBusinessNameValidation": "Lütfen işletme adını girin.",
+  "phoneHintFull": "+90 555 123 45 67",
+  "enterPhoneValidation": "Lütfen telefon numaranızı girin.",
+  "instagramHint": "@işletmeniz",
+  "saveChanges": "Değişiklikleri Kaydet",
+  "notificationSettings": "Bildirim Ayarları",
+  "dailyTaskReminders": "Günlük Görev Hatırlatıcıları",
+  "offPeakDeals": "Sezon Dışı Fırsatlar",
+  "weeklyProgressReport": "Haftalık İlerleme Raporu",
+  "newFeaturesUpdates": "Yeni Özellikler ve Güncellemeler",
+  "notificationWarning": "Bildirimleri kapatmak, büyüme fırsatlarını ve satış ipuçlarını kaçırmanıza neden olabilir.",
+  "blog": "Blog",
+  "general": "Genel",
+  "categoryInstagram": "Instagram",
+  "categoryWhatsapp": "WhatsApp",
+  "campaignLabel": "KAMPANYA",
+  "instagramLabel": "INSTAGRAM",
+  "whatsappLabel": "WHATSAPP",
+  "share": "PAYLAŞMAK",
+  "blogDetail": "Blog Detayı",
+  "popular": "POPÜLER",
+  "blogFooterText": "Unutmayın, sosyal medya sadece bir vitrin değil, aynı zamanda bir diyalog platformudur. Her soruya hızlıca cevap vermek ve yorumları takip etmek, algoritmanın sizi daha fazla kişiye göstermesine yardımcı olur. Profesyonel hazır şablonlar kullanmak satış rakamlarınızı artırmanıza yardımcı olabilir.",
+  "copyTemplate": "Şablonu Kopyala",
+  "like": "Beğenmek",
+  "shareButton": "Paylaşmak",
+  "painPointContinue": "DEVAM ETMEK",
+  "verifyYourEmail": "E-postanızı Doğrulayın",
+  "verificationSent": "Doğrulama bağlantısını gönderdik:",
+  "checkInbox": "Lütfen gelen kutunuzu kontrol edin ve devam etmek için doğrulama bağlantısına tıklayın.",
+  "openEmailApp": "E-posta Uygulamasını Aç",
+  "resendEmail": "Tekrar Gönder",
+  "iVerified": "Doğruladım",
+  "emailNotVerified": "E-posta henüz doğrulanmadı. Lütfen gelen kutunuzu kontrol edin.",
+  "verificationResent": "Doğrulama e-postası tekrar gönderildi!",
+  "checkSpamFolder": "Spam/Önemsiz klasörünü kontrol etmeyi unutma!",
+  "accountDeactivated": "Bu hesap devre dışı bırakılmıştır. Lütfen destek ile iletişime geçin.",
+  "userNotFound": "Bu e-posta ile kayıtlı bir hesap bulunamadı.",
+  "wrongPassword": "E-posta veya şifre hatalı.",
+  "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen biraz bekleyin.",
+  "loginError": "Giriş yapılamadı. Lütfen tekrar deneyin.",
+  "emailAlreadyInUse": "Bu e-posta adresi zaten kayıtlı.",
+  "analyticsTitle": "Analitik",
+  "overview": "GENEL BAKIŞ",
+  "tasksCompleted": "Tamamlanan\nGörevler",
+  "tasksViewed": "Görüntülenen\nGörevler",
+  "tasksSkipped": "Atlanan\nGörevler",
+  "completionRate": "Tamamlanma Oranı",
+  "tasksByStatus": "DURUMA GÖRE GÖREVLER",
+  "completed": "Tamamlandı",
+  "viewed": "Görüntülendi",
+  "skipped": "Atlandı",
+  "dismissed": "Reddedildi",
+  "pending": "Bekliyor",
+  "noTasksYet": "Henüz görev yok",
+  "noTasksYetSubtitle": "Analizlerinizi burada görmek için panelden görevleri tamamlayın.",
+  "currentStreak": "GÜNCEL SERİ",
+  "streakDays": "{count} Gün",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayPlus": "+{count} bugün",
+  "@todayPlus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyPerformance": "Haftalık Performans",
+  "thisWeek": "Bu Hafta",
+  "completedTasksCount": "Tamamlanan Görevler",
+  "vsLastWeek": "+%{percent} geçen haftaya göre",
+  "@vsLastWeek": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "vsLastWeekNeg": "%{percent} geçen haftaya göre",
+  "@vsLastWeekNeg": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryDistribution": "Kategori Dağılımı",
+  "catAcquisition": "Müşteri Kazanımı",
+  "catConversion": "Dönüşüm",
+  "catRetention": "Müşteri Sadakati",
+  "catOperations": "Operasyonlar",
+  "catB2bSales": "B2B Satış",
+  "catAnalytics": "Analitik",
+  "catStaffManagement": "Personel Yönetimi",
+  "catSocialProof": "Sosyal Kanıt",
+  "catProfitability": "Kârlılık",
+  "catSalesPower": "Satış Gücü",
+  "catExperience": "Deneyim",
+  "catLocal": "Yerel Pazarlama",
+  "catUpsell": "Çapraz Satış",
+  "catOther": "Diğer",
+  "successAnalytics": "Başarı Analizleri",
+  "myBusinesses": "İşletmelerim",
+  "addBusiness": "İşletme Ekle",
+  "switchBusiness": "İşletme Değiştir",
+  "currentBusiness": "AKTİF",
+  "upgradeToPremium": "Premium'a Yükselt",
+  "premiumRequired": "Premium Gerekli",
+  "premiumRequiredMessage": "Birden fazla işletme eklemek ve gelişmiş özelliklerin kilidini açmak için Premium'a yükseltin.",
+  "upgrade": "Yükselt",
+  "businessLimitReached": "Planınız için maksimum işletme sayısına ulaştınız.",
+  "subscription": "Abonelik",
+  "currentPlan": "Mevcut Plan",
+  "freePlan": "Ücretsiz",
+  "premiumPlan": "Premium",
+  "freePlanPrice": "Ücretsiz",
+  "premiumPlanPrice": "₺99/ay",
+  "freePlanDesc": "Tek bir işletmeyle başlamak için ideal.",
+  "premiumPlanDesc": "Gelişmiş özelliklerin kilidini açın ve birden fazla işletmeyi yönetin.",
+  "featureDailyTasks": "Günlük Büyüme Görevleri",
+  "featureBlog": "Blog & Şablonlar",
+  "featureAnalytics": "Gelişmiş Analitik",
+  "featureAiInsights": "Yapay Zeka İçgörüleri",
+  "featureMultiBusiness": "5'e Kadar İşletme",
+  "featureMultiMember": "3'e Kadar Takım Üyesi",
+  "upgradeNow": "Şimdi Yükselt",
+  "downgrade": "Ücretsiz Plana Düşür",
+  "yourCurrentPlan": "Mevcut Planınız",
+  "verificationCodeSent": "Doğrulama kodunuzu gönderdik:",
+  "verifyCode": "Kodu Doğrula",
+  "resendCode": "Tekrar Gönder",
+  "changeEmail": "Değiştir",
+  "invalidCode": "Geçersiz veya süresi dolmuş kod. Lütfen tekrar deneyin.",
+  "markAllRead": "Tümünü okundu işaretle",
+  "noNotifications": "Henüz bildirim yok",
+  "noNotificationsDesc": "Görev atamaları ve hatırlatmalar aldığınızda burada görünecektir.",
+  "notifTaskAssignedTitle": "Yeni görevler atandı!",
+  "notifTaskAssignedBody": "Bugün sizi bekleyen {count} yeni görev var. Hadi işletmenizi büyütelim!",
+  "@notifTaskAssignedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifTaskReminderTitle": "Görevlerini unutma!",
+  "notifTaskReminderBody": "Bugün hâlâ {count} tamamlanmamış görevin var. Gün bitmeden tamamla!",
+  "@notifTaskReminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifDailySummaryTitle": "Günlük Özet",
+  "notifDailySummaryBody": "Bugün {total} görevden {completed} tanesini tamamladın. Devam et!",
+  "justNow": "şimdi",
+  "proPlanPrice": "€19,99/ay",
+  "proPlanDesc": "İşletmenizi büyüten tüm araçlara tam erişim.",
+  "featureFreeAnalysis": "7 boyutta 360° İşletme Analizi (Q1–Q7)",
+  "featureFreeTopTasks": "Görünürlük & itibar için Top 30 Stratejik Görev",
+  "featureFreeBasicDashboard": "Temel Dashboard",
+  "featureFreeWhatsApp": "Uygulama + WhatsApp (bildirim yok)",
+  "featureFreeAiMessages": "Eğitimli AI Modeli — günde 5 mesaj",
+  "featureProAnalysis": "360° İnteraktif İşletme Analizi (Q1–Q7)",
+  "featureProFullLibrary": "Tam Stratejik Görev Kütüphanesi — satış, kâr, sadakat ve daha fazlası",
+  "featureProDashboard": "Görsel Dashboard & Canlı Analitik Grafikler",
+  "featureProWhatsApp": "WhatsApp Büyüme Koçu — günlük hatırlatmalar & haftalık raporlar",
+  "featureProUpdatedContent": "Sürekli Güncellenen İçerik — her ay yeni taktikler",
+  "featureProIdTracking": "ID Tabanlı Takip — her adımın kazancını görün",
+  "errorNetwork": "İnternet bağlantısı yok. Lütfen ağınızı kontrol edin.",
+  "errorRateLimit": "Çok fazla istek gönderildi. Lütfen bir süre bekleyip tekrar deneyin.",
+  "errorGeneric": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+  "monthlyPerformance": "Aylık Performans",
+  "yearlyPerformance": "Yıllık Performans",
+  "thisMonth": "Bu Ay",
+  "thisYear": "Bu Yıl",
+  "restorePurchases": "Satın Almaları Geri Yükle",
+  "purchaseSuccess": "Pro'ya hoş geldiniz! Yeni özelliklerinizin keyfini çıkarın.",
+  "restoreSuccess": "Satın almalar başarıyla geri yüklendi.",
+  "restoreNoPurchases": "Önceki satın alma bulunamadı.",
+  "buyNow": "Yükselt",
+  "pointsEarned": "+{points} puan!",
+  "@pointsEarned": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "taskCompletedMsg": "Harika! Görevi tamamladın. Sonuçları takip etmeyi unutma.",
+  "ok": "Tamam",
+  "resetLinkSent": "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.",
+  "privacyPolicyTitle": "Gizlilik Politikası",
+  "privacyPolicyUpdated": "Son Güncelleme: 8 Nisan 2026",
+  "privacySection1Title": "1. Veri Sorumluluğu Beyanı",
+  "privacySection1Body": "Hizmetlerimi kullanırken paylaştığınız veriler, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve uluslararası veri koruma standartları çerçevesinde işlenmektedir. Verilerinizin güvenliği, teknik ve idari tedbirlerle en üst düzeyde muhafaza edilmektedir.",
+  "privacySection2Title": "2. İşlenen Veri Kategorileri",
+  "privacySection2Body": "• Kimlik ve İletişim Bilgileri: Kayıt ve profil oluşturma aşamasında sağladığınız ad, soyad ve e-posta adresi.\n\n• Abonelik ve Finansal Veriler: Satın aldığınız hizmet paketlerine ilişkin işlem geçmişi ve ödeme doğrulama kayıtları. Bu süreçler teknik olarak RevenueCat altyapısı ile güvence altına alınmaktadır.\n\n• Teknik Tanılama Verileri: Sistem hatalarının tespiti ve kullanıcı deneyiminin iyileştirilmesi amacıyla toplanan hata günlükleri ve uygulama içi istatistikler.",
+  "privacySection3Title": "3. Veri İşleme Amaçlarım",
+  "privacySection3Body": "• Hizmet Sunumu: Kişiselleştirilmiş kullanıcı hesabınızın yönetilmesi ve uygulama özelliklerinin aktif edilmesi.\n\n• Ödeme ve Hak Yönetimi: Abonelik süreçlerinizin doğrulanması ve hizmet kesintilerinin önlenmesi.\n\n• Güvenlik ve Denetim: Platformun kötü niyetli kullanımlardan korunması ve yasal mevzuata tam uyum sağlanması.",
+  "privacySection4Title": "4. Üçüncü Taraflarla Veri Paylaşımı",
+  "privacySection4Body": "Kişisel verilerinizi asla ticari amaçla satmam veya pazarlamam. Verileriniz yalnızca aşağıdaki güvenilir servis sağlayıcılarla paylaşılır:\n\n• Google Cloud & Firebase: Verilerinizin yüksek güvenlikli bulut sunucularda saklanması ve kimlik doğrulama işlemleri için.\n\n• RevenueCat: Abonelik sistemlerinin teknik altyapısı ve dijital ödeme doğrulamaları için.",
+  "privacySection5Title": "5. Veri Güvenliği ve Saklama İlkeleri",
+  "privacySection5Body": "Verileriniz, iletim aşamasında SSL/TLS şifreleme yöntemleriyle korunmaktadır. Verileriniz, hesabınız aktif olduğu sürece güvenli bulut veritabanlarımda saklanır. Hesabınızı silmeniz durumunda tüm kişisel verileriniz kalıcı olarak imha edilir.",
+  "privacySection6Title": "6. Kullanıcı Hakları ve Veri İmhası",
+  "privacySection6Body": "KVKK kapsamında aşağıdaki haklara sahipsiniz:\n\n• Verilerinizin işlenip işlenmediğini öğrenme\n• Yanlış veya eksik verilerin düzeltilmesini isteme\n• Verilerinizin silinmesini veya anonim hale getirilmesini talep etme\n\nHesabınızı ve tüm ilişkili verilerinizi uygulama içindeki Ayarlar bölümünden kalıcı olarak silebilirsiniz.",
+  "privacySection7Title": "7. İletişim",
+  "privacySection7Body": "Bu gizlilik politikası hakkında daha fazla bilgi almak veya haklarınızı kullanmak için:\n\n• E-posta: info@salesgrowthsteps.com\n• Uygulama içi destek: Ayarlar → Destek",
+  "premiumContent": "Premium İçerik",
+  "premiumContentDesc": "Bu özellik sadece Premium üyeler içindir. Analizlerini derinleştirmek ve potansiyelini keşfetmek için aramıza katıl.",
+  "premiumBuyNow": "Premium Satın Al"
+}

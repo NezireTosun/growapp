@@ -1,0 +1,401 @@
+{
+  "@@locale": "de",
+  "signIn": "Anmelden",
+  "signUp": "Melden Sie sich an",
+  "welcomeBack": "Willkommen zurück! Melden Sie sich an, um fortzufahren.",
+  "createAccount": "Erstellen Sie Ihr Konto mit Ihren persönlichen Daten.",
+  "email": "E-Mail",
+  "password": "Passwort",
+  "confirmPassword": "Passwort bestätigen",
+  "fullName": "Vollständiger Name",
+  "phoneNumber": "Telefonnummer",
+  "forgotPassword": "Passwort vergessen?",
+  "forgotPasswordDesc": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen 6-stelligen Code.",
+  "resetPasswordButton": "Passwort zurücksetzen",
+  "resetPasswordSent": "Code gesendet!",
+  "resetPasswordSentDesc": "Wir haben einen 6-stelligen Code an {email} gesendet.",
+  "@resetPasswordSentDesc": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "enterResetCode": "Geben Sie den 6-stelligen Code ein, der an Ihre E-Mail gesendet wurde.",
+  "createNewPassword": "Neues Passwort erstellen",
+  "createNewPasswordDesc": "Ihr neues Passwort muss mindestens 6 Zeichen lang sein.",
+  "newPassword": "Neues Passwort",
+  "newPasswordHint": "Neues Passwort eingeben",
+  "confirmNewPassword": "Neues Passwort bestätigen",
+  "confirmNewPasswordHint": "Neues Passwort erneut eingeben",
+  "resetPasswordSuccess": "Passwort erfolgreich aktualisiert!",
+  "resetPasswordSuccessDesc": "Ihr Passwort wurde geändert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+  "passwordResetExpired": "Code abgelaufen. Bitte fordern Sie einen neuen an.",
+  "backToLogin": "Zurück zur Anmeldung",
+  "dontHaveAccount": "Sie haben noch kein Konto?",
+  "alreadyHaveAccount": "Sie haben bereits ein Konto?",
+  "emailHint": "example@email.com",
+  "fullNameHint": "Ihr vollständiger Name",
+  "phoneHint": "5XX XXX XX XX",
+  "enterEmail": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
+  "validEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+  "enterPassword": "Bitte geben Sie Ihr Passwort ein.",
+  "enterAPassword": "Bitte geben Sie ein Passwort ein.",
+  "passwordMinLength": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+  "confirmYourPassword": "Bitte bestätigen Sie Ihr Passwort.",
+  "passwordsNotMatch": "Die Passwörter stimmen nicht überein.",
+  "enterName": "Bitte geben Sie Ihren Namen ein",
+  "enterPhone": "Bitte geben Sie Ihre Telefonnummer ein.",
+  "continueButton": "Weitermachen",
+  "businessNameFallback": "Ihr Firmenname",
+  "enterBusinessName": "Geben Sie Ihren Firmennamen ein",
+  "businessTypeFallback": "Welcher Geschäftsart gehören Sie an?",
+  "comingSoon": "Demnächst erhältlich",
+  "analysisStep1": "Ich prüfe Ihre Antworten...",
+  "analysisStep2": "Analyse Ihrer Geschäftsart...",
+  "analysisStep3": "Wachstumschancen erkennen...",
+  "analysisStep4": "Personalisierte Aufgaben vorbereiten...",
+  "analysisStep5": "Fast fertig!",
+  "aiAnalyzingTitle": "KI analysiert\nIhr Unternehmen",
+  "aiAnalyzingSubtitle": "Das dauert nur einen Augenblick.",
+  "welcome": "WILLKOMMEN",
+  "helloName": "Hallo {name}",
+  "@helloName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "boostSales": "Steigern wir noch heute Ihren Umsatz!",
+  "dailyGoalsProgress": "{completed} von {total} Tageszielen erreicht",
+  "@dailyGoalsProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "details": "Details",
+  "statusCompleted": "VOLLENDET",
+  "statusViewed": "ANGESEHEN",
+  "statusWontDo": "Wird nicht funktionieren",
+  "statusDontSuggest": "NICHT VORSCHLAGEN",
+  "highImpact": "HOHE WIRKUNG",
+  "medImpact": "MEDIZINISCHE AUSWIRKUNGEN",
+  "lowImpact": "GERINGE AUSWIRKUNGEN",
+  "minutesBadge": "{minutes} MIN",
+  "@minutesBadge": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "navHome": "Heim",
+  "navAnalytics": "Analysen",
+  "navBlog": "Blog",
+  "navProfile": "Profil",
+  "taskDetails": "Aufgabendetails",
+  "dailyTaskCounter": "TÄGLICHE AUFGABE {current}/{total}",
+  "@dailyTaskCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "whyItMakesMoney": "Warum es Geld einbringt",
+  "howToDoIt": "So geht's",
+  "readyMadeTemplate": "Vorgefertigte Vorlage",
+  "copied": "Kopiert",
+  "copy": "Kopie",
+  "wereHereToHelp": "Wir sind hier, um zu helfen.",
+  "needHelpTask": "Benötigen Sie Hilfe bei dieser Aufgabe? Kontaktieren Sie unser Team umgehend.",
+  "contactUs": "Kontaktieren Sie uns",
+  "done": "Erledigt",
+  "illDoIt": "Ich werde es tun.",
+  "snooze": "Später",
+  "wontDo": "Geht nicht",
+  "dontSuggest": "Nie vorschlagen",
+  "myBusiness": "Mein Unternehmen",
+  "growthLevel": "Wachstumsstufe 2",
+  "levelProgress": "Levelfortschritt",
+  "businessInfo": "GESCHÄFTSINFORMATIONEN",
+  "personalInfo": "PERSÖNLICHE DATEN",
+  "name": "Name",
+  "phone": "Telefon",
+  "instagram": "Instagram",
+  "city": "Stadt",
+  "cityHint": "z.B. Istanbul",
+  "updateInfo": "Update-Informationen",
+  "settings": "EINSTELLUNGEN",
+  "notifications": "Benachrichtigungen",
+  "subscriptionPlan": "Abonnementplan",
+  "proPlan": "Pro-Plan",
+  "aboutUs": "Über uns",
+  "aboutUsPageTitle": "Über uns",
+  "aboutUsDesc": "GrowApp ist eine KI-gestützte Plattform, die Café- und Restaurantbesitzern hilft, ihr Geschäft auszubauen.",
+  "aboutUsMission": "Unsere Mission",
+  "aboutUsMissionDesc": "Wachstumsstrategien für jeden Kleinunternehmer zugänglich machen. Wir liefern personalisierte tägliche Aufgaben mit KI, um Ihr Geschäft Schritt für Schritt zu vergrößern.",
+  "aboutUsFeatures": "Was wir bieten",
+  "aboutUsFeature1": "Personalisierte tägliche Aufgaben",
+  "aboutUsFeature2": "KI-gestützte Unternehmensberatung",
+  "aboutUsFeature3": "Fertige Marketing-Vorlagen",
+  "aboutUsFeature4": "Fortschrittsverfolgung und Analytik",
+  "aboutUsFeature5": "Aufgabenbenachrichtigungen über WhatsApp",
+  "aboutUsVersion": "Version",
+  "aboutUsTeam": "Team",
+  "aboutUsTeamDesc": "Entwickelt von einem leidenschaftlichen Team in Prag, das sich der Stärkung kleiner Unternehmen widmet.",
+  "contact": "Kontakt",
+  "contactPageTitle": "Kontakt",
+  "contactPageDesc": "Kontaktieren Sie uns bei Fragen oder Feedback.",
+  "contactEmail": "E-Mail",
+  "contactEmailValue": "info@salesgrowthsteps.com",
+  "contactPhone": "Telefon",
+  "contactPhoneValue": "+90 850 123 45 67",
+  "contactWhatsapp": "WhatsApp",
+  "contactAddress": "Adresse",
+  "contactAddressValue": "Prag, Tschechische Republik",
+  "contactWorkingHours": "Geschäftszeiten",
+  "contactWorkingHoursValue": "Mo-Fr 09:00 - 18:00",
+  "sendUsMessage": "Nachricht senden",
+  "messageSubject": "Betreff",
+  "messageSubjectHint": "Betreff Ihrer Nachricht",
+  "messageBody": "Nachricht",
+  "messageBodyHint": "Schreiben Sie Ihre Nachricht hier...",
+  "sendMessage": "Nachricht senden",
+  "messageSent": "Ihre Nachricht wurde gesendet!",
+  "messageSentDesc": "Wir werden uns so schnell wie möglich bei Ihnen melden.",
+  "deleteAccount": "Konto löschen",
+  "signOut": "Abmelden",
+  "cancel": "Stornieren",
+  "deleteAccountMessage": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und alle Ihre Daten werden endgültig gelöscht.",
+  "signOutMessage": "Möchten Sie sich wirklich abmelden? Ihr Fortschritt bei den täglichen Aufgaben wird gespeichert.",
+  "editProfile": "Profil bearbeiten",
+  "businessNameLabel": "Firmenname",
+  "businessNameHint": "Ihr Firmenname",
+  "enterBusinessNameValidation": "Bitte geben Sie den Firmennamen ein.",
+  "phoneHintFull": "+90 555 123 45 67",
+  "enterPhoneValidation": "Bitte geben Sie Ihre Telefonnummer ein.",
+  "instagramHint": "@yourbusiness",
+  "saveChanges": "Änderungen speichern",
+  "notificationSettings": "Benachrichtigungseinstellungen",
+  "dailyTaskReminders": "Tägliche Aufgabenerinnerungen",
+  "offPeakDeals": "Angebote außerhalb der Stoßzeiten",
+  "weeklyProgressReport": "Wöchentlicher Fortschrittsbericht",
+  "newFeaturesUpdates": "Neue Funktionen und Updates",
+  "notificationWarning": "Das Deaktivieren von Benachrichtigungen könnte dazu führen, dass Sie Wachstumschancen und Verkaufstipps verpassen.",
+  "blog": "Blog",
+  "general": "Allgemein",
+  "categoryInstagram": "Instagram",
+  "categoryWhatsapp": "WhatsApp",
+  "campaignLabel": "KAMPAGNE",
+  "instagramLabel": "INSTAGRAM",
+  "whatsappLabel": "WhatsApp",
+  "share": "AKTIE",
+  "blogDetail": "Blog-Details",
+  "popular": "BELIEBT",
+  "blogFooterText": "Denken Sie daran: Soziale Medien sind nicht nur eine Plattform, sondern ein Dialog. Wenn Sie jede Frage zeitnah beantworten und Kommentare im Blick behalten, hilft Ihnen der Algorithmus, mehr Menschen auf Ihre Beiträge aufmerksam zu machen. Professionelle, vorgefertigte Vorlagen können Ihnen helfen, Ihre Verkaufszahlen zu steigern.",
+  "copyTemplate": "Vorlage kopieren",
+  "like": "Wie",
+  "shareButton": "Aktie",
+  "painPointContinue": "WEITERMACHEN",
+  "verifyYourEmail": "E-Mail bestätigen",
+  "verificationSent": "Wir haben einen Bestätigungslink gesendet an",
+  "checkInbox": "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink, um fortzufahren.",
+  "openEmailApp": "E-Mail-App öffnen",
+  "resendEmail": "Erneut senden",
+  "iVerified": "Ich habe bestätigt",
+  "emailNotVerified": "E-Mail noch nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang.",
+  "verificationResent": "Bestätigungs-E-Mail erneut gesendet!",
+  "checkSpamFolder": "Vergiss nicht, deinen Spam-Ordner zu prüfen!",
+  "accountDeactivated": "Dieses Konto wurde deaktiviert. Bitte kontaktieren Sie den Support.",
+  "userNotFound": "Kein Konto mit dieser E-Mail gefunden.",
+  "wrongPassword": "E-Mail oder Passwort falsch.",
+  "tooManyRequests": "Zu viele Versuche. Bitte warten Sie einen Moment.",
+  "loginError": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "emailAlreadyInUse": "Diese E-Mail ist bereits registriert.",
+  "analyticsTitle": "Analysen",
+  "overview": "ÜBERBLICK",
+  "tasksCompleted": "Aufgaben\nErledigt",
+  "tasksViewed": "Aufgaben\nAngesehen",
+  "tasksSkipped": "Aufgaben\nÜbersprungen",
+  "completionRate": "Abschlussrate",
+  "tasksByStatus": "AUFGABEN NACH STATUS",
+  "completed": "Erledigt",
+  "viewed": "Angesehen",
+  "skipped": "Übersprungen",
+  "dismissed": "Abgelehnt",
+  "pending": "Ausstehend",
+  "noTasksYet": "Noch keine Aufgaben",
+  "noTasksYetSubtitle": "Erledigen Sie Aufgaben vom Dashboard, um Ihre Analysen hier zu sehen.",
+  "currentStreak": "AKTUELLE SERIE",
+  "streakDays": "{count} Tage",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayPlus": "+{count} heute",
+  "@todayPlus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyPerformance": "Wochenleistung",
+  "thisWeek": "Diese Woche",
+  "completedTasksCount": "Erledigte Aufgaben",
+  "vsLastWeek": "+{percent}% ggü. letzter Woche",
+  "@vsLastWeek": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "vsLastWeekNeg": "{percent}% ggü. letzter Woche",
+  "@vsLastWeekNeg": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryDistribution": "Kategorieverteilung",
+  "catAcquisition": "Kundengewinnung",
+  "catConversion": "Konversion",
+  "catRetention": "Kundenbindung",
+  "catOperations": "Betrieb",
+  "catB2bSales": "B2B-Vertrieb",
+  "catAnalytics": "Analysen",
+  "catStaffManagement": "Personalmanagement",
+  "catSocialProof": "Soziale Bestätigung",
+  "catProfitability": "Rentabilität",
+  "catSalesPower": "Verkaufskraft",
+  "catExperience": "Erlebnis",
+  "catLocal": "Lokales Marketing",
+  "catUpsell": "Upselling",
+  "catOther": "Sonstiges",
+  "successAnalytics": "Erfolgsanalysen",
+  "myBusinesses": "Meine Unternehmen",
+  "addBusiness": "Unternehmen hinzufügen",
+  "switchBusiness": "Unternehmen wechseln",
+  "currentBusiness": "AKTUELL",
+  "upgradeToPremium": "Auf Premium upgraden",
+  "premiumRequired": "Premium erforderlich",
+  "premiumRequiredMessage": "Upgraden Sie auf Premium, um mehrere Unternehmen hinzuzufügen und erweiterte Funktionen freizuschalten.",
+  "upgrade": "Upgraden",
+  "businessLimitReached": "Sie haben die maximale Anzahl an Unternehmen für Ihren Plan erreicht.",
+  "subscription": "Abonnement",
+  "currentPlan": "Aktueller Plan",
+  "freePlan": "Kostenlos",
+  "premiumPlan": "Premium",
+  "freePlanPrice": "Kostenlos",
+  "premiumPlanPrice": "99€/Mo",
+  "freePlanDesc": "Perfekt für den Einstieg mit einem Unternehmen.",
+  "premiumPlanDesc": "Erweiterte Funktionen freischalten und mehrere Unternehmen verwalten.",
+  "featureDailyTasks": "Tägliche Wachstumsaufgaben",
+  "featureBlog": "Blog & Vorlagen",
+  "featureAnalytics": "Erweiterte Analysen",
+  "featureAiInsights": "KI-gestützte Einblicke",
+  "featureMultiBusiness": "Bis zu 5 Unternehmen",
+  "featureMultiMember": "Bis zu 3 Teammitglieder",
+  "upgradeNow": "Jetzt upgraden",
+  "downgrade": "Auf Kostenlos herabstufen",
+  "yourCurrentPlan": "Ihr aktueller Plan",
+  "verificationCodeSent": "Wir haben einen Bestätigungscode gesendet an",
+  "verifyCode": "Code bestätigen",
+  "resendCode": "Erneut senden",
+  "changeEmail": "Ändern",
+  "invalidCode": "Ungültiger oder abgelaufener Code. Bitte versuchen Sie es erneut.",
+  "markAllRead": "Alle als gelesen markieren",
+  "noNotifications": "Noch keine Benachrichtigungen",
+  "noNotificationsDesc": "Wenn Sie Aufgabenzuweisungen und Erinnerungen erhalten, werden sie hier angezeigt.",
+  "notifTaskAssignedTitle": "Neue Aufgaben zugewiesen!",
+  "notifTaskAssignedBody": "Sie haben heute {count} neue Aufgaben. Lassen Sie Ihr Geschäft wachsen!",
+  "@notifTaskAssignedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifTaskReminderTitle": "Vergessen Sie Ihre Aufgaben nicht!",
+  "notifTaskReminderBody": "Sie haben heute noch {count} unerledigte Aufgaben. Erledigen Sie sie vor Tagesende!",
+  "@notifTaskReminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifDailySummaryTitle": "Tageszusammenfassung",
+  "notifDailySummaryBody": "Sie haben heute {completed} von {total} Aufgaben erledigt. Weiter so!",
+  "justNow": "jetzt",
+  "proPlanPrice": "€19,99/Monat",
+  "proPlanDesc": "Vollständiger Zugang zu allen Tools, die Ihr Unternehmen wachsen lassen.",
+  "featureFreeAnalysis": "360°-Unternehmensanalyse in 7 Dimensionen (Q1–Q7)",
+  "featureFreeTopTasks": "Top 30 strategische Aufgaben für Sichtbarkeit & Reputation",
+  "featureFreeBasicDashboard": "Basis-Dashboard",
+  "featureFreeWhatsApp": "App + WhatsApp (keine Benachrichtigungen)",
+  "featureFreeAiMessages": "Trainiertes KI-Modell — 5 Nachrichten/Tag",
+  "featureProAnalysis": "360° Interaktive Unternehmensanalyse (Q1–Q7)",
+  "featureProFullLibrary": "Vollständige Aufgabenbibliothek — Umsatz, Gewinn, Treue & mehr",
+  "featureProDashboard": "Visuelles Dashboard & Live-Analysen",
+  "featureProWhatsApp": "WhatsApp-Wachstumscoach — tägliche Erinnerungen & Wochenberichte",
+  "featureProUpdatedContent": "Ständig aktualisierte Inhalte — neue Taktiken jeden Monat",
+  "featureProIdTracking": "ID-basiertes Tracking — sehen Sie den Gewinn jedes Schritts",
+  "errorNetwork": "Keine Internetverbindung. Bitte überprüfen Sie Ihr Netzwerk.",
+  "errorRateLimit": "Zu viele Anfragen. Bitte warten Sie einen Moment.",
+  "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+  "monthlyPerformance": "Monatliche Leistung",
+  "yearlyPerformance": "Jährliche Leistung",
+  "thisMonth": "Diesen Monat",
+  "thisYear": "Dieses Jahr",
+  "restorePurchases": "Käufe wiederherstellen",
+  "purchaseSuccess": "Willkommen bei Pro! Genießen Sie Ihre neuen Funktionen.",
+  "restoreSuccess": "Käufe erfolgreich wiederhergestellt.",
+  "restoreNoPurchases": "Keine früheren Käufe gefunden.",
+  "buyNow": "Upgraden",
+  "pointsEarned": "+{points} Punkte!",
+  "@pointsEarned": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "taskCompletedMsg": "Super! Du hast die Aufgabe erledigt. Vergiss nicht, die Ergebnisse zu verfolgen.",
+  "ok": "OK",
+  "resetLinkSent": "Ein Link zum Zurücksetzen des Passworts wurde an Ihre E-Mail gesendet. Bitte überprüfen Sie Ihren Posteingang.",
+  "privacyPolicyTitle": "Datenschutzrichtlinie",
+  "privacyPolicyUpdated": "Zuletzt aktualisiert: 8. April 2026",
+  "privacySection1Title": "1. Erklärung zur Datenverantwortung",
+  "privacySection1Body": "Die Daten, die Sie bei der Nutzung meiner Dienste teilen, werden gemäß der DSGVO und internationalen Datenschutzstandards verarbeitet. Die Sicherheit Ihrer Daten wird durch technische und administrative Maßnahmen auf höchstem Niveau gewährleistet.",
+  "privacySection2Title": "2. Kategorien der erhobenen Daten",
+  "privacySection2Body": "• Identitäts- und Kontaktdaten: Ihr Name, Nachname und Ihre E-Mail-Adresse bei der Registrierung.\n\n• Abonnement- und Finanzdaten: Transaktionshistorie und Zahlungsverifizierungen. Diese Prozesse werden durch die RevenueCat-Infrastruktur gesichert.\n\n• Technische Diagnosedaten: Absturzprotokolle und In-App-Statistiken zur Fehlererkennung und Verbesserung der Nutzererfahrung.",
+  "privacySection3Title": "3. Zwecke der Datenverarbeitung",
+  "privacySection3Body": "• Dienstleistungserbringung: Verwaltung Ihres personalisierten Benutzerkontos und Aktivierung von App-Funktionen.\n\n• Zahlungs- und Rechteverwaltung: Überprüfung von Abonnementprozessen und Verhinderung von Dienstunterbrechungen.\n\n• Sicherheit & Compliance: Schutz der Plattform vor Missbrauch und Einhaltung gesetzlicher Vorschriften.",
+  "privacySection4Title": "4. Datenweitergabe an Dritte",
+  "privacySection4Body": "Ich verkaufe oder vermarkte Ihre persönlichen Daten niemals zu kommerziellen Zwecken. Ihre Daten werden nur mit folgenden vertrauenswürdigen Dienstleistern geteilt:\n\n• Google Cloud & Firebase: Für die sichere Speicherung Ihrer Daten und Authentifizierung.\n\n• RevenueCat: Für die technische Infrastruktur des Abonnementsystems und digitale Zahlungsverifizierungen.",
+  "privacySection5Title": "5. Datensicherheit & Aufbewahrung",
+  "privacySection5Body": "Ihre Daten werden während der Übertragung durch SSL/TLS-Verschlüsselung geschützt. Ihre Daten werden sicher in meinen Cloud-Datenbanken gespeichert, solange Ihr Konto aktiv ist. Wenn Sie Ihr Konto löschen, werden alle Ihre persönlichen Daten dauerhaft vernichtet.",
+  "privacySection6Title": "6. Nutzerrechte & Datenlöschung",
+  "privacySection6Body": "Sie haben folgende Rechte bezüglich Ihrer Daten:\n\n• Recht zu erfahren, ob Ihre Daten verarbeitet werden\n• Recht auf Berichtigung falscher oder unvollständiger Daten\n• Recht auf Löschung oder Anonymisierung Ihrer Daten\n\nSie können Ihr Konto und alle zugehörigen Daten dauerhaft im Einstellungsbereich der App löschen.",
+  "privacySection7Title": "7. Kontakt",
+  "privacySection7Body": "Für weitere Informationen zu dieser Datenschutzrichtlinie oder zur Ausübung Ihrer Rechte:\n\n• E-Mail: info@salesgrowthsteps.com\n• In-App-Support: Einstellungen → Support",
+  "premiumContent": "Premium-Inhalt",
+  "premiumContentDesc": "Diese Funktion ist nur für Premium-Mitglieder. Tritt bei uns bei, um deine Analysen zu vertiefen.",
+  "premiumBuyNow": "Premium kaufen"
+}
