@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "98829966016",
+    "project_id": "growappp-3b2dd",
+    "storage_bucket": "growappp-3b2dd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98829966016:android:8350816f074a6dd0a9eb25",
+        "android_client_info": {
+          "package_name": "com.growapp.growapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr9zZ-e3ClqhVaKbi_D6bT-pOueIdXCzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98829966016:android:946a09bf19067bfea9eb25",
+        "android_client_info": {
+          "package_name": "com.salesgrowthsteps.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr9zZ-e3ClqhVaKbi_D6bT-pOueIdXCzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

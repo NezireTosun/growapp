@@ -268,10 +268,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get illDoIt => 'Ich werde es tun.';
 
   @override
-  String get snooze => 'Später';
-
-  @override
-  String get wontDo => 'Geht nicht';
+  String get snooze => 'Mache ich später';
 
   @override
   String get dontSuggest => 'Nie vorschlagen';
@@ -921,6 +918,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get purchaseSuccess =>
       'Willkommen bei Pro! Genießen Sie Ihre neuen Funktionen.';
+
+  @override
+  String get purchaseCancelled => 'Kauf abgebrochen.';
 
   @override
   String get restoreSuccess => 'Käufe erfolgreich wiederhergestellt.';

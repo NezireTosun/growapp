@@ -264,10 +264,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get illDoIt => 'Udělám to';
 
   @override
-  String get snooze => 'Později';
-
-  @override
-  String get wontDo => 'Neudělám';
+  String get snooze => 'Udělám to později';
 
   @override
   String get dontSuggest => 'Nikdy nenavrhovat';
@@ -907,6 +904,9 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get purchaseSuccess => 'Vítejte v Pro! Užívejte si nové funkce.';
+
+  @override
+  String get purchaseCancelled => 'Nákup zrušen.';
 
   @override
   String get restoreSuccess => 'Nákupy úspěšně obnoveny.';

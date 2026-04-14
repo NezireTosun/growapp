@@ -64,14 +64,7 @@ class TaskDetailPage extends StatelessWidget {
     if (context.mounted) Navigator.pop(context);
   }
 
-  // ─── 3. DISMISS — direkt kaydet ───
-  void _onDismiss(BuildContext context) async {
-    final provider = context.read<DashboardProvider>();
-    await provider.markDismissed(task.id, reason: DismissReason.time);
-    if (context.mounted) Navigator.pop(context);
-  }
-
-  // ─── 4. BLACKLIST — direkt kaydet ───
+  // ─── 3. BLACKLIST — direkt kaydet ───
   void _onBlacklist(BuildContext context) async {
     final provider = context.read<DashboardProvider>();
     await provider.markBlacklisted(task.id);
@@ -135,18 +128,7 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   if (task.whyImportant != null) ...[
-                    _SectionCard(
-                      icon: Icons.bolt_rounded,
-                      title: l.whyItMakesMoney,
-                      child: Text(
-                        task.whyImportant!,
-                        style: AppTypography.body.copyWith(
-                          fontSize: 15,
-                          height: 1.65,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
+                    _WhyCard(text: task.whyImportant!, label: l.whyItMakesMoney),
                     const SizedBox(height: 20),
                   ],
                   if (task.steps.isNotEmpty) ...[
@@ -179,7 +161,6 @@ class TaskDetailPage extends StatelessWidget {
           _BottomActions(
             onDone: () => _onDone(context),
             onSnooze: () => _onSnooze(context),
-            onDismiss: () => _onDismiss(context),
             onBlacklist: () => _onBlacklist(context),
           ),
         ],
@@ -188,55 +169,62 @@ class TaskDetailPage extends StatelessWidget {
   }
 }
 
-// ─── SECTION CARD ───
+// ─── WHY CARD ───
 
-class _SectionCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Widget child;
+class _WhyCard extends StatelessWidget {
+  final String text;
+  final String label;
 
-  const _SectionCard({required this.icon, required this.title, required this.child});
+  const _WhyCard({required this.text, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(icon, size: 22, color: Colors.white),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.cardTitle.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                    height: 1.3,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.bolt_rounded, size: 12, color: Colors.white),
+                    const SizedBox(width: 4),
+                    Text(
+                      label,
+                      style: AppTypography.badge.copyWith(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          child,
+          const SizedBox(height: 12),
+          Text(
+            text,
+            style: AppTypography.body.copyWith(
+              fontSize: 14,
+              height: 1.65,
+              color: AppColors.textSecondary,
+            ),
+          ),
         ],
       ),
     );
@@ -390,13 +378,11 @@ class _SupportCard extends StatelessWidget {
 class _BottomActions extends StatelessWidget {
   final VoidCallback onDone;
   final VoidCallback onSnooze;
-  final VoidCallback onDismiss;
   final VoidCallback onBlacklist;
 
   const _BottomActions({
     required this.onDone,
     required this.onSnooze,
-    required this.onDismiss,
     required this.onBlacklist,
   });
 
@@ -448,23 +434,7 @@ class _BottomActions extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          // 3. Yapmayacağım (Dismiss)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton(
-              onPressed: onDismiss,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textSecondary,
-                side: const BorderSide(color: AppColors.border),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                textStyle: AppTypography.button.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
-              ),
-              child: Text(l.wontDo),
-            ),
-          ),
-          const SizedBox(height: 8),
-          // 4. Bir Daha Önerme (Blacklist)
+          // 3. Bir Daha Önerme (Blacklist)
           SizedBox(
             width: double.infinity,
             height: 48,

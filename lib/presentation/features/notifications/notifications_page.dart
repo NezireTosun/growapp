@@ -56,7 +56,7 @@ class NotificationsPage extends StatelessWidget {
         ],
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const _NotificationSkeleton()
           : provider.notifications.isEmpty
               ? _buildEmpty(l)
               : _buildList(provider),
@@ -71,15 +71,15 @@ class NotificationsPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.primary.withValues(alpha: 0.08),
               ),
               child: const Icon(
                 Icons.notifications_off_outlined,
-                size: 40,
+                size: 36,
                 color: AppColors.textMuted,
               ),
             ),
@@ -222,5 +222,86 @@ class _NotificationTile extends StatelessWidget {
     if (diff.inHours < 24) return '${diff.inHours}h';
     if (diff.inDays < 7) return '${diff.inDays}d';
     return '${date.day}.${date.month}.${date.year}';
+  }
+}
+
+class _NotificationSkeleton extends StatefulWidget {
+  const _NotificationSkeleton();
+
+  @override
+  State<_NotificationSkeleton> createState() => _NotificationSkeletonState();
+}
+
+class _NotificationSkeletonState extends State<_NotificationSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _skeletonBox({double width = double.infinity, required double height, double radius = 8}) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (_, child) => Opacity(
+        opacity: _animation.value,
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: AppColors.border,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: 5,
+      separatorBuilder: (_, i) => const Divider(height: 1, color: AppColors.divider, indent: 72),
+      itemBuilder: (_, i) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _skeletonBox(width: 44, height: 44, radius: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _skeletonBox(width: 140, height: 13),
+                  const SizedBox(height: 8),
+                  _skeletonBox(height: 11),
+                  const SizedBox(height: 4),
+                  _skeletonBox(width: 180, height: 11),
+                  const SizedBox(height: 8),
+                  _skeletonBox(width: 60, height: 10),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

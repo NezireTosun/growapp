@@ -509,9 +509,10 @@ class _TaskCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+        child: IntrinsicHeight(
+          child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           // Sol accent çizgisi
           Container(
             width: 4,
@@ -582,6 +583,7 @@ class _TaskCard extends StatelessWidget {
           ),  // Expanded
         ],
         ),  // Row
+        ),  // IntrinsicHeight
       ),  // ClipRRect
     );
   }

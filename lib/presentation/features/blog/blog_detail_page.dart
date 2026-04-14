@@ -98,6 +98,7 @@ class BlogDetailPage extends StatelessWidget {
                   // Başlık — task detail ile aynı hero stili
                   Text(
                     post.title,
+                    textAlign: TextAlign.justify,
                     style: AppTypography.hero.copyWith(
                       color: AppColors.textPrimary,
                       fontSize: 22,
@@ -124,6 +125,7 @@ class BlogDetailPage extends StatelessWidget {
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: Text(
                                   paragraph.trim(),
+                                  textAlign: TextAlign.justify,
                                   style: AppTypography.body.copyWith(
                                     fontSize: 13,
                                     height: 1.7,
@@ -139,6 +141,7 @@ class BlogDetailPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Text(
                       l.howToDoIt,
+                      textAlign: TextAlign.justify,
                       style: AppTypography.cardTitle.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -156,6 +159,7 @@ class BlogDetailPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Text(
                       l.readyMadeTemplate,
+                      textAlign: TextAlign.justify,
                       style: AppTypography.cardTitle.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -362,6 +366,7 @@ class _StepCard extends StatelessWidget {
           Expanded(
             child: Text(
               text,
+              textAlign: TextAlign.justify,
               style: AppTypography.body.copyWith(
                 fontSize: 13,
                 height: 1.55,
@@ -398,6 +403,7 @@ class _TemplateCard extends StatelessWidget {
         children: [
           Text(
             template,
+            textAlign: TextAlign.justify,
             style: AppTypography.body.copyWith(
               fontSize: 13,
               height: 1.6,

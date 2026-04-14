@@ -266,10 +266,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get illDoIt => 'Yapacağım';
 
   @override
-  String get snooze => 'Daha Sonra';
-
-  @override
-  String get wontDo => 'Yapmayacağım';
+  String get snooze => 'Daha Sonra Yapacağım';
 
   @override
   String get dontSuggest => 'Bir Daha Önerme';
@@ -911,6 +908,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get purchaseSuccess =>
       'Pro\'ya hoş geldiniz! Yeni özelliklerinizin keyfini çıkarın.';
+
+  @override
+  String get purchaseCancelled => 'Satın alma iptal edildi.';
 
   @override
   String get restoreSuccess => 'Satın almalar başarıyla geri yüklendi.';

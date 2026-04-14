@@ -287,57 +287,6 @@ class _BlogCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Builder(builder: (ctx) {
-                        final blogProvider = ctx.watch<BlogProvider>();
-                        final liked = blogProvider.isLiked(post.id);
-                        return GestureDetector(
-                          onTap: () => blogProvider.toggleLike(post.id),
-                          child: Row(
-                            children: [
-                              Icon(
-                                liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                size: 18,
-                                color: liked ? AppColors.danger : AppColors.textMuted,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                l.like,
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 12,
-                                  color: liked ? AppColors.danger : AppColors.textMuted,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => SharePlus.instance.share(
-                          ShareParams(text: '${post.title}\n\n${post.summary}'),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.share_outlined, size: 16, color: AppColors.textMuted),
-                            const SizedBox(width: 4),
-                            Text(
-                              l.share,
-                              style: AppTypography.caption.copyWith(
-                                fontSize: 12,
-                                color: AppColors.textMuted,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

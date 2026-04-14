@@ -1,0 +1,1930 @@
+{
+  "name": "SGS APP copy",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "6aa8bc68-cc5a-41e9-aea3-d911fc0d5c16",
+      "name": "WhatsApp Incoming",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        400
+      ],
+      "webhookId": "d1ea4ef9-c6a8-4d3e-99c7-b900e66d6113",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "kQNsMISiELLDjjpj",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst messages = input.messages;\n\nif (!messages || messages.length === 0) {\n  return [{ json: { ignore: true } }];\n}\n\nconst message = messages[0];\n\nlet messageText = '';\nif (message.type === 'interactive') {\n  const interactive = message.interactive;\n  if (interactive.type === 'button_reply') {\n    messageText = interactive.button_reply.id;\n  } else if (interactive.type === 'list_reply') {\n    messageText = interactive.list_reply.id;\n  }\n} else if (message.type === 'text') {\n  messageText = message.text?.body?.trim() || '';\n}\n\n// Detect language from first message text\nlet detectedLang = 'tr';\nconst lowerText = messageText.toLowerCase();\nconst langPatterns = {\n  en: ['hello', 'hi', 'hey', 'good morning', 'good evening', 'how are you', 'start'],\n  de: ['hallo', 'guten tag', 'guten morgen', 'guten abend', 'wie geht'],\n  es: ['hola', 'buenos dias', 'buenas tardes', 'buenas noches', 'como estas'],\n  cs: ['ahoj', 'dobry den', 'dobry', 'nazdar', 'cau', 'dobrý']\n};\nfor (const [lang, patterns] of Object.entries(langPatterns)) {\n  if (patterns.some(p => lowerText.includes(p))) {\n    detectedLang = lang;\n    break;\n  }\n}\n\nreturn [{\n  json: {\n    phone: message.from,\n    messageText,\n    messageType: message.type,\n    timestamp: message.timestamp,\n    phoneNumberId: '967227463146831',\n    detectedLang\n  }\n}];"
+      },
+      "id": "2659904d-7b8f-4112-ad29-c5e5648b7381",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ignore }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b124cc2-e2e9-4c24-9e4d-01f52eedaad9",
+      "name": "Filter Ignore",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/whatsapp_users/{{ $json.phone }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "7aae6e93-8df1-4106-a896-7d6ae54f09fc",
+      "name": "Get User State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst phone = $('Extract Message').first().json.phone;\nconst messageText = $('Extract Message').first().json.messageText;\nconst phoneNumberId = $('Extract Message').first().json.phoneNumberId;\nconst detectedLang = $('Extract Message').first().json.detectedLang || 'tr';\n\nlet state = 'new';\nlet userData = {};\nlet lang = detectedLang;\n\nif (input.statusCode === 200 && input.data?.fields) {\n  const fields = input.data.fields;\n  state = fields.state?.stringValue || 'new';\n  lang = fields.lang?.stringValue || detectedLang;\n  userData = {\n    firebase_uid: fields.firebase_uid?.stringValue || '',\n    firebase_token: fields.firebase_token?.stringValue || '',\n    refresh_token: fields.refresh_token?.stringValue || '',\n    token_expires_at: fields.token_expires_at?.timestampValue || '',\n    email: fields.email?.stringValue || '',\n    business_id: fields.business_id?.stringValue || '',\n    industry: fields.industry?.stringValue || '',\n    business_name: fields.business_name?.stringValue || '',\n    onboarding_step: fields.onboarding_step?.stringValue || '',\n    current_tasks: [],\n    answers: {},\n    pending_task_id: fields.pending_task_id?.stringValue || '',\n    pending_task_name: fields.pending_task_name?.stringValue || '',\n    chat_history: []\n  };\n  if (fields.answers?.mapValue?.fields) {\n    const ans = fields.answers.mapValue.fields;\n    for (const [k, v] of Object.entries(ans)) {\n      userData.answers[k] = parseInt(v.integerValue || v.stringValue || '5');\n    }\n  }\n  if (fields.current_tasks?.arrayValue?.values) {\n    userData.current_tasks = fields.current_tasks.arrayValue.values.map(v => {\n      const f = v.mapValue?.fields || {};\n      return {\n        taskId: f.taskId?.stringValue || '',\n        taskName: f.taskName?.stringValue || '',\n        category: f.category?.stringValue || '',\n        subCategory: f.subCategory?.stringValue || '',\n        score: parseFloat(f.score?.doubleValue || f.score?.stringValue || '0'),\n        impact_score: parseFloat(f.impact_score?.doubleValue || f.impact_score?.stringValue || '0'),\n        why_text: f.why_text?.stringValue || '',\n        how_steps: f.how_steps?.stringValue || '',\n        template_text: f.template_text?.stringValue || '',\n        time_estimate: f.time_estimate?.stringValue || ''\n      };\n    });\n  }\n  // Parse chat history\n  if (fields.chat_history?.arrayValue?.values) {\n    userData.chat_history = fields.chat_history.arrayValue.values.map(v => {\n      const f = v.mapValue?.fields || {};\n      return {\n        role: f.role?.stringValue || '',\n        content: f.content?.stringValue || ''\n      };\n    });\n  }\n}\n\nreturn [{ json: { phone, messageText, phoneNumberId, state, lang, ...userData } }];"
+      },
+      "id": "a2eab0be-5e3a-4660-8a71-ff6e9982977a",
+      "name": "Parse State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst lang = data.lang || 'tr';\n\nconst translations = {\n  tr: {\n    welcome: 'Merhaba! GrowApp\\'a hosgeldiniz! \\u{1F680}\\n\\nIsletmenizi buyutmek icin size her gun kisisellestirilmis gorevler onerecegiz.\\n\\nBaslamak icin e-posta adresinizi girin:',\n    invalidEmail: '\\u274C Gecersiz e-posta. Lutfen gecerli bir e-posta girin:',\n    emailReceived: '\\u2705 E-posta alindi!\\n\\nSimdi bir sifre belirleyin (en az 6 karakter):',\n    passwordTooShort: '\\u274C Sifre en az 6 karakter olmali. Tekrar deneyin:',\n    verificationSent: (email) => `\\u{1F4E7} E-postaniza 6 haneli dogrulama kodu gonderdik (${email}).\\n\\nKodu girin:`,\n    enterCode: '6 haneli kodu girin:',\n    wrongCode: '\\u274C Kod yanlis! Tekrar deneyin:',\n    codeExpired: '\\u23F0 Kodun suresi dolmus. \"yenile\" yazarak yeni kod isteyin:',\n    emailVerified: '\\u2705 E-posta dogrulandi!\\n\\nSimdi isletmenizin adini girin:',\n    businessNameTooShort: 'Isletme adi en az 2 karakter olmali:',\n    businessNameConfirm: (name) => `Harika, \"${name}\"! \\u{1F3EA}\\n\\nIsletme turunuzu secin:`,\n    cafe: '\\u2615 Kafe',\n    restaurant: '\\u{1F37D}\\uFE0F Restoran',\n    selectCafeOrRestaurant: '\"Kafe\" veya \"Restoran\" secin:',\n    surveyIntro: '\\u{1F4CA} Mukemmel! Simdi isletmenizi daha iyi anlamak icin 7 soru soracagiz.',\n    questions: [\n      '',\n      'Isletmenizin online gorunurlugu nasil?',\n      'Sosyal medya hesaplariniz aktif mi?',\n      'Musteri geri bildirimi topluyor musunuz?',\n      'Musterilerinizi elde tutma oraniniz nasil?',\n      'Calisanlarinizin motivasyonu nasil?',\n      'Upsell / cross-sell yapiyor musunuz?',\n      'Isletme analitigini takip ediyor musunuz?'\n    ],\n    answerPrompt: '1, 2 veya 3 ile cevaplayin:',\n    veryGood: 'Cok iyi',\n    average: 'Ortalama',\n    low: 'Dusuk',\n    helpText: '*GrowApp Komutlari:*\\n\\n\\u{1F4CB} \"gorev\" \\u2014 Gunun gorevlerini gor\\n\\u2753 \"yardim\" \\u2014 Bu mesaj\\n\\u{1F4AC} Herhangi bir soru sor \\u2014 AI danismandan cevap al\\n\\nHer sabah 09:00\\'da otomatik gorev alirsiniz.',\n    taskCommands: ['gorev', 'gorevler', 'tasks', 'task', 'g', 'menu'],\n    helpCommands: ['yardim', 'help', 'h'],\n    todaysTasks: '\\u{1F4CB} *Bugunun Gorevleri:*\\n\\n',\n    taskDetailPrompt: '\\u{1F446} Detay icin numara girin (1, 2, 3):',\n    enterNumber: '1, 2 veya 3 girin:',\n    done: '\\u2705 Yaptim',\n    snooze: '\\u23F0 Ertele',\n    dismiss: '\\u274C Istemiyorum',\n    blacklist: '\\u{1F6AB} Bir daha onerme',\n    taskDone: (name) => `\\u{1F389} \"${name}\" tamamlandi!`,\n    taskSnoozed: (name) => `\\u23F0 \"${name}\" ertelendi. Yarin tekrar onerilecek.`,\n    taskBlacklisted: (name) => `\\u{1F6AB} \"${name}\" bir daha onerilmeyecek.`,\n    dismissReasonPrompt: '\\u{1F4DD} Neden istemiyorsunuz? Kisa bir aciklama yazin:',\n    taskDismissed: (name) => `\\u{1F4DD} \"${name}\" reddedildi. Geri bildiriminiz kaydedildi.\\n\\n\"gorev\" yazarak diger gorevleri gorebilirsiniz.`,\n    writeReasonPrompt: 'Lutfen bir neden yazin:',\n    noTasks: 'Su an icin yeni gorev onerisi yok. Yarin tekrar kontrol edin! \\u{1F4C5}',\n    goodMorning: 'Gunaydin! Bugunun gorevleri:\\n\\n',\n    impactHigh: 'Yuksek',\n    impactMedium: 'Orta',\n    impactLow: 'Dusuk',\n    analysisComplete: '\\u{1F389} Analiziniz tamamlandi!',\n    aiAdvice: '\\u{1F916} *AI Tavsiyesi:*',\n    errorRetry: 'Bir hata olustu, tekrar deneyin.',\n    actionPrompt: 'Secin:\\n1. \\u2705 Yaptim\\n2. \\u23F0 Ertele\\n3. \\u274C Istemiyorum\\n4. \\u{1F6AB} Bir daha onerme',\n    verificationSubject: 'GrowApp - Dogrulama Kodu',\n    verificationEmailText: 'E-posta dogrulama kodunuz:',\n    verificationExpiry: 'Bu kod 10 dakika gecerlidir.',\n    qLabels: { q1: 'Online gorunurluk', q2: 'Sosyal medya', q3: 'Musteri geri bildirimi', q4: 'Musteri tutma', q5: 'Calisan motivasyonu', q6: 'Upsell', q7: 'Analitik' },\n    geminiSystemPrompt: 'Sen GrowApp isletme danismani botusun. Kafe ve restoran sahiplerine isletmelerini buyutmeleri icin tavsiyeler veriyorsun. Turkce, kisa, motive edici ve pratik cevaplar ver. Emoji kullan. 150 kelimeyi gecme.',\n    geminiLang: 'Turkce',\n    industryLabel: (ind) => ind === 'cafe' ? 'Kafe' : 'Restoran',\n    whyLabel: 'Neden onemli',\n    howLabel: 'Nasil yapilir',\n    templateLabel: 'Sablon',\n    timeLabel: 'Tahmini sure',\n    pointsLabel: 'Puan',\n    taskCompletePoints: (name, pts) => `\\u{1F389} \"${name}\" tamamlandi! +${pts} puan kazandiniz!`\n  },\n  en: {\n    welcome: 'Hello! Welcome to GrowApp! \\u{1F680}\\n\\nWe will suggest personalized daily tasks to help grow your business.\\n\\nEnter your email address to get started:',\n    invalidEmail: '\\u274C Invalid email. Please enter a valid email:',\n    emailReceived: '\\u2705 Email received!\\n\\nNow set a password (at least 6 characters):',\n    passwordTooShort: '\\u274C Password must be at least 6 characters. Try again:',\n    verificationSent: (email) => `\\u{1F4E7} We sent a 6-digit verification code to your email (${email}).\\n\\nEnter the code:`,\n    enterCode: 'Enter the 6-digit code:',\n    wrongCode: '\\u274C Wrong code! Try again:',\n    codeExpired: '\\u23F0 Code has expired. Type \"renew\" to request a new code:',\n    emailVerified: '\\u2705 Email verified!\\n\\nNow enter your business name:',\n    businessNameTooShort: 'Business name must be at least 2 characters:',\n    businessNameConfirm: (name) => `Great, \"${name}\"! \\u{1F3EA}\\n\\nSelect your business type:`,\n    cafe: '\\u2615 Cafe',\n    restaurant: '\\u{1F37D}\\uFE0F Restaurant',\n    selectCafeOrRestaurant: 'Select \"Cafe\" or \"Restaurant\":',\n    surveyIntro: '\\u{1F4CA} Excellent! We will now ask 7 questions to better understand your business.',\n    questions: [\n      '',\n      'How is your business\\'s online visibility?',\n      'Are your social media accounts active?',\n      'Do you collect customer feedback?',\n      'How is your customer retention rate?',\n      'How is your employees\\' motivation?',\n      'Do you do upsell / cross-sell?',\n      'Do you track business analytics?'\n    ],\n    answerPrompt: 'Answer with 1, 2, or 3:',\n    veryGood: 'Very good',\n    average: 'Average',\n    low: 'Low',\n    helpText: '*GrowApp Commands:*\\n\\n\\u{1F4CB} \"task\" \\u2014 See today\\'s tasks\\n\\u2753 \"help\" \\u2014 This message\\n\\u{1F4AC} Ask any question \\u2014 Get an answer from AI advisor\\n\\nYou will receive automatic tasks at 09:00 every morning.',\n    taskCommands: ['task', 'tasks', 'gorev', 'gorevler', 'g', 'menu'],\n    helpCommands: ['help', 'yardim', 'h'],\n    todaysTasks: '\\u{1F4CB} *Today\\'s Tasks:*\\n\\n',\n    taskDetailPrompt: '\\u{1F446} Enter a number for details (1, 2, 3):',\n    enterNumber: 'Enter 1, 2, or 3:',\n    done: '\\u2705 Done',\n    snooze: '\\u23F0 Snooze',\n    dismiss: '\\u274C Don\\'t want',\n    blacklist: '\\u{1F6AB} Never suggest again',\n    taskDone: (name) => `\\u{1F389} \"${name}\" completed!`,\n    taskSnoozed: (name) => `\\u23F0 \"${name}\" snoozed. Will be suggested again tomorrow.`,\n    taskBlacklisted: (name) => `\\u{1F6AB} \"${name}\" will never be suggested again.`,\n    dismissReasonPrompt: '\\u{1F4DD} Why don\\'t you want this? Write a short explanation:',\n    taskDismissed: (name) => `\\u{1F4DD} \"${name}\" dismissed. Your feedback has been recorded.\\n\\nType \"task\" to see other tasks.`,\n    writeReasonPrompt: 'Please write a reason:',\n    noTasks: 'No new task suggestions at the moment. Check again tomorrow! \\u{1F4C5}',\n    goodMorning: 'Good morning! Today\\'s tasks:\\n\\n',\n    impactHigh: 'High',\n    impactMedium: 'Medium',\n    impactLow: 'Low',\n    analysisComplete: '\\u{1F389} Your analysis is complete!',\n    aiAdvice: '\\u{1F916} *AI Advice:*',\n    errorRetry: 'An error occurred, please try again.',\n    actionPrompt: 'Choose:\\n1. \\u2705 Done\\n2. \\u23F0 Snooze\\n3. \\u274C Don\\'t want\\n4. \\u{1F6AB} Never suggest again',\n    verificationSubject: 'GrowApp - Verification Code',\n    verificationEmailText: 'Your email verification code:',\n    verificationExpiry: 'This code is valid for 10 minutes.',\n    qLabels: { q1: 'Online visibility', q2: 'Social media', q3: 'Customer feedback', q4: 'Customer retention', q5: 'Employee motivation', q6: 'Upsell', q7: 'Analytics' },\n    geminiSystemPrompt: 'You are a GrowApp business advisor bot. You advise cafe and restaurant owners on growing their businesses. Give short, motivating and practical answers in English. Use emojis. Do not exceed 150 words.',\n    geminiLang: 'English',\n    industryLabel: (ind) => ind === 'cafe' ? 'Cafe' : 'Restaurant',\n    whyLabel: 'Why it matters',\n    howLabel: 'How to do it',\n    templateLabel: 'Template',\n    timeLabel: 'Estimated time',\n    pointsLabel: 'Points',\n    taskCompletePoints: (name, pts) => `\\u{1F389} \"${name}\" completed! +${pts} points earned!`\n  },\n  de: {\n    welcome: 'Hallo! Willkommen bei GrowApp! \\u{1F680}\\n\\nWir werden Ihnen taeglich personalisierte Aufgaben vorschlagen, um Ihr Geschaeft zu vergroessern.\\n\\nGeben Sie Ihre E-Mail-Adresse ein, um zu beginnen:',\n    invalidEmail: '\\u274C Ungueltige E-Mail. Bitte geben Sie eine gueltige E-Mail ein:',\n    emailReceived: '\\u2705 E-Mail erhalten!\\n\\nLegen Sie jetzt ein Passwort fest (mindestens 6 Zeichen):',\n    passwordTooShort: '\\u274C Das Passwort muss mindestens 6 Zeichen lang sein. Versuchen Sie es erneut:',\n    verificationSent: (email) => `\\u{1F4E7} Wir haben einen 6-stelligen Bestaetigungscode an Ihre E-Mail gesendet (${email}).\\n\\nGeben Sie den Code ein:`,\n    enterCode: 'Geben Sie den 6-stelligen Code ein:',\n    wrongCode: '\\u274C Falscher Code! Versuchen Sie es erneut:',\n    codeExpired: '\\u23F0 Der Code ist abgelaufen. Schreiben Sie \"erneuern\", um einen neuen Code anzufordern:',\n    emailVerified: '\\u2705 E-Mail bestaetigt!\\n\\nGeben Sie jetzt den Namen Ihres Unternehmens ein:',\n    businessNameTooShort: 'Der Unternehmensname muss mindestens 2 Zeichen lang sein:',\n    businessNameConfirm: (name) => `Grossartig, \"${name}\"! \\u{1F3EA}\\n\\nWaehlen Sie Ihren Unternehmenstyp:`,\n    cafe: '\\u2615 Cafe',\n    restaurant: '\\u{1F37D}\\uFE0F Restaurant',\n    selectCafeOrRestaurant: 'Waehlen Sie \"Cafe\" oder \"Restaurant\":',\n    surveyIntro: '\\u{1F4CA} Ausgezeichnet! Wir stellen Ihnen jetzt 7 Fragen, um Ihr Unternehmen besser zu verstehen.',\n    questions: [\n      '',\n      'Wie ist die Online-Sichtbarkeit Ihres Unternehmens?',\n      'Sind Ihre Social-Media-Konten aktiv?',\n      'Sammeln Sie Kundenfeedback?',\n      'Wie ist Ihre Kundenbindungsrate?',\n      'Wie ist die Motivation Ihrer Mitarbeiter?',\n      'Betreiben Sie Upselling / Cross-Selling?',\n      'Verfolgen Sie Geschaeftsanalysen?'\n    ],\n    answerPrompt: 'Antworten Sie mit 1, 2 oder 3:',\n    veryGood: 'Sehr gut',\n    average: 'Durchschnittlich',\n    low: 'Niedrig',\n    helpText: '*GrowApp Befehle:*\\n\\n\\u{1F4CB} \"aufgabe\" \\u2014 Heutige Aufgaben anzeigen\\n\\u2753 \"hilfe\" \\u2014 Diese Nachricht\\n\\u{1F4AC} Stellen Sie eine Frage \\u2014 Erhalten Sie eine Antwort vom AI-Berater\\n\\nSie erhalten jeden Morgen um 09:00 Uhr automatische Aufgaben.',\n    taskCommands: ['aufgabe', 'aufgaben', 'tasks', 'task', 'gorev', 'g', 'menu'],\n    helpCommands: ['hilfe', 'help', 'yardim', 'h'],\n    todaysTasks: '\\u{1F4CB} *Heutige Aufgaben:*\\n\\n',\n    taskDetailPrompt: '\\u{1F446} Geben Sie eine Nummer fuer Details ein (1, 2, 3):',\n    enterNumber: 'Geben Sie 1, 2 oder 3 ein:',\n    done: '\\u2705 Erledigt',\n    snooze: '\\u23F0 Verschieben',\n    dismiss: '\\u274C Nicht gewuenscht',\n    blacklist: '\\u{1F6AB} Nie wieder vorschlagen',\n    taskDone: (name) => `\\u{1F389} \"${name}\" abgeschlossen!`,\n    taskSnoozed: (name) => `\\u23F0 \"${name}\" verschoben. Wird morgen erneut vorgeschlagen.`,\n    taskBlacklisted: (name) => `\\u{1F6AB} \"${name}\" wird nie wieder vorgeschlagen.`,\n    dismissReasonPrompt: '\\u{1F4DD} Warum moechten Sie das nicht? Schreiben Sie eine kurze Erklaerung:',\n    taskDismissed: (name) => `\\u{1F4DD} \"${name}\" abgelehnt. Ihr Feedback wurde gespeichert.\\n\\nSchreiben Sie \"aufgabe\", um andere Aufgaben zu sehen.`,\n    writeReasonPrompt: 'Bitte schreiben Sie einen Grund:',\n    noTasks: 'Derzeit keine neuen Aufgabenvorschlaege. Schauen Sie morgen wieder vorbei! \\u{1F4C5}',\n    goodMorning: 'Guten Morgen! Heutige Aufgaben:\\n\\n',\n    impactHigh: 'Hoch',\n    impactMedium: 'Mittel',\n    impactLow: 'Niedrig',\n    analysisComplete: '\\u{1F389} Ihre Analyse ist abgeschlossen!',\n    aiAdvice: '\\u{1F916} *AI-Beratung:*',\n    errorRetry: 'Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut.',\n    actionPrompt: 'Waehlen Sie:\\n1. \\u2705 Erledigt\\n2. \\u23F0 Verschieben\\n3. \\u274C Nicht gewuenscht\\n4. \\u{1F6AB} Nie wieder vorschlagen',\n    verificationSubject: 'GrowApp - Bestaetigungscode',\n    verificationEmailText: 'Ihr E-Mail-Bestaetigungscode:',\n    verificationExpiry: 'Dieser Code ist 10 Minuten gueltig.',\n    qLabels: { q1: 'Online-Sichtbarkeit', q2: 'Soziale Medien', q3: 'Kundenfeedback', q4: 'Kundenbindung', q5: 'Mitarbeitermotivation', q6: 'Upselling', q7: 'Analytik' },\n    geminiSystemPrompt: 'Du bist ein GrowApp-Geschaeftsberater-Bot. Du beraetst Cafe- und Restaurantbesitzer beim Wachstum ihrer Unternehmen. Gib kurze, motivierende und praktische Antworten auf Deutsch. Verwende Emojis. Ueberschreite nicht 150 Woerter.',\n    geminiLang: 'Deutsch',\n    industryLabel: (ind) => ind === 'cafe' ? 'Cafe' : 'Restaurant',\n    whyLabel: 'Warum es wichtig ist',\n    howLabel: 'Wie es geht',\n    templateLabel: 'Vorlage',\n    timeLabel: 'Geschaetzte Zeit',\n    pointsLabel: 'Punkte',\n    taskCompletePoints: (name, pts) => `\\u{1F389} \"${name}\" abgeschlossen! +${pts} Punkte verdient!`\n  },\n  es: {\n    welcome: 'Hola! Bienvenido a GrowApp! \\u{1F680}\\n\\nTe sugeriremos tareas personalizadas diarias para hacer crecer tu negocio.\\n\\nIngresa tu correo electronico para comenzar:',\n    invalidEmail: '\\u274C Correo invalido. Por favor ingresa un correo valido:',\n    emailReceived: '\\u2705 Correo recibido!\\n\\nAhora establece una contrasena (minimo 6 caracteres):',\n    passwordTooShort: '\\u274C La contrasena debe tener al menos 6 caracteres. Intentalo de nuevo:',\n    verificationSent: (email) => `\\u{1F4E7} Enviamos un codigo de verificacion de 6 digitos a tu correo (${email}).\\n\\nIngresa el codigo:`,\n    enterCode: 'Ingresa el codigo de 6 digitos:',\n    wrongCode: '\\u274C Codigo incorrecto! Intentalo de nuevo:',\n    codeExpired: '\\u23F0 El codigo ha expirado. Escribe \"renovar\" para solicitar un nuevo codigo:',\n    emailVerified: '\\u2705 Correo verificado!\\n\\nAhora ingresa el nombre de tu negocio:',\n    businessNameTooShort: 'El nombre del negocio debe tener al menos 2 caracteres:',\n    businessNameConfirm: (name) => `Genial, \"${name}\"! \\u{1F3EA}\\n\\nSelecciona el tipo de tu negocio:`,\n    cafe: '\\u2615 Cafe',\n    restaurant: '\\u{1F37D}\\uFE0F Restaurante',\n    selectCafeOrRestaurant: 'Selecciona \"Cafe\" o \"Restaurante\":',\n    surveyIntro: '\\u{1F4CA} Excelente! Ahora te haremos 7 preguntas para entender mejor tu negocio.',\n    questions: [\n      '',\n      'Como es la visibilidad en linea de tu negocio?',\n      'Tus cuentas de redes sociales estan activas?',\n      'Recopilas comentarios de los clientes?',\n      'Como es tu tasa de retencion de clientes?',\n      'Como es la motivacion de tus empleados?',\n      'Haces upselling / cross-selling?',\n      'Realizas seguimiento de analiticas del negocio?'\n    ],\n    answerPrompt: 'Responde con 1, 2 o 3:',\n    veryGood: 'Muy bueno',\n    average: 'Promedio',\n    low: 'Bajo',\n    helpText: '*Comandos GrowApp:*\\n\\n\\u{1F4CB} \"tarea\" \\u2014 Ver las tareas de hoy\\n\\u2753 \"ayuda\" \\u2014 Este mensaje\\n\\u{1F4AC} Haz cualquier pregunta \\u2014 Obtén respuesta del asesor AI\\n\\nRecibiras tareas automaticas a las 09:00 cada manana.',\n    taskCommands: ['tarea', 'tareas', 'tasks', 'task', 'gorev', 'g', 'menu'],\n    helpCommands: ['ayuda', 'help', 'yardim', 'h'],\n    todaysTasks: '\\u{1F4CB} *Tareas de Hoy:*\\n\\n',\n    taskDetailPrompt: '\\u{1F446} Ingresa un numero para detalles (1, 2, 3):',\n    enterNumber: 'Ingresa 1, 2 o 3:',\n    done: '\\u2705 Hecho',\n    snooze: '\\u23F0 Posponer',\n    dismiss: '\\u274C No quiero',\n    blacklist: '\\u{1F6AB} No sugerir mas',\n    taskDone: (name) => `\\u{1F389} \"${name}\" completada!`,\n    taskSnoozed: (name) => `\\u23F0 \"${name}\" pospuesta. Se sugerira de nuevo manana.`,\n    taskBlacklisted: (name) => `\\u{1F6AB} \"${name}\" no se sugerira mas.`,\n    dismissReasonPrompt: '\\u{1F4DD} Por que no la quieres? Escribe una breve explicacion:',\n    taskDismissed: (name) => `\\u{1F4DD} \"${name}\" rechazada. Tu comentario ha sido registrado.\\n\\nEscribe \"tarea\" para ver otras tareas.`,\n    writeReasonPrompt: 'Por favor escribe una razon:',\n    noTasks: 'No hay nuevas sugerencias de tareas por el momento. Revisa manana! \\u{1F4C5}',\n    goodMorning: 'Buenos dias! Tareas de hoy:\\n\\n',\n    impactHigh: 'Alto',\n    impactMedium: 'Medio',\n    impactLow: 'Bajo',\n    analysisComplete: '\\u{1F389} Tu analisis esta completo!',\n    aiAdvice: '\\u{1F916} *Consejo AI:*',\n    errorRetry: 'Ocurrio un error, por favor intenta de nuevo.',\n    actionPrompt: 'Elige:\\n1. \\u2705 Hecho\\n2. \\u23F0 Posponer\\n3. \\u274C No quiero\\n4. \\u{1F6AB} No sugerir mas',\n    verificationSubject: 'GrowApp - Codigo de Verificacion',\n    verificationEmailText: 'Tu codigo de verificacion de correo:',\n    verificationExpiry: 'Este codigo es valido por 10 minutos.',\n    qLabels: { q1: 'Visibilidad en linea', q2: 'Redes sociales', q3: 'Comentarios de clientes', q4: 'Retencion de clientes', q5: 'Motivacion de empleados', q6: 'Upselling', q7: 'Analiticas' },\n    geminiSystemPrompt: 'Eres un bot asesor de negocios GrowApp. Asesoras a duenos de cafes y restaurantes para hacer crecer sus negocios. Da respuestas cortas, motivadoras y practicas en espanol. Usa emojis. No excedas 150 palabras.',\n    geminiLang: 'Espanol',\n    industryLabel: (ind) => ind === 'cafe' ? 'Cafe' : 'Restaurante',\n    whyLabel: 'Por que importa',\n    howLabel: 'Como hacerlo',\n    templateLabel: 'Plantilla',\n    timeLabel: 'Tiempo estimado',\n    pointsLabel: 'Puntos',\n    taskCompletePoints: (name, pts) => `\\u{1F389} \"${name}\" completada! +${pts} puntos ganados!`\n  },\n  cs: {\n    welcome: 'Ahoj! Vitejte v GrowApp! \\u{1F680}\\n\\nKazdy den vam navrhneme personalizovane ukoly pro rust vaseho podnikani.\\n\\nZadejte svou e-mailovou adresu pro zahajeni:',\n    invalidEmail: '\\u274C Neplatny e-mail. Zadejte prosim platny e-mail:',\n    emailReceived: '\\u2705 E-mail prijat!\\n\\nNyni nastavte heslo (alespon 6 znaku):',\n    passwordTooShort: '\\u274C Heslo musi mit alespon 6 znaku. Zkuste to znovu:',\n    verificationSent: (email) => `\\u{1F4E7} Na vas e-mail jsme odeslali 6-mistny overovaci kod (${email}).\\n\\nZadejte kod:`,\n    enterCode: 'Zadejte 6-mistny kod:',\n    wrongCode: '\\u274C Spatny kod! Zkuste to znovu:',\n    codeExpired: '\\u23F0 Platnost kodu vyprsela. Napsete \"obnovit\" pro zadani o novy kod:',\n    emailVerified: '\\u2705 E-mail overen!\\n\\nNyni zadejte nazev vaseho podniku:',\n    businessNameTooShort: 'Nazev podniku musi mit alespon 2 znaky:',\n    businessNameConfirm: (name) => `Skvele, \"${name}\"! \\u{1F3EA}\\n\\nVyberte typ vaseho podniku:`,\n    cafe: '\\u2615 Kavarna',\n    restaurant: '\\u{1F37D}\\uFE0F Restaurace',\n    selectCafeOrRestaurant: 'Vyberte \"Kavarna\" nebo \"Restaurace\":',\n    surveyIntro: '\\u{1F4CA} Vyborne! Nyni vam polozime 7 otazek, abychom lepe porozumeli vasemu podnikani.',\n    questions: [\n      '',\n      'Jak je na tom online viditelnost vaseho podniku?',\n      'Jsou vase ucty na socialnich sitich aktivni?',\n      'Sbirate zpetnou vazbu od zakazniku?',\n      'Jaka je vase mira udrzeni zakazniku?',\n      'Jaka je motivace vasich zamestnancu?',\n      'Provadite upselling / cross-selling?',\n      'Sledujete podnikovou analytiku?'\n    ],\n    answerPrompt: 'Odpovezte 1, 2 nebo 3:',\n    veryGood: 'Velmi dobre',\n    average: 'Prumerne',\n    low: 'Nizke',\n    helpText: '*GrowApp Prikazy:*\\n\\n\\u{1F4CB} \"ukol\" \\u2014 Zobrazit dnesni ukoly\\n\\u2753 \"pomoc\" \\u2014 Tato zprava\\n\\u{1F4AC} Poloz jakoukoli otazku \\u2014 Ziskej odpoved od AI poradce\\n\\nKazde rano v 09:00 obdrzite automaticke ukoly.',\n    taskCommands: ['ukol', 'ukoly', 'tasks', 'task', 'gorev', 'g', 'menu'],\n    helpCommands: ['pomoc', 'help', 'yardim', 'h'],\n    todaysTasks: '\\u{1F4CB} *Dnesni Ukoly:*\\n\\n',\n    taskDetailPrompt: '\\u{1F446} Zadejte cislo pro podrobnosti (1, 2, 3):',\n    enterNumber: 'Zadejte 1, 2 nebo 3:',\n    done: '\\u2705 Hotovo',\n    snooze: '\\u23F0 Odlozit',\n    dismiss: '\\u274C Nechci',\n    blacklist: '\\u{1F6AB} Uz nenavrhovat',\n    taskDone: (name) => `\\u{1F389} \"${name}\" dokonceno!`,\n    taskSnoozed: (name) => `\\u23F0 \"${name}\" odlozeno. Bude navrzeno znovu zitra.`,\n    taskBlacklisted: (name) => `\\u{1F6AB} \"${name}\" uz nebude nikdy navrzeno.`,\n    dismissReasonPrompt: '\\u{1F4DD} Proc to nechcete? Napiste kratke vysvetleni:',\n    taskDismissed: (name) => `\\u{1F4DD} \"${name}\" odmitnuto. Vase zpetna vazba byla zaznamenana.\\n\\nNapiste \"ukol\" pro zobrazeni dalsich ukolu.`,\n    writeReasonPrompt: 'Prosim napiste duvod:',\n    noTasks: 'Momentalne zadne nove navrhy ukolu. Zkontrolujte to zitra! \\u{1F4C5}',\n    goodMorning: 'Dobre rano! Dnesni ukoly:\\n\\n',\n    impactHigh: 'Vysoky',\n    impactMedium: 'Stredni',\n    impactLow: 'Nizky',\n    analysisComplete: '\\u{1F389} Vase analyza je dokoncena!',\n    aiAdvice: '\\u{1F916} *AI Rada:*',\n    errorRetry: 'Doslo k chybe, zkuste to prosim znovu.',\n    actionPrompt: 'Vyberte:\\n1. \\u2705 Hotovo\\n2. \\u23F0 Odlozit\\n3. \\u274C Nechci\\n4. \\u{1F6AB} Uz nenavrhovat',\n    verificationSubject: 'GrowApp - Overovaci Kod',\n    verificationEmailText: 'Vas overovaci kod e-mailu:',\n    verificationExpiry: 'Tento kod je platny 10 minut.',\n    qLabels: { q1: 'Online viditelnost', q2: 'Socialni site', q3: 'Zpetna vazba zakazniku', q4: 'Udrzeni zakazniku', q5: 'Motivace zamestnancu', q6: 'Upselling', q7: 'Analytika' },\n    geminiSystemPrompt: 'Jsi GrowApp bot obchodni poradce. Radis majitelum kavaren a restauraci, jak rust jejich podnikani. Davej kratke, motivujici a prakticke odpovedi v cestine. Pouzivej emotikony. Nepresahuj 150 slov.',\n    geminiLang: 'Cesky',\n    industryLabel: (ind) => ind === 'cafe' ? 'Kavarna' : 'Restaurace',\n    whyLabel: 'Proc je to dulezite',\n    howLabel: 'Jak na to',\n    templateLabel: 'Sablona',\n    timeLabel: 'Odhadovany cas',\n    pointsLabel: 'Body',\n    taskCompletePoints: (name, pts) => `\\u{1F389} \"${name}\" dokonceno! +${pts} bodu ziskano!`\n  }\n};\n\nconst t = translations[lang] || translations.tr;\n\nreturn [{ json: { ...data, lang, t } }];"
+      },
+      "id": "b1e5a4bc-3f7f-4b8b-9e91-95bf174008a0",
+      "name": "Translations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            { "outputIndex": 0, "value": "new" },
+            { "outputIndex": 1, "value": "awaiting_email" },
+            { "outputIndex": 2, "value": "awaiting_password" },
+            { "outputIndex": 3, "value": "awaiting_verification" },
+            { "outputIndex": 4, "value": "awaiting_business_name" },
+            { "outputIndex": 5, "value": "awaiting_business_type" },
+            { "outputIndex": 6, "value": "awaiting_survey" },
+            { "outputIndex": 7, "value": "idle" },
+            { "outputIndex": 8, "value": "awaiting_task_choice" },
+            { "outputIndex": 9, "value": "awaiting_action" },
+            { "outputIndex": 10, "value": "awaiting_dismiss_reason" }
+          ]
+        },
+        "dataType": "string",
+        "value": "={{ $json.state }}",
+        "options": {}
+      },
+      "id": "3a5b28fe-4fe7-44ab-acba-3fc3f44c4e1b",
+      "name": "Route by State",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -448,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nreturn [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_email', replyType: 'text', replyText: t.welcome, firestoreAction: 'create' } }];"
+      },
+      "id": "8c7f82e7-f0a4-4568-9898-0a5798d87d4e",
+      "name": "Handle New",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst email = $json.messageText.toLowerCase().trim();\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nif (!emailRegex.test(email)) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_email', replyType: 'text', replyText: t.invalidEmail, firestoreAction: 'none' } }];\n}\nreturn [{ json: { phone, phoneNumberId, lang, email, newState: 'awaiting_password', replyType: 'text', replyText: t.emailReceived, firestoreAction: 'update', firestoreFields: { email } } }];"
+      },
+      "id": "3c6f0dac-0e3c-46f1-9afb-bfbf04fb2b0b",
+      "name": "Handle Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst password = $json.messageText.trim();\nif (password.length < 6) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_password', replyType: 'text', replyText: t.passwordTooShort, firestoreAction: 'none' } }];\n}\nreturn [{ json: { phone, phoneNumberId, lang, password, doFirebaseSignup: true } }];"
+      },
+      "id": "bb94752b-ffbb-423d-b538-fe426d8a3164",
+      "name": "Handle Password",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={{ $env.FIREBASE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $('Parse State').first().json.email }}\",\n  \"password\": \"{{ $json.password }}\",\n  \"returnSecureToken\": true\n}",
+        "options": {}
+      },
+      "id": "903fe10c-f45c-4bed-bb75-1ecf70fbdefc",
+      "name": "Firebase SignUp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const signupResult = $input.first().json;\nconst phone = $('Parse State').first().json.phone;\nconst phoneNumberId = $('Parse State').first().json.phoneNumberId;\nconst lang = $('Translations').first().json.lang || 'tr';\nconst t = $('Translations').first().json.t;\nconst email = signupResult.email;\nconst uid = signupResult.localId;\nconst token = signupResult.idToken;\nconst refreshToken = signupResult.refreshToken;\nconst expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();\n\nreturn [{ json: { phone, phoneNumberId, lang, email, uid, token, refreshToken, tokenExpiresAt: expiresAt, newState: 'awaiting_business_name', replyType: 'text', replyText: t.emailVerified, firestoreAction: 'update', firestoreFields: { firebase_uid: uid, firebase_token: token, refresh_token: refreshToken, token_expires_at: expiresAt, email_verified: true } } }];"
+      },
+      "id": "ca96e98b-1b25-4037-94b8-e294efb62a92",
+      "name": "Process SignUp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst businessName = $json.messageText.trim();\nif (businessName.length < 2) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_business_name', replyType: 'text', replyText: t.businessNameTooShort, firestoreAction: 'none' } }];\n}\nreturn [{ json: { phone, phoneNumberId, lang, businessName, newState: 'awaiting_business_type', replyType: 'interactive_buttons', replyBody: t.businessNameConfirm(businessName), replyButtons: [{ id: 'cafe', title: t.cafe }, { id: 'rest', title: t.restaurant }], firestoreAction: 'update', firestoreFields: { business_name: businessName } } }];"
+      },
+      "id": "ca748c45-03d8-4f3f-b104-79451bbbf2f3",
+      "name": "Handle Business Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nlet input = $json.messageText.toLowerCase().trim();\nconst typeMap = { 'cafe': 'cafe', 'kafe': 'cafe', 'kavarna': 'cafe', '1': 'cafe', 'rest': 'rest', 'restoran': 'rest', 'restaurant': 'rest', 'restaurante': 'rest', 'restaurace': 'rest', '2': 'rest' };\nconst industry = typeMap[input];\nif (!industry) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_business_type', replyType: 'text', replyText: t.selectCafeOrRestaurant, firestoreAction: 'none' } }];\n}\nconst firstQ = `*Soru 1/7:* ${t.questions[1]}\\n\\n1\\uFE0F\\u20E3 ${t.veryGood}\\n2\\uFE0F\\u20E3 ${t.average}\\n3\\uFE0F\\u20E3 ${t.low}`;\nreturn [{ json: { phone, phoneNumberId, lang, industry, newState: 'awaiting_survey', replyType: 'text', replyText: t.surveyIntro + '\\n\\n' + firstQ, firestoreAction: 'update', firestoreFields: { industry, onboarding_step: 'q1' }, createBusiness: true } }];"
+      },
+      "id": "ddb8c4f1-49c8-41c6-9e5c-c08af785c8b5",
+      "name": "Handle Business Type",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst input = $json.messageText.trim();\nconst currentStep = $json.onboarding_step || 'q1';\nconst qNum = parseInt(currentStep.replace('q', ''));\nconst scoreMap = { '1': 10, '2': 5, '3': 1 };\nconst score = scoreMap[input];\n\nif (!score) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_survey', replyType: 'text', replyText: t.answerPrompt, firestoreAction: 'none' } }];\n}\n\nconst answers = $json.answers || {};\nanswers[`q${qNum}`] = score;\n\nif (qNum < 7) {\n  const nextQ = qNum + 1;\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_survey', replyType: 'text', replyText: `*Soru ${nextQ}/7:* ${t.questions[nextQ]}\\n\\n1\\uFE0F\\u20E3 ${t.veryGood}\\n2\\uFE0F\\u20E3 ${t.average}\\n3\\uFE0F\\u20E3 ${t.low}`, firestoreAction: 'update', firestoreFields: { onboarding_step: `q${nextQ}`, answers } } }];\n}\n\n// Onboarding complete\nreturn [{ json: { phone, phoneNumberId, lang, answers, industry: $json.industry, business_name: $json.business_name, newState: 'idle', firestoreAction: 'update', firestoreFields: { onboarding_step: 'complete', answers }, onboardingComplete: true } }];"
+      },
+      "id": "a01f4cb4-4a6a-4561-9c70-9f0bd4063a07",
+      "name": "Handle Survey",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"system_instruction\": {\n    \"parts\": [{ \"text\": {{ JSON.stringify($json.geminiSystemPrompt || 'You are a GrowApp business advisor bot. Give short, motivating and practical answers. Use emojis. Do not exceed 150 words.') }} }]\n  },\n  \"contents\": [{\n    \"parts\": [{ \"text\": {{ JSON.stringify($json.geminiPrompt) }} }]\n  }],\n  \"generationConfig\": {\n    \"temperature\": 0.7,\n    \"maxOutputTokens\": 500\n  }\n}",
+        "options": {}
+      },
+      "id": "460f9f59-50d0-4ea5-9e5f-09e3326a9bb9",
+      "name": "Gemini AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gemini response parse + reply + save to chat history\nconst geminiResponse = $input.first().json;\nconst prevData = $('Handle Survey').first().json || $('Handle Idle').first().json || $('Handle Task Choice').first().json || {};\nconst phone = prevData.phone || $('Parse State').first().json.phone;\nconst phoneNumberId = prevData.phoneNumberId || $('Parse State').first().json.phoneNumberId;\nconst lang = prevData.lang || $('Translations').first().json.lang || 'tr';\nconst t = $('Translations').first().json.t;\n\nlet aiText = '';\ntry {\n  aiText = geminiResponse.candidates?.[0]?.content?.parts?.[0]?.text || '';\n} catch (e) {\n  aiText = '';\n}\n\nconst replyText = prevData.baseReply \n  ? prevData.baseReply + (aiText ? '\\n\\n' + t.aiAdvice + '\\n' + aiText : '')\n  : aiText || t.errorRetry;\n\n// Add AI response to chat history (keep last 20)\nlet chatHistory = prevData.chat_history || [];\nif (aiText) {\n  chatHistory = [...chatHistory, { role: 'assistant', content: aiText }].slice(-20);\n}\n\nreturn [{\n  json: {\n    phone, phoneNumberId, lang,\n    newState: prevData.newState || 'idle',\n    replyType: prevData.replyType || 'text',\n    replyText,\n    replyBody: prevData.replyBody,\n    replyButtons: prevData.replyButtons,\n    firestoreAction: prevData.firestoreAction || 'none',\n    firestoreFields: prevData.firestoreFields,\n    chat_history: chatHistory\n  }\n}];"
+      },
+      "id": "cc965171-a90d-4f93-a821-baaa6763e015",
+      "name": "Parse Gemini Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Onboarding complete — prepare API call for first task recommendations\nconst data = $input.first().json;\nconst lang = data.lang || $('Translations').first().json.lang || 'tr';\nconst t = $('Translations').first().json.t;\n\nif (data.onboardingComplete) {\n  return [{\n    json: {\n      ...data,\n      lang,\n      fetchTasks: true,\n      token: data.firebase_token || $('Parse State').first().json.firebase_token,\n      baseReply: t.analysisComplete,\n      newState: 'idle',\n      replyType: 'text'\n    }\n  }];\n}\n\nreturn [$input.first()];"
+      },
+      "id": "e3df244a-278a-4da7-a2e8-1d53a74c0f3b",
+      "name": "Prepare Gemini (Onboarding)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STATE: idle\nconst phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst input = $json.messageText.toLowerCase().trim();\nconst token = $json.firebase_token;\nconst industry = $json.industry;\nconst answers = $json.answers;\nconst businessName = $json.business_name;\nconst firebase_uid = $json.firebase_uid;\nconst business_id = $json.business_id;\nconst chatHistory = $json.chat_history || [];\n\n// Task request\nif (t.taskCommands.includes(input)) {\n  return [{ json: { phone, phoneNumberId, lang, token, industry, answers, businessName, firebase_uid, business_id, fetchTasks: true, chat_history: chatHistory } }];\n}\n\n// Help\nif (t.helpCommands.includes(input)) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'idle', replyType: 'text', replyText: t.helpText, firestoreAction: 'none', chat_history: chatHistory } }];\n}\n\n// Build conversation context from last 10 messages\nconst recentHistory = chatHistory.slice(-10);\nlet historyContext = '';\nif (recentHistory.length > 0) {\n  historyContext = '\\n\\nPrevious conversation:\\n' + recentHistory.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\\n') + '\\n\\n';\n}\n\n// Add current message to history\nconst updatedHistory = [...chatHistory, { role: 'user', content: $json.messageText }].slice(-20);\n\n// Free question — send to Gemini with conversation history\nreturn [{\n  json: {\n    phone, phoneNumberId, lang,\n    geminiSystemPrompt: t.geminiSystemPrompt,\n    geminiPrompt: `User (${t.industryLabel(industry)} owner, business: \"${businessName}\").${historyContext}Current question: \"${$json.messageText}\". Give a short and practical answer from a business growth perspective in ${t.geminiLang}. If related to tasks, suggest typing \"${t.taskCommands[0]}\".`,\n    newState: 'idle',\n    replyType: 'text',\n    baseReply: '',\n    firestoreAction: 'none',\n    useGemini: true,\n    chat_history: updatedHistory\n  }\n}];"
+      },
+      "id": "3e627c1a-880a-4354-ae61-027d10bc4656",
+      "name": "Handle Idle",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.fetchTasks }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4ba415ae-8ade-4c8e-8f9a-8f420b32eb2e",
+      "name": "Fetch Tasks?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        112,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://salesgrowthsteps.com/api/v1/recommendations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"industry\": \"{{ $json.industry }}\",\n  \"answers\": {{ JSON.stringify($json.answers) }}\n}",
+        "options": {}
+      },
+      "id": "265657f4-09cf-4c07-bb25-17a4ea14e0eb",
+      "name": "Get Recommendations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        352,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check task_history in Firestore for blacklisted/recently completed tasks\nconst recs = $input.first().json.recommendations || [];\nconst firebase_uid = $('Handle Idle').first().json.firebase_uid || '';\nconst business_id = $('Handle Idle').first().json.business_id || '';\nconst phone = $('Parse State').first().json.phone;\nconst phoneNumberId = $('Parse State').first().json.phoneNumberId;\nconst lang = $('Translations').first().json.lang || 'tr';\nconst t = $('Translations').first().json.t;\nconst token = $('Handle Idle').first().json.token;\nconst industry = $('Handle Idle').first().json.industry;\nconst businessName = $('Handle Idle').first().json.businessName;\nconst answers = $('Handle Idle').first().json.answers;\n\n// Pass data forward for task history lookup\nreturn [{\n  json: {\n    phone, phoneNumberId, lang, token, industry, businessName, answers,\n    firebase_uid, business_id,\n    recommendations: recs,\n    historyDocId: firebase_uid && business_id ? `${firebase_uid}_${business_id}` : ''\n  }\n}];"
+      },
+      "id": "f7e0ee88-0785-425a-ad98-5e72f6adba50",
+      "name": "Check Task History Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/task_history/{{ $json.historyDocId }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "2d72714e-d3a1-474b-9ab3-271833df197d",
+      "name": "Check Task History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        896
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter recommendations against task_history (blacklisted + recently completed)\nconst historyResponse = $input.first().json;\nconst prevData = $('Check Task History Prepare').first().json;\nconst recs = prevData.recommendations || [];\n\nlet excludedIds = new Set();\nlet blockedArray = [];\n\nif (historyResponse.statusCode === 200 && historyResponse.data?.fields) {\n  const fields = historyResponse.data.fields;\n\n  // Get blocked array\n  if (fields.blocked?.arrayValue?.values) {\n    blockedArray = fields.blocked.arrayValue.values.map(v => v.stringValue || v.integerValue || '');\n    blockedArray.forEach(id => excludedIds.add(String(id)));\n  }\n\n  // Get tasks map — check for recently completed (within 3 days)\n  if (fields.tasks?.mapValue?.fields) {\n    const tasksMap = fields.tasks.mapValue.fields;\n    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);\n    for (const [taskKey, taskVal] of Object.entries(tasksMap)) {\n      const tf = taskVal.mapValue?.fields || {};\n      const statusType = parseInt(tf.status_type?.integerValue || '-1');\n      const lastAt = tf.last_at?.timestampValue ? new Date(tf.last_at.timestampValue) : null;\n      // status_type 0 = completed, check cooldown\n      if (statusType === 0 && lastAt && lastAt > threeDaysAgo) {\n        const tid = tf.task_id?.integerValue || tf.task_id?.stringValue || taskKey;\n        excludedIds.add(String(tid));\n      }\n    }\n  }\n}\n\n// Filter recommendations: extract numeric ID from taskId like \"cafe_124\" -> \"124\"\nconst filteredRecs = recs.filter(r => {\n  const numericId = String(r.taskId).replace(/^[a-z]+_/i, '');\n  return !excludedIds.has(numericId) && !excludedIds.has(String(r.taskId));\n});\n\nconst top3 = filteredRecs.slice(0, 3);\n\nreturn [{\n  json: {\n    ...prevData,\n    recommendations: top3,\n    excludedIds: Array.from(excludedIds)\n  }\n}];"
+      },
+      "id": "0d4cb8c0-6eee-4a51-bd93-4a9cdb122cc8",
+      "name": "Filter by History",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fetch full task details from Firestore for the top 3 recommendations\nconst prevData = $input.first().json;\nconst top3 = prevData.recommendations || [];\n\nif (top3.length === 0) {\n  return [{ json: { ...prevData, enrichedTasks: [] } }];\n}\n\n// Build batch query bodies for each task\nconst queries = top3.map(r => {\n  // Extract numeric task_id from \"cafe_124\" -> 124\n  const numericId = parseInt(String(r.taskId).replace(/^[a-z]+_/i, ''));\n  return {\n    taskId: r.taskId,\n    taskName: r.taskName,\n    category: r.category,\n    subCategory: r.subCategory,\n    score: r.score,\n    numericId\n  };\n});\n\nreturn [{ json: { ...prevData, taskQueries: queries } }];"
+      },
+      "id": "38e9bda1-33fc-4c92-8729-845e95b30f39",
+      "name": "Prepare Task Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents:runQuery",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"structuredQuery\": {\n    \"from\": [{ \"collectionId\": \"tasks\" }],\n    \"where\": {\n      \"compositeFilter\": {\n        \"op\": \"OR\",\n        \"filters\": [\n          {{ ($json.taskQueries || []).map(q => JSON.stringify({ fieldFilter: { field: { fieldPath: 'task_id' }, op: 'EQUAL', value: { integerValue: String(q.numericId) } } })).join(',\\n          ') }}\n        ]\n      }\n    },\n    \"limit\": 10\n  }\n}",
+        "options": {}
+      },
+      "id": "4c3258ea-0677-4739-b8e0-bdb98d4f0ed1",
+      "name": "Fetch Task Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        896
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge Firestore task details with API recommendations\nconst firestoreResults = $input.all().map(item => item.json);\nconst prevData = $('Prepare Task Queries').first().json;\nconst taskQueries = prevData.taskQueries || [];\nconst lang = prevData.lang || 'tr';\nconst phone = prevData.phone;\nconst phoneNumberId = prevData.phoneNumberId;\nconst t = $('Translations').first().json.t;\nconst businessName = prevData.businessName || '';\nconst industry = prevData.industry || '';\n\n// Helper: extract localized text from Firestore field\n// Field can be a plain string or a map like {tr: '...', en: '...'}\nfunction getLocalized(fieldVal, lang) {\n  if (!fieldVal) return '';\n  if (fieldVal.stringValue) return fieldVal.stringValue;\n  if (fieldVal.mapValue?.fields) {\n    const locField = fieldVal.mapValue.fields[lang];\n    if (locField?.stringValue) return locField.stringValue;\n    // Fallback to tr, then en, then first available\n    if (fieldVal.mapValue.fields.tr?.stringValue) return fieldVal.mapValue.fields.tr.stringValue;\n    if (fieldVal.mapValue.fields.en?.stringValue) return fieldVal.mapValue.fields.en.stringValue;\n    const keys = Object.keys(fieldVal.mapValue.fields);\n    if (keys.length > 0) return fieldVal.mapValue.fields[keys[0]]?.stringValue || '';\n  }\n  return '';\n}\n\n// Parse Firestore task docs into a map by task_id\nconst taskDetailsMap = {};\nfor (const result of firestoreResults) {\n  const docs = Array.isArray(result) ? result : [result];\n  for (const doc of docs) {\n    if (!doc.document) continue;\n    const fields = doc.document.fields || {};\n    const taskId = parseInt(fields.task_id?.integerValue || '0');\n    if (taskId) {\n      taskDetailsMap[taskId] = {\n        why_text: getLocalized(fields.why_text, lang),\n        how_steps: getLocalized(fields.how_steps, lang),\n        template_text: getLocalized(fields.template_text, lang),\n        time_estimate: getLocalized(fields.time_estimate, lang),\n        impact_score: parseFloat(fields.impact_score?.doubleValue || fields.impact_score?.integerValue || '0')\n      };\n    }\n  }\n}\n\n// Enrich task queries with Firestore details\nconst enrichedTasks = taskQueries.map(q => {\n  const details = taskDetailsMap[q.numericId] || {};\n  return {\n    taskId: q.taskId,\n    taskName: q.taskName,\n    category: q.category,\n    subCategory: q.subCategory,\n    score: q.score,\n    numericId: q.numericId,\n    why_text: details.why_text || '',\n    how_steps: details.how_steps || '',\n    template_text: details.template_text || '',\n    time_estimate: details.time_estimate || '',\n    impact_score: details.impact_score || q.score || 0\n  };\n});\n\nif (enrichedTasks.length === 0) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'idle', replyType: 'text', replyText: t.noTasks, firestoreAction: 'none' } }];\n}\n\nlet msg = t.todaysTasks;\nenrichedTasks.forEach((r, i) => {\n  const emoji = ['1\\uFE0F\\u20E3', '2\\uFE0F\\u20E3', '3\\uFE0F\\u20E3'][i];\n  const impact = r.score >= 80 ? '\\u{1F525} ' + t.impactHigh : r.score >= 50 ? '\\u26A1 ' + t.impactMedium : '\\u{1F4A1} ' + t.impactLow;\n  msg += `${emoji} *${r.taskName}*\\n   \\u{1F4C1} ${r.category} > ${r.subCategory}\\n   ${impact} (${r.score.toFixed(1)})`;\n  if (r.time_estimate) msg += `\\n   \\u23F1 ${r.time_estimate}`;\n  msg += '\\n\\n';\n});\nmsg += t.taskDetailPrompt;\n\nconst taskNames = enrichedTasks.map(r => r.taskName).join(', ');\n\nreturn [{ json: {\n  phone, phoneNumberId, lang,\n  newState: 'awaiting_task_choice',\n  replyType: 'text',\n  baseReply: msg,\n  geminiSystemPrompt: t.geminiSystemPrompt,\n  geminiPrompt: `${t.industryLabel(industry)} owner \"${businessName}\" has been suggested 3 tasks today: ${taskNames}. Write a 1-2 sentence motivational message. Highlight the importance of the tasks. Respond in ${t.geminiLang}.`,\n  firestoreAction: 'update',\n  firestoreFields: { current_tasks: enrichedTasks.map(r => ({ taskId: r.taskId, taskName: r.taskName, category: r.category, subCategory: r.subCategory, score: r.score, impact_score: r.impact_score, why_text: r.why_text, how_steps: r.how_steps, template_text: r.template_text, time_estimate: r.time_estimate })) }\n} }];"
+      },
+      "id": "f4178bbc-d9b1-43fa-877f-860c47363c48",
+      "name": "Format Tasks + Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STATE: awaiting_task_choice\nconst phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst input = $json.messageText.trim();\nconst tasks = $json.current_tasks || [];\nconst choice = parseInt(input);\nif (isNaN(choice) || choice < 1 || choice > tasks.length) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_task_choice', replyType: 'text', replyText: t.enterNumber, firestoreAction: 'none' } }];\n}\nconst task = tasks[choice - 1];\n\n// Build detail message from Firestore data\nlet detailMsg = `\\u{1F4CC} *${task.taskName}*\\n${task.category} > ${task.subCategory}`;\n\nif (task.why_text) {\n  detailMsg += `\\n\\n\\u{1F4A1} *${t.whyLabel || 'Why'}:*\\n${task.why_text}`;\n}\nif (task.how_steps) {\n  detailMsg += `\\n\\n\\u{1F4DD} *${t.howLabel || 'How'}:*\\n${task.how_steps}`;\n}\nif (task.template_text) {\n  detailMsg += `\\n\\n\\u{1F4C4} *${t.templateLabel || 'Template'}:*\\n${task.template_text}`;\n}\nif (task.time_estimate) {\n  detailMsg += `\\n\\n\\u23F1 *${t.timeLabel || 'Time'}:* ${task.time_estimate}`;\n}\n\n// If we have Firestore details, no need for Gemini to generate them\nconst hasDetails = !!(task.why_text || task.how_steps);\n\nreturn [{\n  json: {\n    phone, phoneNumberId, lang,\n    selectedTask: task,\n    newState: 'awaiting_action',\n    replyType: 'interactive_buttons',\n    replyButtons: [\n      { id: 'done', title: t.done },\n      { id: 'snooze', title: t.snooze },\n      { id: 'dismiss', title: t.dismiss }\n    ],\n    geminiSystemPrompt: hasDetails ? null : t.geminiSystemPrompt,\n    geminiPrompt: hasDetails ? null : `Explain the task \"${task.taskName}\" briefly. Category: ${task.category} > ${task.subCategory}. Why is it important, how to do it, in 3-4 sentences. Write from a ${t.industryLabel($json.industry)} perspective. Respond in ${t.geminiLang}.`,\n    baseReply: detailMsg,\n    replyBody: detailMsg,\n    firestoreAction: 'update',\n    firestoreFields: { pending_task_id: task.taskId, pending_task_name: task.taskName }\n  }\n}];"
+      },
+      "id": "257b6ff2-db7d-4289-bdf2-1ae28c345463",
+      "name": "Handle Task Choice",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STATE: awaiting_action\nconst phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nlet input = $json.messageText.toLowerCase().trim();\nconst taskId = $json.pending_task_id || '';\nconst taskName = $json.pending_task_name || '';\nconst token = $json.firebase_token;\nconst industry = $json.industry;\nconst firebase_uid = $json.firebase_uid || '';\nconst business_id = $json.business_id || '';\n\n// Find impact_score from current_tasks\nconst currentTasks = $json.current_tasks || [];\nconst matchedTask = currentTasks.find(ct => ct.taskId === taskId);\nconst impact_score = matchedTask?.impact_score || matchedTask?.score || 0;\n\nconst actionMap = { 'done': 'Done', 'yaptim': 'Done', 'erledigt': 'Done', 'hecho': 'Done', 'hotovo': 'Done', '1': 'Done', 'snooze': 'Snooze', 'ertele': 'Snooze', 'verschieben': 'Snooze', 'posponer': 'Snooze', 'odlozit': 'Snooze', '2': 'Snooze', 'dismiss': 'Dismiss', 'istemiyorum': 'Dismiss', 'nechci': 'Dismiss', '3': 'Dismiss', 'blacklist': 'Blacklist', 'engelle': 'Blacklist', '4': 'Blacklist' };\nconst action = actionMap[input];\n\nif (!action) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_action', replyType: 'text', replyText: t.actionPrompt, firestoreAction: 'none' } }];\n}\n\nif (action === 'Dismiss') {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_dismiss_reason', replyType: 'text', replyText: t.dismissReasonPrompt, firestoreAction: 'update', firestoreFields: { pending_action: 'Dismiss' } } }];\n}\n\nconst points = action === 'Done' ? Math.round(impact_score * 10) : 0;\nconst confirmMsg = {\n  'Done': points > 0 ? t.taskCompletePoints(taskName, points) : t.taskDone(taskName),\n  'Snooze': t.taskSnoozed(taskName),\n  'Blacklist': t.taskBlacklisted(taskName)\n};\n\nreturn [{\n  json: {\n    phone, phoneNumberId, lang, token, industry, taskId, action, taskName,\n    firebase_uid, business_id, impact_score, points,\n    newState: 'idle',\n    replyType: 'text',\n    firestoreAction: 'update',\n    firestoreFields: { pending_task_id: null, pending_task_name: null, pending_action: null },\n    sendFeedback: true,\n    geminiSystemPrompt: action === 'Done' ? t.geminiSystemPrompt : null,\n    geminiPrompt: action === 'Done' ? `User completed the task \"${taskName}\". Write a 1-2 sentence congratulations and motivational message. Encourage them to move to the next task. Respond in ${t.geminiLang}.` : null,\n    baseReply: confirmMsg[action]\n  }\n}];"
+      },
+      "id": "1fac8993-d09b-4455-8355-4132f0c9911a",
+      "name": "Handle Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STATE: awaiting_dismiss_reason\nconst phone = $json.phone;\nconst phoneNumberId = $json.phoneNumberId;\nconst t = $json.t;\nconst lang = $json.lang;\nconst dismissReason = $json.messageText.trim();\nconst taskId = $json.pending_task_id;\nconst taskName = $json.pending_task_name;\nconst token = $json.firebase_token;\nconst industry = $json.industry;\nconst firebase_uid = $json.firebase_uid || '';\nconst business_id = $json.business_id || '';\n\n// Find impact_score from current_tasks\nconst currentTasks = $json.current_tasks || [];\nconst matchedTask = currentTasks.find(ct => ct.taskId === taskId);\nconst impact_score = matchedTask?.impact_score || matchedTask?.score || 0;\n\nif (dismissReason.length < 2) {\n  return [{ json: { phone, phoneNumberId, lang, newState: 'awaiting_dismiss_reason', replyType: 'text', replyText: t.writeReasonPrompt, firestoreAction: 'none' } }];\n}\nreturn [{ json: { phone, phoneNumberId, lang, token, industry, taskId, action: 'Dismiss', dismissReason, firebase_uid, business_id, impact_score, points: 0, newState: 'idle', replyType: 'text', replyText: t.taskDismissed(taskName), firestoreAction: 'update', firestoreFields: { pending_task_id: null, pending_task_name: null, pending_action: null }, sendFeedback: true } }];"
+      },
+      "id": "b0bb6eba-6e38-4035-a451-d105e7d5240c",
+      "name": "Handle Dismiss Reason",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.sendFeedback }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "920fa1e0-39a9-40fc-a13c-580603bab53b",
+      "name": "Send Feedback?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        160,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://salesgrowthsteps.com/api/v1/feedbacks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"industry\": \"{{ $json.industry }}\",\n  \"taskId\": \"{{ $json.taskId }}\",\n  \"action\": \"{{ $json.action }}\"\n  {{ $json.dismissReason ? ', \"dismissReason\": \"' + $json.dismissReason.replace(/\"/g, '') + '\"' : '' }}\n}",
+        "options": {}
+      },
+      "id": "f3624868-4ddc-48b9-b54a-dcd888a5b65c",
+      "name": "Send Feedback API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for Firestore writes after feedback\nconst feedbackResult = $input.first().json;\nconst prevData = $('Handle Action').first().json || $('Handle Dismiss Reason').first().json || {};\nconst phone = prevData.phone;\nconst phoneNumberId = prevData.phoneNumberId;\nconst lang = prevData.lang;\nconst firebase_uid = prevData.firebase_uid || '';\nconst business_id = prevData.business_id || '';\nconst taskId = prevData.taskId || '';\nconst taskName = prevData.taskName || '';\nconst action = prevData.action || '';\nconst impact_score = prevData.impact_score || 0;\nconst points = prevData.points || 0;\nconst dismissReason = prevData.dismissReason || '';\n\n// Map action to status codes\nconst statusMap = { 'Done': 'completed', 'Snooze': 'snoozed', 'Dismiss': 'dismissed', 'Blacklist': 'blacklisted' };\nconst statusTypeMap = { 'Done': 0, 'Snooze': 1, 'Dismiss': 2, 'Blacklist': 3 };\n\nconst today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD\nconst now = new Date().toISOString();\nconst numericTaskId = parseInt(String(taskId).replace(/^[a-z]+_/i, '')) || 0;\n\nreturn [{\n  json: {\n    ...prevData,\n    status: statusMap[action] || 'dismissed',\n    statusType: statusTypeMap[action] ?? 2,\n    today,\n    now,\n    numericTaskId,\n    dailyAssignmentDocId: `${firebase_uid}_${business_id}_${today}`,\n    taskHistoryDocId: `${firebase_uid}_${business_id}`\n  }\n}];"
+      },
+      "id": "93df88a8-3e26-46b9-bfd7-a45c93066da2",
+      "name": "Prepare Firestore Writes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/daily_assignments/{{ $json.dailyAssignmentDocId }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"user_id\": { \"stringValue\": \"{{ $json.firebase_uid }}\" },\n    \"business_id\": { \"stringValue\": \"{{ $json.business_id }}\" },\n    \"date\": { \"stringValue\": \"{{ $json.today }}\" },\n    \"tasks\": {\n      \"arrayValue\": {\n        \"values\": [{\n          \"mapValue\": {\n            \"fields\": {\n              \"task_id\": { \"integerValue\": \"{{ $json.numericTaskId }}\" },\n              \"status\": { \"stringValue\": \"{{ $json.status }}\" }\n            }\n          }\n        }]\n      }\n    },\n    \"updated_at\": { \"timestampValue\": \"{{ $json.now }}\" }\n  }\n}",
+        "options": {}
+      },
+      "id": "8cd290fd-c88e-46c7-9923-23a7a109183d",
+      "name": "Write Daily Assignment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        1152
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build the task_history update payload\nconst data = $('Prepare Firestore Writes').first().json;\nconst taskKey = `task_${data.numericTaskId}`;\nconst action = data.action;\nconst now = data.now;\nconst today = data.today;\nconst points = data.points || 0;\nconst dismissReason = data.dismissReason || '';\n\n// Build fields for the document\nconst fields = {\n  user_id: { stringValue: data.firebase_uid },\n  business_id: { stringValue: data.business_id },\n  updated_at: { timestampValue: now }\n};\n\n// Tasks map entry\nconst taskEntry = {\n  task_id: { integerValue: String(data.numericTaskId) },\n  status_type: { integerValue: String(data.statusType) },\n  last_at: { timestampValue: now },\n  date: { stringValue: today }\n};\n\nif (action === 'Done' && points > 0) {\n  taskEntry.points = { integerValue: String(points) };\n}\n\nif (action === 'Dismiss' && dismissReason) {\n  taskEntry.dismiss_reason = { stringValue: dismissReason };\n}\n\nfields.tasks = {\n  mapValue: {\n    fields: {\n      [taskKey]: {\n        mapValue: { fields: taskEntry }\n      }\n    }\n  }\n};\n\n// For blacklisted: add to blocked array\nif (action === 'Blacklist') {\n  fields.blocked = {\n    arrayValue: {\n      values: [{ stringValue: String(data.numericTaskId) }]\n    }\n  };\n}\n\n// For completed: track points\nif (action === 'Done' && points > 0) {\n  fields.total_points = { integerValue: String(points) };\n}\n\nreturn [{ json: { docId: data.taskHistoryDocId, fields, prevData: data } }];"
+      },
+      "id": "fbfd9fc0-e219-452e-af7f-19575f45baac",
+      "name": "Prepare Task History",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/task_history/{{ $json.docId }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: $json.fields }) }}",
+        "options": {}
+      },
+      "id": "0f4f985e-61f8-4b2b-a46a-ba7f95636ce5",
+      "name": "Write Task History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1152,
+        1360
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge results from parallel Firestore writes and pass to Send WhatsApp\nconst prevData = $('Prepare Firestore Writes').first().json;\nreturn [{\n  json: {\n    phone: prevData.phone,\n    phoneNumberId: prevData.phoneNumberId,\n    lang: prevData.lang,\n    newState: prevData.newState || 'idle',\n    replyType: prevData.replyType || 'text',\n    replyText: prevData.replyText || prevData.baseReply || '',\n    replyBody: prevData.replyBody,\n    replyButtons: prevData.replyButtons,\n    firestoreAction: prevData.firestoreAction || 'none',\n    firestoreFields: prevData.firestoreFields,\n    geminiPrompt: prevData.geminiPrompt,\n    geminiSystemPrompt: prevData.geminiSystemPrompt,\n    baseReply: prevData.baseReply\n  }\n}];"
+      },
+      "id": "3d815d96-3d98-4a03-90fd-35d8d18b55c9",
+      "name": "Merge After Writes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.geminiPrompt }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ec8b7def-b7ae-42f0-ada0-810f9f3d0015",
+      "name": "Use Gemini?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        848,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "967227463146831",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "textBody": "={{ $json.replyType === 'interactive_buttons' ? ($json.replyBody || $json.replyText) : $json.replyText }}",
+        "additionalFields": {}
+      },
+      "id": "7c26c008-f12b-468a-a23f-8882e3756b54",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        400
+      ],
+      "webhookId": "cd6d4f23-8eee-4492-baf2-3076150468b9",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "BBOMFXuzE7xqo4Q2",
+          "name": "WhatsApp account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/whatsapp_users/{{ $json.phone }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"state\": { \"stringValue\": \"{{ $json.newState || 'idle' }}\" },\n    \"lang\": { \"stringValue\": \"{{ $json.lang || 'tr' }}\" },\n    \"updated_at\": { \"timestampValue\": \"{{ new Date().toISOString() }}\" }\n    {{ $json.chat_history ? ', \"chat_history\": { \"arrayValue\": { \"values\": ' + JSON.stringify(($json.chat_history || []).map(m => ({ mapValue: { fields: { role: { stringValue: m.role }, content: { stringValue: m.content } } } }))) + ' } }' : '' }}\n  }\n}",
+        "options": {}
+      },
+      "id": "df512b3e-9ed1-48ab-8e72-03054d139f36",
+      "name": "Update Firestore",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1408,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "a9658011-7300-427d-b9c4-45e2a15459ca",
+      "name": "[Daily] Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1552,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents:runQuery",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"structuredQuery\": {\n    \"from\": [{ \"collectionId\": \"whatsapp_users\" }],\n    \"where\": {\n      \"fieldFilter\": {\n        \"field\": { \"fieldPath\": \"state\" },\n        \"op\": \"EQUAL\",\n        \"value\": { \"stringValue\": \"idle\" }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "9949fc27-4693-4f48-996c-824ac075edcc",
+      "name": "[Daily] Query Idle Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1296,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Firestore query results into user list\nconst results = $input.all().map(item => item.json);\nconst users = [];\n\nfor (const result of results) {\n  const docs = Array.isArray(result) ? result : [result];\n  for (const doc of docs) {\n    if (!doc.document) continue;\n    const fields = doc.document.fields || {};\n    const phone = doc.document.name.split('/').pop();\n    \n    const answers = {};\n    if (fields.answers?.mapValue?.fields) {\n      for (const [k, v] of Object.entries(fields.answers.mapValue.fields)) {\n        answers[k] = parseInt(v.integerValue || v.stringValue || '5');\n      }\n    }\n    \n    if (Object.keys(answers).length < 7) continue;\n    \n    users.push({\n      phone,\n      firebase_token: fields.firebase_token?.stringValue || '',\n      refresh_token: fields.refresh_token?.stringValue || '',\n      token_expires_at: fields.token_expires_at?.timestampValue || '',\n      industry: fields.industry?.stringValue || 'rest',\n      answers,\n      phoneNumberId: fields.phone_number_id?.stringValue || '',\n      lang: fields.lang?.stringValue || 'tr',\n      firebase_uid: fields.firebase_uid?.stringValue || '',\n      business_id: fields.business_id?.stringValue || ''\n    });\n  }\n}\n\nreturn users.map(u => ({ json: u }));"
+      },
+      "id": "0cc59885-2514-434f-9888-738d55c7bc86",
+      "name": "[Daily] Parse Users",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b28b0d90-ea16-4b78-9238-417b8ac759b4",
+      "name": "[Daily] Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -832,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if token needs refresh\nconst user = $input.first().json;\nconst expiresAt = new Date(user.token_expires_at);\nconst now = new Date();\n\nif (now >= expiresAt) {\n  return [{ json: { ...user, needsRefresh: true } }];\n}\n\nreturn [{ json: { ...user, needsRefresh: false } }];"
+      },
+      "id": "00b083c6-f48e-426b-99ec-40ec1c2af645",
+      "name": "[Daily] Check Token Expiry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needsRefresh }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ffa2cc92-e071-4d6e-b241-3aa3d20ec18b",
+      "name": "[Daily] Needs Refresh?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://securetoken.googleapis.com/v1/token?key={{ $env.FIREBASE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"grant_type\": \"refresh_token\",\n  \"refresh_token\": \"{{ $json.refresh_token }}\"\n}",
+        "options": {}
+      },
+      "id": "6c6a6acc-2d78-4f10-9869-b7b4673dc71d",
+      "name": "[Daily] Refresh Firebase Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -144,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const refreshResult = $input.first().json;\nconst user = $('[Daily] Check Token Expiry').first().json;\n\nreturn [{\n  json: {\n    ...user,\n    firebase_token: refreshResult.id_token,\n    refresh_token: refreshResult.refresh_token,\n    token_expires_at: new Date(Date.now() + 3600 * 1000).toISOString()\n  }\n}];"
+      },
+      "id": "dc9c868e-14f5-4e96-8ebd-ae13b4d03ed9",
+      "name": "[Daily] Update Token Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://salesgrowthsteps.com/api/v1/recommendations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.firebase_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"industry\": \"{{ $json.industry }}\",\n  \"answers\": {{ JSON.stringify($json.answers) }}\n}",
+        "options": {}
+      },
+      "id": "4058bbc4-68ec-4b76-ac73-1a526bb69785",
+      "name": "[Daily] Get Recommendations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        352,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check task_history for daily flow - filter blacklisted and recently completed\nconst recs = $input.first().json.recommendations || [];\nconst user = $('[Daily] Check Token Expiry').first().json;\nconst firebase_uid = user.firebase_uid || '';\nconst business_id = user.business_id || '';\nconst historyDocId = firebase_uid && business_id ? `${firebase_uid}_${business_id}` : '';\n\nreturn [{\n  json: {\n    recommendations: recs,\n    phone: user.phone,\n    phoneNumberId: user.phoneNumberId,\n    lang: user.lang || 'tr',\n    firebase_uid,\n    business_id,\n    industry: user.industry,\n    firebase_token: user.firebase_token,\n    historyDocId\n  }\n}];"
+      },
+      "id": "e11bc1f0-178a-4eea-88c7-34faa6b7d8d6",
+      "name": "[Daily] Check History Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/task_history/{{ $json.historyDocId }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "05094cce-e11c-465f-9a23-4c2e018f9c06",
+      "name": "[Daily] Check Task History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        1904
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter recommendations against task_history for daily flow\nconst historyResponse = $input.first().json;\nconst prevData = $('[Daily] Check History Prepare').first().json;\nconst recs = prevData.recommendations || [];\n\nlet excludedIds = new Set();\n\nif (historyResponse.statusCode === 200 && historyResponse.data?.fields) {\n  const fields = historyResponse.data.fields;\n  if (fields.blocked?.arrayValue?.values) {\n    fields.blocked.arrayValue.values.forEach(v => excludedIds.add(String(v.stringValue || v.integerValue || '')));\n  }\n  if (fields.tasks?.mapValue?.fields) {\n    const tasksMap = fields.tasks.mapValue.fields;\n    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);\n    for (const [taskKey, taskVal] of Object.entries(tasksMap)) {\n      const tf = taskVal.mapValue?.fields || {};\n      const statusType = parseInt(tf.status_type?.integerValue || '-1');\n      const lastAt = tf.last_at?.timestampValue ? new Date(tf.last_at.timestampValue) : null;\n      if (statusType === 0 && lastAt && lastAt > threeDaysAgo) {\n        const tid = tf.task_id?.integerValue || tf.task_id?.stringValue || taskKey;\n        excludedIds.add(String(tid));\n      }\n    }\n  }\n}\n\nconst filteredRecs = recs.filter(r => {\n  const numericId = String(r.taskId).replace(/^[a-z]+_/i, '');\n  return !excludedIds.has(numericId) && !excludedIds.has(String(r.taskId));\n});\n\nconst top3 = filteredRecs.slice(0, 3);\n\nreturn [{\n  json: {\n    ...prevData,\n    recommendations: top3\n  }\n}];"
+      },
+      "id": "26271a78-8d06-4947-b2e2-188037510112",
+      "name": "[Daily] Filter by History",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare task queries for Firestore fetch in daily flow\nconst prevData = $input.first().json;\nconst top3 = prevData.recommendations || [];\n\nif (top3.length === 0) return [];\n\nconst queries = top3.map(r => {\n  const numericId = parseInt(String(r.taskId).replace(/^[a-z]+_/i, ''));\n  return {\n    taskId: r.taskId,\n    taskName: r.taskName,\n    category: r.category,\n    subCategory: r.subCategory,\n    score: r.score,\n    numericId\n  };\n});\n\nreturn [{ json: { ...prevData, taskQueries: queries } }];"
+      },
+      "id": "2c4c7998-23af-4b20-a3bf-9eef93c78b6d",
+      "name": "[Daily] Prepare Task Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents:runQuery",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"structuredQuery\": {\n    \"from\": [{ \"collectionId\": \"tasks\" }],\n    \"where\": {\n      \"compositeFilter\": {\n        \"op\": \"OR\",\n        \"filters\": [\n          {{ ($json.taskQueries || []).map(q => JSON.stringify({ fieldFilter: { field: { fieldPath: 'task_id' }, op: 'EQUAL', value: { integerValue: String(q.numericId) } } })).join(',\\n          ') }}\n        ]\n      }\n    },\n    \"limit\": 10\n  }\n}",
+        "options": {}
+      },
+      "id": "b2939b2c-b1c2-4fb2-bf9d-84645659827c",
+      "name": "[Daily] Fetch Task Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        1904
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format daily message with full Firestore task details\nconst firestoreResults = $input.all().map(item => item.json);\nconst prevData = $('[Daily] Prepare Task Queries').first().json;\nconst taskQueries = prevData.taskQueries || [];\nconst lang = prevData.lang || 'tr';\nconst user = $('[Daily] Check Token Expiry').first().json;\n\nif (taskQueries.length === 0) return [];\n\n// Helper: extract localized text from Firestore field\nfunction getLocalized(fieldVal, lang) {\n  if (!fieldVal) return '';\n  if (fieldVal.stringValue) return fieldVal.stringValue;\n  if (fieldVal.mapValue?.fields) {\n    const locField = fieldVal.mapValue.fields[lang];\n    if (locField?.stringValue) return locField.stringValue;\n    if (fieldVal.mapValue.fields.tr?.stringValue) return fieldVal.mapValue.fields.tr.stringValue;\n    if (fieldVal.mapValue.fields.en?.stringValue) return fieldVal.mapValue.fields.en.stringValue;\n    const keys = Object.keys(fieldVal.mapValue.fields);\n    if (keys.length > 0) return fieldVal.mapValue.fields[keys[0]]?.stringValue || '';\n  }\n  return '';\n}\n\n// Parse Firestore task docs into a map by task_id\nconst taskDetailsMap = {};\nfor (const result of firestoreResults) {\n  const docs = Array.isArray(result) ? result : [result];\n  for (const doc of docs) {\n    if (!doc.document) continue;\n    const fields = doc.document.fields || {};\n    const taskId = parseInt(fields.task_id?.integerValue || '0');\n    if (taskId) {\n      taskDetailsMap[taskId] = {\n        why_text: getLocalized(fields.why_text, lang),\n        how_steps: getLocalized(fields.how_steps, lang),\n        template_text: getLocalized(fields.template_text, lang),\n        time_estimate: getLocalized(fields.time_estimate, lang),\n        impact_score: parseFloat(fields.impact_score?.doubleValue || fields.impact_score?.integerValue || '0')\n      };\n    }\n  }\n}\n\n// Enrich tasks\nconst enrichedTasks = taskQueries.map(q => {\n  const details = taskDetailsMap[q.numericId] || {};\n  return {\n    taskId: q.taskId,\n    taskName: q.taskName,\n    category: q.category,\n    subCategory: q.subCategory,\n    score: q.score,\n    numericId: q.numericId,\n    why_text: details.why_text || '',\n    how_steps: details.how_steps || '',\n    template_text: details.template_text || '',\n    time_estimate: details.time_estimate || '',\n    impact_score: details.impact_score || q.score || 0\n  };\n});\n\n// Inline translations for daily message\nconst dailyT = {\n  tr: { goodMorning: 'Gunaydin! Bugunun gorevleri:\\n\\n', high: 'Yuksek', medium: 'Orta', low: 'Dusuk', impact: 'Etki', detailPrompt: 'Detay icin numara girin (1, 2, 3):' },\n  en: { goodMorning: 'Good morning! Today\\'s tasks:\\n\\n', high: 'High', medium: 'Medium', low: 'Low', impact: 'Impact', detailPrompt: 'Enter a number for details (1, 2, 3):' },\n  de: { goodMorning: 'Guten Morgen! Heutige Aufgaben:\\n\\n', high: 'Hoch', medium: 'Mittel', low: 'Niedrig', impact: 'Auswirkung', detailPrompt: 'Geben Sie eine Nummer fuer Details ein (1, 2, 3):' },\n  es: { goodMorning: 'Buenos dias! Tareas de hoy:\\n\\n', high: 'Alto', medium: 'Medio', low: 'Bajo', impact: 'Impacto', detailPrompt: 'Ingresa un numero para detalles (1, 2, 3):' },\n  cs: { goodMorning: 'Dobre rano! Dnesni ukoly:\\n\\n', high: 'Vysoky', medium: 'Stredni', low: 'Nizky', impact: 'Dopad', detailPrompt: 'Zadejte cislo pro podrobnosti (1, 2, 3):' }\n};\nconst dt = dailyT[lang] || dailyT.tr;\n\nlet msg = dt.goodMorning;\nenrichedTasks.forEach((r, i) => {\n  const impact = r.score >= 80 ? dt.high : r.score >= 50 ? dt.medium : dt.low;\n  msg += `*${i + 1}.* ${r.taskName}\\n   ${r.category} > ${r.subCategory}\\n   ${dt.impact}: ${impact}`;\n  if (r.time_estimate) msg += `\\n   \\u23F1 ${r.time_estimate}`;\n  msg += '\\n\\n';\n});\nmsg += dt.detailPrompt;\n\nreturn [{\n  json: {\n    phone: prevData.phone,\n    phoneNumberId: prevData.phoneNumberId,\n    lang,\n    message: msg,\n    current_tasks: enrichedTasks.map(r => ({\n      taskId: r.taskId,\n      taskName: r.taskName,\n      category: r.category,\n      subCategory: r.subCategory,\n      score: r.score,\n      impact_score: r.impact_score,\n      why_text: r.why_text,\n      how_steps: r.how_steps,\n      template_text: r.template_text,\n      time_estimate: r.time_estimate\n    }))\n  }\n}];"
+      },
+      "id": "65180f39-ab92-4d55-ba27-2f8237535be1",
+      "name": "[Daily] Format Daily Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "967227463146831",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "textBody": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "id": "7aa544c5-1ede-44e3-adc2-ba0edf531e1f",
+      "name": "[Daily] Send Daily WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        1904
+      ],
+      "webhookId": "8e0feaa0-2bbd-4a87-ba82-a0bbd7976612",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "CskxNvgkYWDYeEK4",
+          "name": "WhatsApp account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/whatsapp_users/{{ $('[Daily] Check Token Expiry').first().json.phone }}?updateMask.fieldPaths=state&updateMask.fieldPaths=current_tasks&updateMask.fieldPaths=updated_at",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"state\": { \"stringValue\": \"awaiting_task_choice\" },\n    \"current_tasks\": { \"stringValue\": {{ JSON.stringify(JSON.stringify($json.current_tasks)) }} },\n    \"updated_at\": { \"timestampValue\": \"{{ new Date().toISOString() }}\" }\n  }\n}",
+        "options": {}
+      },
+      "id": "e2d43c87-630f-41b9-8cfc-397b8ebb6943",
+      "name": "[Daily] Update State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2048,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/50 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "d6653aee-68c8-4fcd-b918-df5d0a5b61ab",
+      "name": "[Refresh] Every 50 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1536,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents:runQuery",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"structuredQuery\": {\n    \"from\": [{ \"collectionId\": \"whatsapp_users\" }],\n    \"where\": {\n      \"compositeFilter\": {\n        \"op\": \"AND\",\n        \"filters\": [\n          {\n            \"fieldFilter\": {\n              \"field\": { \"fieldPath\": \"firebase_uid\" },\n              \"op\": \"NOT_EQUAL\",\n              \"value\": { \"stringValue\": \"\" }\n            }\n          }\n        ]\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "33010f65-d6f5-4b50-99e5-6d633b0c22d2",
+      "name": "[Refresh] Query All Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1280,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter users whose token expires within 15 minutes\nconst results = $input.all().map(item => item.json);\nconst users = [];\nconst threshold = new Date(Date.now() + 15 * 60 * 1000);\n\nfor (const result of results) {\n  const docs = Array.isArray(result) ? result : [result];\n  for (const doc of docs) {\n    if (!doc.document) continue;\n    const fields = doc.document.fields || {};\n    const phone = doc.document.name.split('/').pop();\n    const tokenExpires = fields.token_expires_at?.timestampValue;\n    const refreshToken = fields.refresh_token?.stringValue;\n    \n    if (!refreshToken) continue;\n    \n    const expiresDate = tokenExpires ? new Date(tokenExpires) : new Date(0);\n    if (expiresDate <= threshold) {\n      users.push({\n        phone,\n        refresh_token: refreshToken,\n        firebase_uid: fields.firebase_uid?.stringValue || ''\n      });\n    }\n  }\n}\n\nif (users.length === 0) {\n  return [{ json: { noUsersToRefresh: true } }];\n}\n\nreturn users.map(u => ({ json: u }));"
+      },
+      "id": "a999a04d-012c-4ea3-a2e9-18548b4f67e5",
+      "name": "[Refresh] Filter Expiring Tokens",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.noUsersToRefresh }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ce4fa5be-fc78-4e1c-ab96-8f3ab2ae1012",
+      "name": "[Refresh] Has Users?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        -816,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "024ae443-9bfb-4c0d-92cd-3f14777fe1b4",
+      "name": "[Refresh] Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -592,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://securetoken.googleapis.com/v1/token?key={{ $env.FIREBASE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"grant_type\": \"refresh_token\",\n  \"refresh_token\": \"{{ $json.refresh_token }}\"\n}",
+        "options": {}
+      },
+      "id": "e13600ba-e451-4442-9919-df8011781ef4",
+      "name": "[Refresh] Refresh Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -336,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/{{ $env.FIRESTORE_PROJECT_ID }}/databases/(default)/documents/whatsapp_users/{{ $('[Refresh] Split In Batches').first().json.phone }}?updateMask.fieldPaths=firebase_token&updateMask.fieldPaths=refresh_token&updateMask.fieldPaths=token_expires_at",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"firebase_token\": { \"stringValue\": \"{{ $json.id_token }}\" },\n    \"refresh_token\": { \"stringValue\": \"{{ $json.refresh_token }}\" },\n    \"token_expires_at\": { \"timestampValue\": \"{{ new Date(Date.now() + 3600 * 1000).toISOString() }}\" }\n  }\n}",
+        "options": {}
+      },
+      "id": "5e12d6dd-f177-40c3-a9c4-88a73f041174",
+      "name": "[Refresh] Save New Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        2336
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Incoming": {
+      "main": [
+        [
+          {
+            "node": "Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message": {
+      "main": [
+        [
+          {
+            "node": "Filter Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Ignore": {
+      "main": [
+        [
+          {
+            "node": "Get User State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User State": {
+      "main": [
+        [
+          {
+            "node": "Parse State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse State": {
+      "main": [
+        [
+          {
+            "node": "Translations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translations": {
+      "main": [
+        [
+          {
+            "node": "Route by State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by State": {
+      "main": [
+        [
+          {
+            "node": "Handle New",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [
+          {
+            "node": "Handle Business Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Business Type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Survey",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Idle",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Task Choice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Dismiss Reason",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle New": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Email": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Password": {
+      "main": [
+        [
+          {
+            "node": "Firebase SignUp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firebase SignUp": {
+      "main": [
+        [
+          {
+            "node": "Process SignUp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process SignUp": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Business Name": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Business Type": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Survey": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gemini (Onboarding)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini AI": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gemini (Onboarding)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Tasks?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Idle": {
+      "main": [
+        [
+          {
+            "node": "Fetch Tasks?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Tasks?": {
+      "main": [
+        [
+          {
+            "node": "Get Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Check Task History Prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Task History Prepare": {
+      "main": [
+        [
+          {
+            "node": "Check Task History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Task History": {
+      "main": [
+        [
+          {
+            "node": "Filter by History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by History": {
+      "main": [
+        [
+          {
+            "node": "Prepare Task Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Task Queries": {
+      "main": [
+        [
+          {
+            "node": "Fetch Task Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Task Details": {
+      "main": [
+        [
+          {
+            "node": "Format Tasks + Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Tasks + Gemini": {
+      "main": [
+        [
+          {
+            "node": "Gemini AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Task Choice": {
+      "main": [
+        [
+          {
+            "node": "Use Gemini?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Action": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Dismiss Reason": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Feedback?": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Feedback API": {
+      "main": [
+        [
+          {
+            "node": "Prepare Firestore Writes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Firestore Writes": {
+      "main": [
+        [
+          {
+            "node": "Write Daily Assignment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Daily Assignment": {
+      "main": [
+        [
+          {
+            "node": "Merge After Writes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Task History": {
+      "main": [
+        [
+          {
+            "node": "Write Task History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Task History": {
+      "main": [
+        [
+          {
+            "node": "Merge After Writes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge After Writes": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Gemini?": {
+      "main": [
+        [
+          {
+            "node": "Gemini AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Update Firestore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Daily 09:00": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Query Idle Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Query Idle Users": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Parse Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Parse Users": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Check Token Expiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Check Token Expiry": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Needs Refresh?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Needs Refresh?": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Refresh Firebase Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "[Daily] Get Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Refresh Firebase Token": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Update Token Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Update Token Data": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Get Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Get Recommendations": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Check History Prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Check History Prepare": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Check Task History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Check Task History": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Filter by History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Filter by History": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Prepare Task Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Prepare Task Queries": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Fetch Task Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Fetch Task Details": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Format Daily Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Format Daily Message": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Send Daily WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Send Daily WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Update State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Daily] Update State": {
+      "main": [
+        [
+          {
+            "node": "[Daily] Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Every 50 Minutes": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Query All Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Query All Users": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Filter Expiring Tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Filter Expiring Tokens": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Has Users?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Has Users?": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Refresh Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Refresh Token": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Save New Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Refresh] Save New Token": {
+      "main": [
+        [
+          {
+            "node": "[Refresh] Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4c982540-35e2-47bd-afce-0320fb04bba2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4388602e9931e5663e89db0d19055896ff7ab9cb0103d29f2dd1ab0563a4eac2"
+  },
+  "id": "KkFlM42vRKc2Tp1l",
+  "tags": []
+}

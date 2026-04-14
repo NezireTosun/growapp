@@ -587,14 +587,8 @@ abstract class AppLocalizations {
   /// No description provided for @snooze.
   ///
   /// In en, this message translates to:
-  /// **'Later'**
+  /// **'I\'ll Do It Later'**
   String get snooze;
-
-  /// No description provided for @wontDo.
-  ///
-  /// In en, this message translates to:
-  /// **'Won\'t Do'**
-  String get wontDo;
 
   /// No description provided for @dontSuggest.
   ///
@@ -1795,6 +1789,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome to Pro! Enjoy your new features.'**
   String get purchaseSuccess;
+
+  /// No description provided for @purchaseCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase cancelled.'**
+  String get purchaseCancelled;
 
   /// No description provided for @restoreSuccess.
   ///

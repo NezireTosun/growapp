@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/router/app_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/business_provider.dart';
@@ -53,6 +54,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, size: 28),
+          onPressed: () => Navigator.pushReplacementNamed(context, AppRouter.dashboard),
+        ),
       ),
       body: Stack(
         children: [
@@ -120,7 +125,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           ),
           if (isPurchasing)
             Container(
-              color: Colors.black26,
+              color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
@@ -134,10 +139,27 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     final userId = context.read<AuthProvider>().user?.id;
     if (userId == null) return;
     final l = AppLocalizations.of(context)!;
-    final success = await businessProvider.purchasePro(userId);
-    if (success && context.mounted) {
+    try {
+      final success = await businessProvider.purchasePro(userId);
+      if (!context.mounted) return;
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.purchaseSuccess), backgroundColor: AppColors.success),
+        );
+      } else if (businessProvider.purchaseError == null) {
+        // Kullanıcı iptal etti — sessiz snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.purchaseCancelled),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.textSecondary,
+          ),
+        );
+      }
+    } catch (_) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.purchaseSuccess), backgroundColor: AppColors.success),
+        SnackBar(content: Text(l.errorGeneric), backgroundColor: AppColors.danger),
       );
     }
   }
@@ -384,99 +406,118 @@ class _FreeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isCurrentPlan ? AppColors.primary : AppColors.border,
+          color: isCurrentPlan ? AppColors.primary.withValues(alpha: 0.4) : AppColors.border,
           width: isCurrentPlan ? 1.5 : 1,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.rocket_launch_rounded,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: AppTypography.cardTitle.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      price,
-                      style: AppTypography.body.copyWith(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isCurrentPlan)
+          // Header banner — Pro ile tutarlı yapı
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              color: AppColors.background,
+            ),
+            child: Row(
+              children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    currentPlanLabel,
-                    style: AppTypography.badge.copyWith(
-                      color: AppColors.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: const Icon(
+                    Icons.rocket_launch_rounded,
+                    size: 22,
+                    color: AppColors.primary,
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: AppColors.border, height: 1),
-          const SizedBox(height: 14),
-          ...features.map((f) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline_rounded,
-                      size: 17,
-                      color: AppColors.textMuted,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        f,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppTypography.cardTitle.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        price,
                         style: AppTypography.body.copyWith(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+                if (isCurrentPlan)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                    ),
+                    child: Text(
+                      currentPlanLabel,
+                      style: AppTypography.badge.copyWith(
+                        color: AppColors.primary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: const Divider(color: AppColors.border, height: 1),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...features.map((f) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline_rounded,
+                        size: 17,
+                        color: AppColors.textMuted,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          f,
+                          style: AppTypography.body.copyWith(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
         ],
       ),
     );

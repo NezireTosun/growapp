@@ -3,16 +3,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../domain/repositories/purchase_repository.dart';
 
 class PurchaseService implements PurchaseRepository {
-  static const String _proEntitlement = 'pro';
+  static const String _proEntitlement = 'Grow APP Pro';
 
-  static const _iosApiKey = String.fromEnvironment(
-    'REVENUECAT_IOS_KEY',
-    defaultValue: 'appl_VSmGdBWngFXiJgNvYElBzglZhJL',
-  );
-  static const _androidApiKey = String.fromEnvironment(
-    'REVENUECAT_ANDROID_KEY',
-    defaultValue: 'goog_KMwamoLvuacIspeSVZshUnplxjM',
-  );
+  static const _iosApiKey = String.fromEnvironment('REVENUECAT_IOS_KEY');
+  static const _androidApiKey = String.fromEnvironment('REVENUECAT_ANDROID_KEY');
 
   PurchaseService();
 

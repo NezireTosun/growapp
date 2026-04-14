@@ -1,0 +1,115 @@
+default_platform(:ios)
+
+# ─── App Store Connect API Key ───────────────────────────────────────────────
+
+def app_store_api_key
+  app_store_connect_api_key(
+    key_id: "4F2HCJ4SSF",
+    issuer_id: "945cb837-46a2-4ba2-bf58-f1dcd6a1192f",
+    key_filepath: "fastlane/AuthKey_4F2HCJ4SSF.p8",
+    duration: 1200,
+    in_house: false,
+  )
+end
+
+# ─── Ortak: Flutter build ───────────────────────────────────────────────────
+
+def flutter_build_ios
+  sh("cd .. && flutter build ipa --release --dart-define=REVENUECAT_IOS_KEY=#{ENV['REVENUECAT_IOS_KEY']}")
+end
+
+def flutter_build_android
+  sh("cd .. && flutter build appbundle --release --dart-define=REVENUECAT_ANDROID_KEY=#{ENV['REVENUECAT_ANDROID_KEY']}")
+end
+
+# ─── iOS ────────────────────────────────────────────────────────────────────
+
+platform :ios do
+
+  desc "TestFlight'a beta sürümü yükle"
+  lane :beta do
+    key = app_store_api_key
+
+    match(
+      type: "appstore",
+      app_identifier: "com.salesgrowthsteps.app",
+      readonly: is_ci,
+      api_key: key,
+    )
+
+    flutter_build_ios
+
+    upload_to_testflight(
+      ipa: "build/ios/ipa/growapp.ipa",
+      skip_waiting_for_build_processing: true,
+      api_key: key,
+    )
+
+    UI.success("✅ iOS beta TestFlight'a yüklendi!")
+  end
+
+  desc "App Store'a release yükle"
+  lane :release do
+    key = app_store_api_key
+
+    match(
+      type: "appstore",
+      app_identifier: "com.salesgrowthsteps.app",
+      readonly: is_ci,
+      api_key: key,
+    )
+
+    flutter_build_ios
+
+    upload_to_app_store(
+      ipa: "build/ios/ipa/growapp.ipa",
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      api_key: key,
+    )
+
+    UI.success("✅ iOS release App Store'a yüklendi!")
+  end
+
+end
+
+# ─── Android ────────────────────────────────────────────────────────────────
+
+platform :android do
+
+  desc "Google Play Internal Test'e yükle"
+  lane :beta do
+    flutter_build_android
+
+    upload_to_play_store(
+      track: "internal",
+      aab: "build/app/outputs/bundle/release/app-release.aab",
+      json_key: ENV["GOOGLE_PLAY_JSON_KEY"],
+      package_name: "com.growapp.growapp",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+
+    UI.success("✅ Android beta Play Store Internal Test'e yüklendi!")
+  end
+
+  desc "Google Play Production'a yükle"
+  lane :release do
+    flutter_build_android
+
+    upload_to_play_store(
+      track: "production",
+      aab: "build/app/outputs/bundle/release/app-release.aab",
+      json_key: ENV["GOOGLE_PLAY_JSON_KEY"],
+      package_name: "com.growapp.growapp",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+
+    UI.success("✅ Android release Play Store'a yüklendi!")
+  end
+
+end
