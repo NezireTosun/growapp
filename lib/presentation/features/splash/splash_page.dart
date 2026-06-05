@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/router/app_router.dart';
-import '../../../data/services/firestore_seeder.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/business_provider.dart';
 import '../../providers/dashboard_provider.dart';
@@ -61,27 +60,15 @@ class _SplashPageState extends State<SplashPage>
 
     try {
       final authProvider = context.read<AuthProvider>();
-      debugPrint('[Splash] checkCurrentUser...');
+      AppLogger.d('[Splash]', 'checkCurrentUser...');
       await authProvider.checkCurrentUser();
-      debugPrint('[Splash] isAuthenticated=${authProvider.isAuthenticated}');
+      AppLogger.d('[Splash]', 'isAuthenticated=${authProvider.isAuthenticated}');
 
       if (!mounted) return;
 
-      if (authProvider.isAuthenticated) {
-        final user = authProvider.user!;
+      final user = authProvider.user;
+      if (authProvider.isAuthenticated && user != null) {
 
-        // Seeder'lar sadece debug modda çalışır — production'da veri zaten mevcut
-        if (kDebugMode) {
-          FirestoreSeeder.seedAll().catchError((e) {
-            debugPrint('[Splash] Seeder error: $e');
-          });
-          FirestoreSeeder.seedPrivacyPolicy().catchError((e) {
-            debugPrint('[Splash] seedPrivacyPolicy error: $e');
-          });
-          FirestoreSeeder.seedBlogPosts().catchError((e) {
-            debugPrint('[Splash] seedBlogPosts error: $e');
-          });
-        }
 
         if (!user.emailVerified) {
           Navigator.pushReplacementNamed(context, AppRouter.emailVerification);
@@ -89,9 +76,9 @@ class _SplashPageState extends State<SplashPage>
         }
 
         final businessProvider = context.read<BusinessProvider>();
-        debugPrint('[Splash] businessProvider.initialize...');
+        AppLogger.d('[Splash]', 'businessProvider.initialize...');
         await businessProvider.initialize(user.id, user.planId);
-        debugPrint('[Splash] businesses=${businessProvider.businesses.length}');
+        AppLogger.d('[Splash]', 'businesses=${businessProvider.businesses.length}');
 
         if (!mounted) return;
 
@@ -125,7 +112,10 @@ class _SplashPageState extends State<SplashPage>
             answers: active.apiAnswers,
           );
           final locale = context.read<LocaleProvider>().locale;
-          await dashboard.loadTasks(locale: locale, businessType: typeId);
+          // loadTasks arka planda çalışsın — splash beklemeden dashboard'a geç
+          dashboard.loadTasks(locale: locale, businessType: typeId).catchError((e) {
+            AppLogger.e('[Splash]', 'loadTasks error', e);
+          });
           if (!mounted) return;
           Navigator.pushReplacementNamed(context, AppRouter.dashboard);
         }
@@ -133,7 +123,7 @@ class _SplashPageState extends State<SplashPage>
         Navigator.pushReplacementNamed(context, AppRouter.register);
       }
     } catch (e, st) {
-      debugPrint('[Splash] _checkAuth error: $e\n$st');
+      AppLogger.e('[Splash]', '_checkAuth error', e, st);
       if (mounted) {
         Navigator.pushReplacementNamed(context, AppRouter.register);
       }

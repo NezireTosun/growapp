@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import '../../data/services/api_client.dart';
 import '../../data/services/task_loading_service.dart';
@@ -96,7 +97,7 @@ class DashboardProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    debugPrint('[Dashboard] loadTasks userId=$_userId businessId=$_businessId businessType=$_businessType industry=$_industry answers=$_apiAnswers');
+    AppLogger.d('[Dashboard]', 'loadTasks businessType=$_businessType industry=$_industry');
     try {
       if (_userId != null && _businessId != null && _businessType != null) {
         _tasks = await _loader.loadTasks(
@@ -112,7 +113,7 @@ class DashboardProvider extends ChangeNotifier {
         _tasks = [];
       }
     } catch (e) {
-      debugPrint('[DashboardProvider] loadTasks error: $e');
+      AppLogger.e('[DashboardProvider]', 'loadTasks error', e);
       if (_userId != null && _businessId != null && _businessType != null) {
         _tasks = await _loader.recoverTasks(
           userId: _userId!,
@@ -238,7 +239,7 @@ class DashboardProvider extends ChangeNotifier {
         dismissReason: apiDismissReason,
       );
     } catch (e) {
-      debugPrint('[DashboardProvider] API feedback error ($apiAction): $e');
+      AppLogger.e('[DashboardProvider]', 'API feedback error ($apiAction)', e);
     }
 
     T result = defaultResult as T;
@@ -264,7 +265,9 @@ class DashboardProvider extends ChangeNotifier {
         businessId: _businessId!,
         taskId: taskId,
         status: status,
-      );
+      ).catchError((e) {
+        AppLogger.e('[DashboardProvider]', 'updateTaskStatus error', e);
+      });
     }
   }
 

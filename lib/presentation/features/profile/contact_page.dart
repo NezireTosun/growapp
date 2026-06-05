@@ -43,9 +43,10 @@ class _ContactPageState extends State<ContactPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l.messageSent),
+          content: Text('${l.messageSent} ${l.messageSentDesc}'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 6),
         ),
       );
     } catch (e) {

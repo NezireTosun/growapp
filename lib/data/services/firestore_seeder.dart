@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:translator/translator.dart';
@@ -29,10 +29,10 @@ class FirestoreSeeder {
     final ref = db.collection('privacy_policy').doc('main');
     final existing = await ref.get();
     if (existing.exists) {
-      debugPrint('[FirestoreSeeder] privacy_policy zaten mevcut, atlanıyor.');
+      AppLogger.d('[FirestoreSeeder]', 'privacy_policy zaten mevcut, atlanıyor.');
       return;
     }
-    debugPrint('[FirestoreSeeder] privacy_policy seed ediliyor...');
+    AppLogger.d('[FirestoreSeeder]', 'privacy_policy seed ediliyor...');
 
     await ref.set({
       'title': {
@@ -164,7 +164,7 @@ class FirestoreSeeder {
         },
       ],
     });
-    debugPrint('[FirestoreSeeder] privacy_policy seed tamamlandı.');
+    AppLogger.d('[FirestoreSeeder]', 'privacy_policy seed tamamlandı.');
   }
 
   /// Re-index task document IDs: convert "cafe_004" style IDs to numeric "1", "2", ...
@@ -950,7 +950,7 @@ class FirestoreSeeder {
 
   static void _log(String message) {
     assert(() {
-      debugPrint('[FirestoreSeeder] $message');
+      AppLogger.d('[FirestoreSeeder]', message);
       return true;
     }());
   }

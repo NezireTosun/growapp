@@ -196,6 +196,8 @@ class OnboardingProvider extends ChangeNotifier {
   static const _industryMap = <String, String>{
     '1': 'cafe',
     '2': 'rest',
+    '3': 'ecommerce',
+    '4': 'saas',
   };
 
   /// Seçilen business type'ın industry kodu (API için)
@@ -215,7 +217,7 @@ class OnboardingProvider extends ChangeNotifier {
         ownerId: userId,
         sector: selectedBusinessType?.id,
         createdAt: DateTime.now(),
-      ));
+      )).timeout(const Duration(seconds: 12));
 
       // Pass question_id → option_id mapping for onboarding_responses
       // + API format answers for recommendations

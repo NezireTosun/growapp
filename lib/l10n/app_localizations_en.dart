@@ -417,7 +417,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get messageSent => 'Your message has been sent!';
 
   @override
-  String get messageSentDesc => 'We will get back to you as soon as possible.';
+  String get messageSentDesc =>
+      'We will get back to you as soon as possible. Our team will reach out to you soon.';
 
   @override
   String get deleteAccount => 'Delete Account';
@@ -639,6 +640,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completedTasksCount => 'Completed Tasks';
 
   @override
+  String get snoozed => 'Snoozed';
+
+  @override
+  String get allTimeTaskSummary => 'All Time';
+
+  @override
+  String get activeDaysLabel => 'Active Days';
+
+  @override
+  String activeDaysCount(int count) {
+    return '$count days';
+  }
+
+  @override
   String vsLastWeek(int percent) {
     return '+$percent% vs last week';
   }
@@ -744,7 +759,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumPlanPrice => '\$99/mo';
 
   @override
-  String get freePlanDesc => 'Perfect for getting started with one business.';
+  String get freePlanDesc =>
+      'X-ray your business and take your first strategic steps.';
 
   @override
   String get premiumPlanDesc =>
@@ -785,6 +801,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resendCode => 'Resend Code';
+
+  @override
+  String get editEmail => 'Edit Email';
 
   @override
   String get changeEmail => 'Change';
@@ -830,50 +849,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get justNow => 'now';
 
   @override
-  String get proPlanPrice => '€19.99/mo';
+  String get proPlanPrice => '€19.99';
 
   @override
-  String get proPlanDesc => 'Full access to all tools that grow your business.';
+  String get proPlanDesc =>
+      'The complete library to run your system at full capacity.';
+
+  @override
+  String get perMonth => '/ month';
+
+  @override
+  String get monthlySubscriptionLabel => 'Auto-renewing monthly subscription';
+
+  @override
+  String get subscriptionAutoRenewNotice =>
+      'Subscription automatically renews monthly unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store account settings.';
 
   @override
   String get featureFreeAnalysis =>
-      '360° Business Analysis across 7 dimensions (Q1–Q7)';
+      'Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions (Q1–Q7)';
 
   @override
-  String get featureFreeTopTasks =>
-      'Top 30 Strategic Tasks for visibility & reputation';
+  String get featureFreePainPoint => 'Core Pain Point Analysis & Benchmarking';
 
   @override
-  String get featureFreeBasicDashboard => 'Basic Dashboard';
+  String get featureFreeTasks =>
+      '15-Day Strategic Tasks: Instant access to core visibility & reputation steps (ID: 001–010)';
 
   @override
-  String get featureFreeWhatsApp => 'App + WhatsApp (no notifications)';
+  String get featureFreeUpdatedContent =>
+      'Constantly Updated Content: New tactics + digital trends every month';
 
   @override
-  String get featureFreeAiMessages => 'Trained AI Model — 5 messages/day';
+  String get featureFreeTemplates =>
+      '\"Copy-Paste\" Ready Content & Template Library';
 
   @override
-  String get featureProAnalysis => '360° Interactive Business Analysis (Q1–Q7)';
+  String get featureProAnalysis =>
+      'Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions';
+
+  @override
+  String get featureProPainPoint => 'Core Pain Point Analysis & Benchmarking';
 
   @override
   String get featureProFullLibrary =>
-      'Full Strategic Task Library — sales, profit, loyalty & more';
+      'Access to All Strategic Tasks: Quick access to the highest-impact tasks';
 
   @override
   String get featureProDashboard =>
-      'Visual Dashboard & Analytics with live charts';
-
-  @override
-  String get featureProWhatsApp =>
-      'WhatsApp Growth Coach — daily reminders & weekly reports';
+      'Visual Dashboard & Analytics: Digital Health and Growth Score';
 
   @override
   String get featureProUpdatedContent =>
-      'Constantly Updated Content — new tactics every month';
+      'Constantly Updated Content: New tactics + digital trends every month';
+
+  @override
+  String get featureProWhatsApp =>
+      'WhatsApp Growth Coach: Track your tasks via WhatsApp';
 
   @override
   String get featureProIdTracking =>
-      'ID-Based Tracking — see what each step earns you';
+      'ID-Based Tracking System: Mathematically see what each step earns you';
+
+  @override
+  String get featureProTemplates =>
+      '\"Copy-Paste\" Ready Content & Template Library';
+
+  @override
+  String get featureProSession => 'Monthly 30-Min One-on-One Growth Session';
 
   @override
   String get errorNetwork =>
@@ -900,6 +943,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Restore Purchases';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfUse => 'Terms of Use';
+
+  @override
+  String get subscribeAgreeTerms => 'By subscribing you agree to our:';
 
   @override
   String get purchaseSuccess => 'Welcome to Pro! Enjoy your new features.';
@@ -996,4 +1048,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumBuyNow => 'Get Premium';
+
+  @override
+  String todayTasksFor(String name) {
+    return 'Today\'s tailored tasks for $name';
+  }
+
+  @override
+  String get moreTasksTomorrow =>
+      'More customized tasks are coming tomorrow. See you then!';
+
+  @override
+  String get allDoneToday =>
+      'All done for today! 🎉 New tasks arrive tomorrow. You\'re one step closer to your goals!';
 }

@@ -27,10 +27,11 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   @override
   void initState() {
     super.initState();
-    // Send verification code on page load
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
       final locale = Localizations.localeOf(context).languageCode;
-      context.read<AuthProvider>().sendVerificationCode(locale: locale);
+      // Demo hesabı için de sendVerificationCode çağrılır — repo sabit 000000 kodunu Firestore'a yazar
+      auth.sendVerificationCode(locale: locale);
       _startCooldown();
     });
   }
@@ -144,6 +145,18 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, size: 28, color: AppColors.textPrimary),
+          onPressed: () {
+            context.read<AuthProvider>().signOut();
+            Navigator.pushReplacementNamed(context, AppRouter.register);
+          },
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -182,13 +195,26 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                email,
-                textAlign: TextAlign.center,
-                style: AppTypography.body.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    email,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () {
+                      context.read<AuthProvider>().signOut();
+                      Navigator.pushReplacementNamed(context, AppRouter.register);
+                    },
+                    child: const Icon(Icons.edit_outlined, size: 16, color: AppColors.primary),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Container(

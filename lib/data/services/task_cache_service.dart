@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/entities/task.dart';
 
@@ -35,9 +35,9 @@ class TaskCacheService {
       final json = jsonEncode(tasks.map(_taskToMap).toList());
       await _storage.write(key: _cacheKey(userId, businessId), value: json);
       await _storage.write(key: _dateKey(userId, businessId), value: _today());
-      debugPrint('[TaskCacheService] ${tasks.length} görev cache\'e yazıldı');
+      AppLogger.d('[TaskCacheService]', '${tasks.length} görev cache\'e yazıldı');
     } catch (e) {
-      debugPrint('[TaskCacheService] saveTasks error: $e');
+      AppLogger.e('[TaskCacheService]', 'saveTasks error', e);
     }
   }
 
@@ -55,10 +55,10 @@ class TaskCacheService {
 
       final list = jsonDecode(json) as List<dynamic>;
       final tasks = list.map((e) => _taskFromMap(e as Map<String, dynamic>)).toList();
-      debugPrint('[TaskCacheService] ${tasks.length} görev cache\'den yüklendi');
+      AppLogger.d('[TaskCacheService]', '${tasks.length} görev cache\'den yüklendi');
       return tasks;
     } catch (e) {
-      debugPrint('[TaskCacheService] loadTasks error: $e');
+      AppLogger.e('[TaskCacheService]', 'loadTasks error', e);
       return null;
     }
   }

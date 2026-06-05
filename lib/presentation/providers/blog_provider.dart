@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/blog_post.dart';
@@ -109,7 +110,7 @@ class BlogProvider extends ChangeNotifier {
         'like_count': FieldValue.increment(wasLiked ? -1 : 1),
       });
     } catch (e) {
-      debugPrint('[BlogProvider] toggleLike error: $e');
+      AppLogger.e('[BlogProvider]', 'toggleLike error', e);
       // Revert on error
       if (wasLiked) {
         _likedPostIds.add(postId);

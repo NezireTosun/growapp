@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/app_notification.dart';
@@ -35,7 +36,7 @@ class NotificationListProvider extends ChangeNotifier {
           .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
-      debugPrint('[NotificationListProvider] Error: $e');
+      AppLogger.e('[NotificationListProvider]', 'Error', e);
       final msg = e.toString();
       if (msg.contains('SocketException') || msg.contains('Failed host lookup')) {
         _errorMessage = 'network_error';
@@ -60,7 +61,7 @@ class NotificationListProvider extends ChangeNotifier {
         'is_read': true,
       });
     } catch (e) {
-      debugPrint('[NotificationListProvider] markAsRead error: $e');
+      AppLogger.e('[NotificationListProvider]', 'markAsRead error', e);
     }
   }
 

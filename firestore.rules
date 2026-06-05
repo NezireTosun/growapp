@@ -205,6 +205,11 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ─── whatsapp_users (n8n WhatsApp bot state) ─────────────────────────────
+    match /whatsapp_users/{phone} {
+      allow read, write: if true; // n8n bot unauthenticated PATCH/GET için açık
+    }
+
     // Tanımlı olmayan tüm collection'lara erişimi kapat
     match /{document=**} {
       allow read, write: if false;

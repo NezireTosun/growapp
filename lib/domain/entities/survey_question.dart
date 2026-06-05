@@ -19,11 +19,13 @@ class SurveyOption {
   final String label;
   final SurveyMood? mood;
   final int score;
+  final int order;
 
   const SurveyOption({
     required this.id,
     required this.label,
     this.mood,
     this.score = 0,
+    this.order = 0,
   });
 }

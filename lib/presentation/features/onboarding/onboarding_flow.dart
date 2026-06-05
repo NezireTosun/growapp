@@ -4,11 +4,11 @@ import '../../../data/repositories/business_repository_impl.dart';
 import '../../../data/repositories/onboarding_repository_impl.dart';
 import '../../../domain/entities/onboarding_step.dart';
 import '../../providers/locale_provider.dart';
+import 'ai_analysis_page.dart';
 import '../../../core/widgets/skeleton_loading.dart';
 import '../../providers/onboarding_provider.dart';
 import 'business_name_page.dart';
 import 'business_type_page.dart';
-import 'ai_analysis_page.dart';
 import 'pain_point_page.dart';
 import 'survey/survey_page.dart';
 
@@ -18,21 +18,28 @@ class OnboardingFlow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = context.read<LocaleProvider>().locale;
+    final isAddingBusiness = ModalRoute.of(context)?.settings.arguments == true;
     return ChangeNotifierProvider(
       create: (_) => OnboardingProvider(OnboardingRepositoryImpl(), BusinessRepositoryImpl())..initialize(locale: locale),
-      child: const _OnboardingContent(),
+      child: _OnboardingContent(isAddingBusiness: isAddingBusiness),
     );
   }
 }
 
+
 class _OnboardingContent extends StatelessWidget {
-  const _OnboardingContent();
+  const _OnboardingContent({required this.isAddingBusiness});
+
+  final bool isAddingBusiness;
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<OnboardingProvider>();
 
-    if (provider.isLoading) {
+    final step = provider.currentStep;
+
+    // İlk yükleme: henüz step yok
+    if (step == null) {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: OnboardingSkeleton(),
@@ -46,14 +53,8 @@ class _OnboardingContent extends StatelessWidget {
       );
     }
 
-    final step = provider.currentStep;
-    if (step == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: OnboardingSkeleton(),
-      );
-    }
-
+    // isLoading sırasında skeleton gösterme — aiAnalysis adımındayken
+    // skeleton AiAnalysisPage'i dispose eder ve timer'lar sıfırlanır
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: _buildStep(step),
@@ -71,7 +72,7 @@ class _OnboardingContent extends StatelessWidget {
       case OnboardingStepType.painPoints:
         return const PainPointPage(key: ValueKey('painPoints'));
       case OnboardingStepType.aiAnalysis:
-        return const AiAnalysisPage(key: ValueKey('aiAnalysis'));
+        return AiAnalysisPage(key: const ValueKey('aiAnalysis'), isAddingBusiness: isAddingBusiness);
     }
   }
 }

@@ -1,4 +1,5 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
@@ -380,3 +381,86 @@ exports.resetPasswordWithCode = onCall(
     return { success: true };
   }
 );
+
+/**
+ * Listens to changes in whatsapp_users collection.
+ * If a user provides an email but doesn't have a firebase_uid,
+ * we create an account for them in Firebase Auth and set up their profile.
+ */
+exports.onWhatsAppUserWritten = onDocumentWritten("whatsapp_users/{phone}", async (event) => {
+  const snapshot = event.data.after;
+  if (!snapshot.exists) return;
+
+  const data = snapshot.data();
+  const phone = event.params.phone;
+
+  // Sadece email varsa ve henüz firebase_uid atanmamışsa işlem yap
+  if (!data.email || data.firebase_uid) {
+    return;
+  }
+
+  const auth = getAuth();
+  const db = getFirestore();
+  const email = data.email.trim().toLowerCase();
+  let uid = null;
+
+  try {
+    // Firebase Auth'ta bu email ile kayıtlı kullanıcı var mı kontrol et
+    const userRecord = await auth.getUserByEmail(email);
+    uid = userRecord.uid;
+  } catch (err) {
+    if (err.code === "auth/user-not-found") {
+      // Kullanıcı yoksa, rastgele bir şifre ile yeni hesap oluştur
+      const crypto = require("crypto");
+      const randomPassword = crypto.randomBytes(12).toString("base64");
+
+      try {
+        const newUser = await auth.createUser({
+          email: email,
+          password: randomPassword,
+          displayName: data.name || phone,
+          emailVerified: false,
+        });
+        uid = newUser.uid;
+      } catch (createErr) {
+        console.error("WhatsApp kullanıcısı için Auth hesabı oluşturulurken hata:", createErr);
+        return;
+      }
+    } else {
+      console.error("Auth'ta email aranırken hata:", err);
+      return;
+    }
+  }
+
+  if (!uid) return;
+
+  // Uygulamanın ana `users` koleksiyonuna profil belgesini oluştur
+  const userRef = db.collection("users").doc(uid);
+  const userDoc = await userRef.get();
+
+  if (!userDoc.exists) {
+    await userRef.set({
+      fullname: data.name || phone,
+      email: email,
+      phone: phone,
+      plan_id: "free",
+      is_active: true,
+      email_verified: false,
+      created_at: FieldValue.serverTimestamp(),
+      last_login: FieldValue.serverTimestamp(),
+    });
+  } else {
+    // Profil varsa sadece telefon numarasını senkronize et
+    await userRef.update({
+      phone: phone,
+    });
+  }
+
+  // İşlemin tekrar etmemesi için whatsapp_users belgesine firebase_uid'yi kaydet
+  await db.collection("whatsapp_users").doc(phone).update({
+    firebase_uid: uid,
+    updated_at: FieldValue.serverTimestamp(),
+  });
+
+  console.log(`WhatsApp kullanıcısı ${phone} başarıyla Firebase Auth ile entegre edildi (uid: ${uid}).`);
+});

@@ -1,3 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
+import 'package:confetti/confetti.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,8 +26,31 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-class _DashboardContent extends StatelessWidget {
+class _DashboardContent extends StatefulWidget {
   const _DashboardContent();
+
+  @override
+  State<_DashboardContent> createState() => _DashboardContentState();
+}
+
+class _DashboardContentState extends State<_DashboardContent> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _triggerCelebration() {
+    _confettiController.play();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,33 +97,95 @@ class _DashboardContent extends StatelessWidget {
       });
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: provider.isLoading
-            ? const DashboardSkeleton()
-            : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    _buildHeader(context, provider, businessProvider, l),
-                    const SizedBox(height: 20),
-                    _buildProgressCard(provider, l),
-                    const SizedBox(height: 20),
-                    ...provider.tasks.map(
-                      (task) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _TaskCard(task: task),
-                      ),
+    final allDone = provider.tasks.isNotEmpty &&
+        provider.tasks.every((t) => t.status == TaskStatus.completed);
+
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: SafeArea(
+            child: provider.isLoading
+                ? const DashboardSkeleton()
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        _buildHeader(context, provider, businessProvider, l),
+                        const SizedBox(height: 20),
+                        _buildProgressCard(provider, l),
+                        const SizedBox(height: 20),
+                        if (allDone)
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                            ),
+                            child: Text(
+                              l.allDoneToday,
+                              textAlign: TextAlign.center,
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.success,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ...provider.tasks.take(3).map(
+                          (task) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _TaskCard(
+                              task: task,
+                              onCompleted: _triggerCelebration,
+                            ),
+                          ),
+                        ),
+                        if (provider.tasks.length >= 3 && !allDone) ...[
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              l.moreTasksTomorrow,
+                              textAlign: TextAlign.center,
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 100),
+                      ],
                     ),
-                    const SizedBox(height: 100),
-                  ],
-                ),
-              ),
-      ),
-      bottomNavigationBar: const _BottomNavBar(),
+                  ),
+          ),
+          bottomNavigationBar: const _BottomNavBar(),
+        ),
+        // Confetti overlay — ekranın ortasından aşağı yağar
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            numberOfParticles: 30,
+            gravity: 0.2,
+            colors: const [
+              AppColors.primary,
+              AppColors.success,
+              Colors.orange,
+              Colors.pink,
+              Colors.yellow,
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -131,7 +218,7 @@ class _DashboardContent extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: GestureDetector(
-            onTap: hasMultiple ? () => _showBusinessSwitcher(context, businessProvider, provider, l) : null,
+            onTap: (hasMultiple || businessProvider.canAddBusiness) ? () => _showBusinessSwitcher(context, businessProvider, provider, l) : null,
             child: Row(
               children: [
                 Flexible(
@@ -159,7 +246,7 @@ class _DashboardContent extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (hasMultiple)
+                if (hasMultiple || businessProvider.canAddBusiness)
                   const Padding(
                     padding: EdgeInsets.only(left: 4),
                     child: Icon(
@@ -292,7 +379,11 @@ class _DashboardContent extends StatelessWidget {
                               industry: active.sector ?? 'rest',
                               answers: active.apiAnswers,
                             );
-                            await dashboardProvider.loadTasks(businessType: typeId);
+                            try {
+                              await dashboardProvider.loadTasks(businessType: typeId);
+                            } catch (e) {
+                              AppLogger.e('[Dashboard]', 'switchBusiness loadTasks error', e);
+                            }
                           }
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
@@ -305,7 +396,7 @@ class _DashboardContent extends StatelessWidget {
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(ctx);
-                          Navigator.pushNamed(context, AppRouter.onboarding);
+                          Navigator.pushNamed(context, AppRouter.onboarding, arguments: true);
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -390,9 +481,9 @@ class _DashboardContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  l.boostSales,
+                  l.todayTasksFor(provider.businessName),
                   style: AppTypography.hero.copyWith(
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                     height: 1.25,
                     color: Colors.white,
@@ -484,7 +575,8 @@ class _CircularProgressPainter extends CustomPainter {
 
 class _TaskCard extends StatelessWidget {
   final DailyTask task;
-  const _TaskCard({required this.task});
+  final VoidCallback? onCompleted;
+  const _TaskCard({required this.task, this.onCompleted});
 
   @override
   Widget build(BuildContext context) {
@@ -593,6 +685,7 @@ class _TaskCard extends StatelessWidget {
     provider.markViewed(task.id);
     final tasks = provider.tasks;
     final index = tasks.indexWhere((t) => t.id == task.id);
+    if (index == -1) return;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -601,11 +694,11 @@ class _TaskCard extends StatelessWidget {
           taskIndex: index,
           totalTasks: tasks.length,
           onStatusChanged: (status) {
-            // Dialog-based actions (done, snooze, dismiss, blacklist)
-            // are handled inside TaskDetailPage directly via provider.
-            // This callback handles simple status updates only.
             if (status == TaskStatus.viewed) {
               provider.markViewed(task.id);
+            }
+            if (status == TaskStatus.completed) {
+              onCompleted?.call();
             }
           },
         ),

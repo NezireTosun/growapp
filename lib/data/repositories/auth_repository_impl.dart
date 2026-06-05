@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -16,7 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       return await _mapFirebaseUserWithFirestore(fbUser);
     } catch (e) {
-      debugPrint('[AuthRepository] getCurrentUser Firestore error: $e');
+      AppLogger.e('[AuthRepository]', 'getCurrentUser Firestore error', e);
       // Firestore erişilemese bile temel Firebase Auth bilgisiyle devam et
       return User(
         id: fbUser.uid,
@@ -126,7 +126,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Email artık Functions tarafından SMTP ile gönderilir
       await callable.call({'email': email, 'locale': locale});
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('[AuthRepo] sendPasswordResetCode error: ${e.code} ${e.message}');
+      AppLogger.e('[AuthRepo]', 'sendPasswordResetCode error: ${e.code} ${e.message}', e);
       throw Exception(e.code);
     }
   }
@@ -141,7 +141,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await callable.call({'email': email, 'code': code});
       return true;
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('[AuthRepo] verifyPasswordResetCode error: ${e.code} ${e.message}');
+      AppLogger.e('[AuthRepo]', 'verifyPasswordResetCode error: ${e.code} ${e.message}', e);
       if (e.code == 'deadline-exceeded') throw Exception('expired');
       return false;
     }
@@ -157,7 +157,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await callable.call({'email': email, 'code': code, 'newPassword': newPassword});
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('[AuthRepo] resetPasswordWithCode error: code=${e.code} message=${e.message}');
+      AppLogger.e('[AuthRepo]', 'resetPasswordWithCode error: code=${e.code} message=${e.message}', e);
       throw Exception(e.code);
     }
   }
@@ -178,7 +178,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> updatePhone(String userId, String phone) async {
+  Future<void> updatePhone(String userId, String phone) async{
     await _db.collection('users').doc(userId).set({
       'phone': phone,
     }, SetOptions(merge: true));
@@ -196,10 +196,24 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  static const _demoEmail = 'sunssquad988@gmail.com';
+  static const _demoBypassCode = '000000';
+
   @override
   Future<void> sendVerificationCode({String locale = 'tr'}) async {
     final fbUser = _auth.currentUser;
     if (fbUser == null) return;
+
+    // Demo hesabı için kod gönderme — bypass aktif, sabit kod 000000
+    if (fbUser.email?.toLowerCase() == _demoEmail) {
+      // Firestore'a sabit kodu yaz — reviewer manuel girişte de çalışsın
+      final expires = DateTime.now().add(const Duration(days: 365)).millisecondsSinceEpoch;
+      await _db.collection('users').doc(fbUser.uid).set({
+        'verification_code': _demoBypassCode,
+        'verification_code_expires': expires,
+      }, SetOptions(merge: true));
+      return;
+    }
 
     try {
       final callable = FirebaseFunctions.instance.httpsCallable(
@@ -208,7 +222,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await callable.call({'locale': locale});
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('[AuthRepo] sendVerificationCode error: ${e.code} ${e.message}');
+      AppLogger.e('[AuthRepo]', 'sendVerificationCode error: ${e.code} ${e.message}', e);
       throw Exception(e.code);
     }
   }
@@ -217,6 +231,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> verifyCode(String code) async {
     final fbUser = _auth.currentUser;
     if (fbUser == null) return false;
+
+    // Demo hesabı için sabit kod ile bypass — App Store review için
+    if (fbUser.email?.toLowerCase() == _demoEmail && code == _demoBypassCode) {
+      await _db.collection('users').doc(fbUser.uid).set({
+        'email_verified': true,
+      }, SetOptions(merge: true));
+      return true;
+    }
 
     // Firestore'dan kodu kontrol et
     final doc = await _db.collection('users').doc(fbUser.uid).get();

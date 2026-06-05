@@ -887,7 +887,7 @@ abstract class AppLocalizations {
   /// No description provided for @messageSentDesc.
   ///
   /// In en, this message translates to:
-  /// **'We will get back to you as soon as possible.'**
+  /// **'We will get back to you as soon as possible. Our team will reach out to you soon.'**
   String get messageSentDesc;
 
   /// No description provided for @deleteAccount.
@@ -1304,6 +1304,30 @@ abstract class AppLocalizations {
   /// **'Completed Tasks'**
   String get completedTasksCount;
 
+  /// No description provided for @snoozed.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed'**
+  String get snoozed;
+
+  /// No description provided for @allTimeTaskSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'All Time'**
+  String get allTimeTaskSummary;
+
+  /// No description provided for @activeDaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Days'**
+  String get activeDaysLabel;
+
+  /// No description provided for @activeDaysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String activeDaysCount(int count);
+
   /// No description provided for @vsLastWeek.
   ///
   /// In en, this message translates to:
@@ -1505,7 +1529,7 @@ abstract class AppLocalizations {
   /// No description provided for @freePlanDesc.
   ///
   /// In en, this message translates to:
-  /// **'Perfect for getting started with one business.'**
+  /// **'X-ray your business and take your first strategic steps.'**
   String get freePlanDesc;
 
   /// No description provided for @premiumPlanDesc.
@@ -1586,6 +1610,12 @@ abstract class AppLocalizations {
   /// **'Resend Code'**
   String get resendCode;
 
+  /// No description provided for @editEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Email'**
+  String get editEmail;
+
   /// No description provided for @changeEmail.
   ///
   /// In en, this message translates to:
@@ -1661,80 +1691,116 @@ abstract class AppLocalizations {
   /// No description provided for @proPlanPrice.
   ///
   /// In en, this message translates to:
-  /// **'€19.99/mo'**
+  /// **'€19.99'**
   String get proPlanPrice;
 
   /// No description provided for @proPlanDesc.
   ///
   /// In en, this message translates to:
-  /// **'Full access to all tools that grow your business.'**
+  /// **'The complete library to run your system at full capacity.'**
   String get proPlanDesc;
+
+  /// No description provided for @perMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'/ month'**
+  String get perMonth;
+
+  /// No description provided for @monthlySubscriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-renewing monthly subscription'**
+  String get monthlySubscriptionLabel;
+
+  /// No description provided for @subscriptionAutoRenewNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription automatically renews monthly unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store account settings.'**
+  String get subscriptionAutoRenewNotice;
 
   /// No description provided for @featureFreeAnalysis.
   ///
   /// In en, this message translates to:
-  /// **'360° Business Analysis across 7 dimensions (Q1–Q7)'**
+  /// **'Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions (Q1–Q7)'**
   String get featureFreeAnalysis;
 
-  /// No description provided for @featureFreeTopTasks.
+  /// No description provided for @featureFreePainPoint.
   ///
   /// In en, this message translates to:
-  /// **'Top 30 Strategic Tasks for visibility & reputation'**
-  String get featureFreeTopTasks;
+  /// **'Core Pain Point Analysis & Benchmarking'**
+  String get featureFreePainPoint;
 
-  /// No description provided for @featureFreeBasicDashboard.
+  /// No description provided for @featureFreeTasks.
   ///
   /// In en, this message translates to:
-  /// **'Basic Dashboard'**
-  String get featureFreeBasicDashboard;
+  /// **'15-Day Strategic Tasks: Instant access to core visibility & reputation steps (ID: 001–010)'**
+  String get featureFreeTasks;
 
-  /// No description provided for @featureFreeWhatsApp.
+  /// No description provided for @featureFreeUpdatedContent.
   ///
   /// In en, this message translates to:
-  /// **'App + WhatsApp (no notifications)'**
-  String get featureFreeWhatsApp;
+  /// **'Constantly Updated Content: New tactics + digital trends every month'**
+  String get featureFreeUpdatedContent;
 
-  /// No description provided for @featureFreeAiMessages.
+  /// No description provided for @featureFreeTemplates.
   ///
   /// In en, this message translates to:
-  /// **'Trained AI Model — 5 messages/day'**
-  String get featureFreeAiMessages;
+  /// **'\"Copy-Paste\" Ready Content & Template Library'**
+  String get featureFreeTemplates;
 
   /// No description provided for @featureProAnalysis.
   ///
   /// In en, this message translates to:
-  /// **'360° Interactive Business Analysis (Q1–Q7)'**
+  /// **'Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions'**
   String get featureProAnalysis;
+
+  /// No description provided for @featureProPainPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Core Pain Point Analysis & Benchmarking'**
+  String get featureProPainPoint;
 
   /// No description provided for @featureProFullLibrary.
   ///
   /// In en, this message translates to:
-  /// **'Full Strategic Task Library — sales, profit, loyalty & more'**
+  /// **'Access to All Strategic Tasks: Quick access to the highest-impact tasks'**
   String get featureProFullLibrary;
 
   /// No description provided for @featureProDashboard.
   ///
   /// In en, this message translates to:
-  /// **'Visual Dashboard & Analytics with live charts'**
+  /// **'Visual Dashboard & Analytics: Digital Health and Growth Score'**
   String get featureProDashboard;
-
-  /// No description provided for @featureProWhatsApp.
-  ///
-  /// In en, this message translates to:
-  /// **'WhatsApp Growth Coach — daily reminders & weekly reports'**
-  String get featureProWhatsApp;
 
   /// No description provided for @featureProUpdatedContent.
   ///
   /// In en, this message translates to:
-  /// **'Constantly Updated Content — new tactics every month'**
+  /// **'Constantly Updated Content: New tactics + digital trends every month'**
   String get featureProUpdatedContent;
+
+  /// No description provided for @featureProWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp Growth Coach: Track your tasks via WhatsApp'**
+  String get featureProWhatsApp;
 
   /// No description provided for @featureProIdTracking.
   ///
   /// In en, this message translates to:
-  /// **'ID-Based Tracking — see what each step earns you'**
+  /// **'ID-Based Tracking System: Mathematically see what each step earns you'**
   String get featureProIdTracking;
+
+  /// No description provided for @featureProTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Copy-Paste\" Ready Content & Template Library'**
+  String get featureProTemplates;
+
+  /// No description provided for @featureProSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly 30-Min One-on-One Growth Session'**
+  String get featureProSession;
 
   /// No description provided for @errorNetwork.
   ///
@@ -1783,6 +1849,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore Purchases'**
   String get restorePurchases;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get termsOfUse;
+
+  /// No description provided for @subscribeAgreeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'By subscribing you agree to our:'**
+  String get subscribeAgreeTerms;
 
   /// No description provided for @purchaseSuccess.
   ///
@@ -1951,6 +2035,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Premium'**
   String get premiumBuyNow;
+
+  /// No description provided for @todayTasksFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s tailored tasks for {name}'**
+  String todayTasksFor(String name);
+
+  /// No description provided for @moreTasksTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'More customized tasks are coming tomorrow. See you then!'**
+  String get moreTasksTomorrow;
+
+  /// No description provided for @allDoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'All done for today! 🎉 New tasks arrive tomorrow. You\'re one step closer to your goals!'**
+  String get allDoneToday;
 }
 
 class _AppLocalizationsDelegate

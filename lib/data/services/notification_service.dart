@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -33,7 +33,7 @@ class NotificationService {
 
     await _plugin.initialize(initSettings);
     _initialized = true;
-    debugPrint('[NotificationService] initialized');
+    AppLogger.d('[NotificationService]', 'initialized');
   }
 
   Future<void> showLocalNotification({
@@ -55,7 +55,7 @@ class NotificationService {
     );
 
     await _plugin.show(id, title, body, details);
-    debugPrint('[NotificationService] showLocalNotification: $title');
+    AppLogger.d('[NotificationService]', 'showLocalNotification: $title');
   }
 
   /// Günlük hatırlatma kur (örn. her gün saat 09:00)
@@ -103,7 +103,7 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
-    debugPrint('[NotificationService] scheduleDailyReminder at $hour:$minute');
+    AppLogger.d('[NotificationService]', 'scheduleDailyReminder at $hour:$minute');
   }
 
   Future<void> cancelNotification(int id) async {

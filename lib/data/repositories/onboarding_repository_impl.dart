@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import '../../domain/entities/business_type_option.dart';
 import '../../domain/entities/onboarding_step.dart';
 import '../../domain/entities/pain_point_option.dart';
@@ -53,10 +53,22 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
 
   @override
   Future<List<SurveyQuestion>> getSurveyQuestions(String businessType, {String locale = 'tr'}) async {
-    final snapshot = await _db
-        .collection('questions')
-        .orderBy('order_no')
-        .get();
+    // ecommerce has its own question set (q1_ecom..q7_ecom, business_type='ecommerce')
+    // cafe/rest use legacy questions without a business_type field (doc IDs: q1..q7)
+    final Query<Map<String, dynamic>> query;
+    if (businessType == 'ecommerce') {
+      query = _db.collection('questions')
+          .where('business_type', isEqualTo: 'ecommerce')
+          .orderBy('order_no');
+    } else if (businessType == 'saas') {
+      query = _db.collection('questions')
+          .where('business_type', isEqualTo: 'saas')
+          .orderBy('order_no');
+    } else {
+      query = _db.collection('questions')
+          .where(FieldPath.documentId, whereIn: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7']);
+    }
+    final snapshot = await query.get();
 
     final questions = <SurveyQuestion>[];
     for (final doc in snapshot.docs) {
@@ -74,8 +86,10 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
           label: _loc(optData['label'], locale),
           mood: _mapMood(scoreVal),
           score: scoreVal,
+          order: optData['order'] as int? ?? 0,
         );
-      }).toList();
+      }).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
 
       questions.add(SurveyQuestion(
         id: doc.id,
@@ -107,11 +121,16 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
 
     // Save API-format answers (q1-q7 with scores) to business document FIRST
     // This is critical — without api_answers, tasks won't load on dashboard
+    // set+merge instead of update: avoids "document not found" if createBusiness hasn't fully committed yet
     final apiAnswers = answers['apiAnswers'] as Map<String, int>?;
     if (apiAnswers != null && apiAnswers.isNotEmpty) {
-      await _db.collection('businesses').doc(businessId).update({
-        'api_answers': apiAnswers,
-      });
+      await _db.collection('businesses').doc(businessId).set(
+        {'api_answers': apiAnswers},
+        SetOptions(merge: true),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => AppLogger.w('[OnboardingRepo]', 'api_answers set timed out — devam ediliyor'),
+      );
     }
 
     // Save each survey answer as a separate document in onboarding_responses
@@ -127,14 +146,14 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
             'question_id': entry.key,
             'option_id': entry.value.toString(),
             'created_at': FieldValue.serverTimestamp(),
-            if (userId != null) 'user_id': userId,
+            'user_id': userId,
           });
         }
-        await batch.commit();
+        await batch.commit().timeout(const Duration(seconds: 8));
       }
     } catch (e) {
       // onboarding_responses write is non-critical — api_answers already saved above
-      debugPrint('[OnboardingRepo] onboarding_responses write failed (devam ediliyor): $e');
+      AppLogger.d('[OnboardingRepo]', 'onboarding_responses write failed (devam ediliyor): $e');
     }
   }
 

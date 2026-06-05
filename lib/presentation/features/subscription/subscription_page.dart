@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/router/app_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/business_provider.dart';
@@ -56,7 +57,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         scrolledUnderElevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, size: 28),
-          onPressed: () => Navigator.pushReplacementNamed(context, AppRouter.dashboard),
+          onPressed: () => Navigator.maybePop(context),
         ),
       ),
       body: Stack(
@@ -71,11 +72,14 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   description: l.proPlanDesc,
                   features: [
                     l.featureProAnalysis,
+                    l.featureProPainPoint,
                     l.featureProFullLibrary,
                     l.featureProDashboard,
-                    l.featureProWhatsApp,
                     l.featureProUpdatedContent,
+                    l.featureProWhatsApp,
                     l.featureProIdTracking,
+                    l.featureProTemplates,
+                    l.featureProSession,
                   ],
                   isCurrentPlan: isPro,
                   currentPlanLabel: l.yourCurrentPlan,
@@ -94,10 +98,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   description: l.freePlanDesc,
                   features: [
                     l.featureFreeAnalysis,
-                    l.featureFreeTopTasks,
-                    l.featureFreeBasicDashboard,
-                    l.featureFreeWhatsApp,
-                    l.featureFreeAiMessages,
+                    l.featureFreePainPoint,
+                    l.featureFreeTasks,
+                    l.featureFreeUpdatedContent,
+                    l.featureFreeTemplates,
                   ],
                   isCurrentPlan: !isPro,
                   currentPlanLabel: l.yourCurrentPlan,
@@ -119,6 +123,61 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       ),
                     ),
                   ),
+                const SizedBox(height: 8),
+
+                // Auto-renew notice — Apple App Store requirement
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    l.subscriptionAutoRenewNotice,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => launchUrl(
+                        Uri.parse(AppConstants.getPrivacyPolicyUrl(
+                            Localizations.localeOf(context).languageCode)),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(
+                        l.privacyPolicy,
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    Text('  ·  ', style: AppTypography.body.copyWith(color: AppColors.textSecondary, fontSize: 14)),
+                    GestureDetector(
+                      onTap: () => launchUrl(
+                        Uri.parse(AppConstants.getTermsOfUseUrl(
+                            Localizations.localeOf(context).languageCode)),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(
+                        l.termsOfUse,
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
               ],
             ),
@@ -265,8 +324,8 @@ class _ProCard extends StatelessWidget {
                       Text(
                         description,
                         style: AppTypography.body.copyWith(
-                          color: Colors.white.withValues(alpha: 0.75),
-                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -284,7 +343,7 @@ class _ProCard extends StatelessWidget {
                       currentPlanLabel,
                       style: AppTypography.badge.copyWith(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -298,7 +357,7 @@ class _ProCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Price
+                // Price — Apple requires subscription title, length, and price to be visible
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
@@ -311,7 +370,24 @@ class _ProCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
+                    const SizedBox(width: 6),
+                    Text(
+                      AppLocalizations.of(context)!.perMonth,
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  AppLocalizations.of(context)!.monthlySubscriptionLabel,
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const Divider(color: AppColors.border, height: 1),
@@ -374,6 +450,62 @@ class _ProCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Apple requires both Terms of Use and Privacy Policy links near the purchase button
+                  Text(
+                    AppLocalizations.of(context)!.subscribeAgreeTerms,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () => launchUrl(
+                          Uri.parse(AppConstants.getTermsOfUseUrl(
+                              Localizations.localeOf(context).languageCode)),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.termsOfUse,
+                          style: AppTypography.body.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '  ·  ',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => launchUrl(
+                          Uri.parse(AppConstants.getPrivacyPolicyUrl(
+                              Localizations.localeOf(context).languageCode)),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.privacyPolicy,
+                          style: AppTypography.body.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ],
@@ -456,7 +588,7 @@ class _FreeCard extends StatelessWidget {
                       Text(
                         price,
                         style: AppTypography.body.copyWith(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -475,7 +607,7 @@ class _FreeCard extends StatelessWidget {
                       currentPlanLabel,
                       style: AppTypography.badge.copyWith(
                         color: AppColors.primary,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../data/services/purchase_service.dart';
@@ -61,32 +62,57 @@ class BusinessProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    // Önce RevenueCat'ten gerçek abonelik durumunu al
+    // Firestore'daki plan_id stale kalabilir (premium alındıktan sonra güncellenmemiş olabilir)
     try {
-      _currentPlan = await _planRepository.getPlanById(planId);
-      final allBusinesses = await _businessRepository.getUserBusinesses(userId);
-      // Duplicate id'leri filtrele (aynı işletme birden fazla kaydedilmiş olabilir)
-      final seen = <String>{};
-      final unique = allBusinesses.where((b) => seen.add(b.id)).toList();
+      await _purchaseService.login(userId);
+      _isPro = await _purchaseService.checkProStatus();
+    } catch (e) {
+      AppLogger.e('[BusinessProvider]', 'RevenueCat error', e);
+      _isPro = false;
+    }
 
-      // Plan limitine göre kes
-      final maxAllowed = _currentPlan?.maxBusinesses ?? 1;
-      _businesses = unique.length > maxAllowed ? unique.sublist(0, maxAllowed) : unique;
+    // TODO: TEST OVERRIDE — kaldır production'a geçmeden önce
+    _isPro = true;
+
+    // RevenueCat pro ise planId'yi override et — Firestore'daki stale 'free' değerini yoksay
+    final effectivePlanId = _isPro ? 'pro' : planId;
+
+    try {
+      _currentPlan = await _planRepository.getPlanById(effectivePlanId);
+      final allBusinesses = await _businessRepository.getUserBusinesses(userId);
+
+      // id bazlı deduplicate
+      final seenIds = <String>{};
+      final uniqueById = allBusinesses.where((b) => seenIds.add(b.id)).toList();
+
+      // (name+ownerId) bazlı deduplicate: onboarding tekrarından oluşan aynı isimli işletmeleri filtrele
+      // Fazla kayıtları Firestore'da arka planda soft-delete et
+      final seenKeys = <String>{};
+      final unique = <Business>[];
+      final duplicates = <Business>[];
+      for (final b in uniqueById) {
+        final key = '${b.ownerId}_${b.name.trim().toLowerCase()}';
+        if (seenKeys.add(key)) {
+          unique.add(b);
+        } else {
+          duplicates.add(b);
+        }
+      }
+      for (final dup in duplicates) {
+        _businessRepository.deleteBusiness(dup.id).catchError(
+          (e) => AppLogger.e('[BusinessProvider]', 'duplicate cleanup error', e),
+        );
+      }
+
+      _businesses = unique;
 
       if (_businesses.isNotEmpty) {
         _activeBusiness = _businesses.first;
       }
     } catch (e) {
-      debugPrint('[BusinessProvider] initialize error: $e');
+      AppLogger.e('[BusinessProvider]', 'initialize error', e);
       _businesses = [];
-    }
-
-    // RevenueCat'e kullanıcıyı tanıt ve pro durumunu kontrol et
-    try {
-      await _purchaseService.login(userId);
-      _isPro = await _purchaseService.checkProStatus();
-    } catch (e) {
-      debugPrint('[BusinessProvider] RevenueCat error (API key eksik olabilir): $e');
-      _isPro = false;
     }
 
     _isLoading = false;
@@ -94,6 +120,7 @@ class BusinessProvider extends ChangeNotifier {
   }
 
   void switchBusiness(String businessId) {
+    if (_businesses.isEmpty) return;
     final business = _businesses.firstWhere(
       (b) => b.id == businessId,
       orElse: () => _businesses.first,
@@ -145,15 +172,26 @@ class BusinessProvider extends ChangeNotifier {
       _isPurchasing = false;
       notifyListeners();
       return _isPro;
-    } on PurchasesErrorCode catch (e) {
-      if (e != PurchasesErrorCode.purchaseCancelledError) {
-        _purchaseError = e.toString();
+    } on PurchasesError catch (e) {
+      if (e.code != PurchasesErrorCode.purchaseCancelledError) {
+        _purchaseError = _purchasesErrorMessage(e.code);
       }
       _isPurchasing = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _purchaseError = e.toString();
+      final msg = e.toString();
+      // Kullanıcı ödeme akışını iptal etti — hata gösterme
+      if (msg.contains('PURCHASE_CANCELLED') || msg.contains('userCancelled')) {
+        _isPurchasing = false;
+        notifyListeners();
+        return false;
+      }
+      if (msg.contains('product-not-found') || msg.contains('not-configured')) {
+        _purchaseError = 'Subscription products could not be loaded. Please check your connection and try again.';
+      } else {
+        _purchaseError = 'Something went wrong. Please try again.';
+      }
       _isPurchasing = false;
       notifyListeners();
       return false;
@@ -175,11 +213,37 @@ class BusinessProvider extends ChangeNotifier {
       _isPurchasing = false;
       notifyListeners();
       return _isPro;
-    } catch (e) {
-      _purchaseError = e.toString();
+    } on PurchasesError catch (e) {
+      _purchaseError = _purchasesErrorMessage(e.code);
       _isPurchasing = false;
       notifyListeners();
       return false;
+    } catch (e) {
+      _purchaseError = 'Something went wrong. Please try again.';
+      _isPurchasing = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  String _purchasesErrorMessage(PurchasesErrorCode code) {
+    switch (code) {
+      case PurchasesErrorCode.purchaseNotAllowedError:
+        return 'Purchases are not allowed on this device.';
+      case PurchasesErrorCode.purchaseInvalidError:
+        return 'This purchase is invalid. Please try again.';
+      case PurchasesErrorCode.productNotAvailableForPurchaseError:
+        return 'This product is not available for purchase right now.';
+      case PurchasesErrorCode.networkError:
+        return 'No internet connection. Please check your network and try again.';
+      case PurchasesErrorCode.receiptAlreadyInUseError:
+        return 'This purchase is already linked to another account.';
+      case PurchasesErrorCode.missingReceiptFileError:
+        return 'Could not verify your purchase. Please try again.';
+      case PurchasesErrorCode.paymentPendingError:
+        return 'Your payment is pending. Please wait for it to complete.';
+      default:
+        return 'Something went wrong with the purchase. Please try again.';
     }
   }
 

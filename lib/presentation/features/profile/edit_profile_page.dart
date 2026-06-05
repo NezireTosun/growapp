@@ -39,10 +39,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _phoneController = TextEditingController(text: widget.phone);
     _instagramController = TextEditingController(text: widget.instagram);
     _cityController = TextEditingController(text: widget.city);
+    // Avatar baş harflerini güncel tutmak için — sadece bu controller rebuild tetikler
+    _userNameController.addListener(_onNameChanged);
   }
+
+  void _onNameChanged() => setState(() {});
 
   @override
   void dispose() {
+    _userNameController.removeListener(_onNameChanged);
     _userNameController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
@@ -139,7 +144,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (v == null || v.trim().isEmpty) return l.enterName;
                   return null;
                 },
-                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 20),
 

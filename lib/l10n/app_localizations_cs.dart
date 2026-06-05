@@ -417,7 +417,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get messageSent => 'Vaše zpráva byla odeslána!';
 
   @override
-  String get messageSentDesc => 'Ozveme se vám co nejdříve.';
+  String get messageSentDesc =>
+      'Ozveme se vám co nejdříve. Náš tým vás brzy kontaktuje.';
 
   @override
   String get deleteAccount => 'Smazat účet';
@@ -639,6 +640,20 @@ class AppLocalizationsCs extends AppLocalizations {
   String get completedTasksCount => 'Dokončené úkoly';
 
   @override
+  String get snoozed => 'Odloženo';
+
+  @override
+  String get allTimeTaskSummary => 'Celkem';
+
+  @override
+  String get activeDaysLabel => 'Aktivní dny';
+
+  @override
+  String activeDaysCount(int count) {
+    return '$count dní';
+  }
+
+  @override
   String vsLastWeek(int percent) {
     return '+$percent% oproti minulému týdnu';
   }
@@ -744,7 +759,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get premiumPlanPrice => '99 Kč/měs';
 
   @override
-  String get freePlanDesc => 'Ideální pro začátek s jedním podnikem.';
+  String get freePlanDesc =>
+      'Rentgenujte svůj podnik a udělejte první strategické kroky.';
 
   @override
   String get premiumPlanDesc =>
@@ -785,6 +801,9 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get resendCode => 'Odeslat znovu';
+
+  @override
+  String get editEmail => 'Upravit e-mail';
 
   @override
   String get changeEmail => 'Změnit';
@@ -831,50 +850,78 @@ class AppLocalizationsCs extends AppLocalizations {
   String get justNow => 'nyní';
 
   @override
-  String get proPlanPrice => '€19,99/měs.';
+  String get proPlanPrice => '€19,99';
 
   @override
   String get proPlanDesc =>
-      'Plný přístup ke všem nástrojům, které rozvíjejí vaše podnikání.';
+      'Kompletní knihovna pro provoz vašeho systému na plný výkon.';
+
+  @override
+  String get perMonth => '/ měsíc';
+
+  @override
+  String get monthlySubscriptionLabel =>
+      'Automaticky obnovované měsíční předplatné';
+
+  @override
+  String get subscriptionAutoRenewNotice =>
+      'Předplatné se automaticky obnovuje měsíčně, pokud není zrušeno alespoň 24 hodin před koncem aktuálního období. Spravujte nebo zrušte kdykoli v nastavení účtu App Store.';
 
   @override
   String get featureFreeAnalysis =>
-      '360° obchodní analýza ve 7 dimenzích (Q1–Q7)';
+      'Interaktivní 360° obchodní analýza: Vizualizujte svůj stav ve 7 strategických dimenzích (Q1–Q7)';
 
   @override
-  String get featureFreeTopTasks =>
-      'Top 30 strategických úkolů pro viditelnost a reputaci';
+  String get featureFreePainPoint =>
+      'Analýza a srovnání klíčových bolestivých bodů';
 
   @override
-  String get featureFreeBasicDashboard => 'Základní přehled';
+  String get featureFreeTasks =>
+      '15denní strategické úkoly: Okamžitý přístup k základním krokům viditelnosti a reputace (ID: 001–010)';
 
   @override
-  String get featureFreeWhatsApp => 'Aplikace + WhatsApp (bez oznámení)';
+  String get featureFreeUpdatedContent =>
+      'Neustále aktualizovaný obsah: Nové taktiky + digitální trendy každý měsíc';
 
   @override
-  String get featureFreeAiMessages => 'Trénovaný AI model — 5 zpráv/den';
+  String get featureFreeTemplates =>
+      'Knihovna hotového obsahu a šablon \"Kopírovat a vložit\"';
 
   @override
-  String get featureProAnalysis => '360° interaktivní obchodní analýza (Q1–Q7)';
+  String get featureProAnalysis =>
+      'Interaktivní 360° obchodní analýza: Vizualizujte svůj stav ve 7 strategických dimenzích';
+
+  @override
+  String get featureProPainPoint =>
+      'Analýza a srovnání klíčových bolestivých bodů';
 
   @override
   String get featureProFullLibrary =>
-      'Kompletní knihovna úkolů — prodej, zisk, loajalita a další';
+      'Přístup ke všem strategickým úkolům: Rychlý přístup k úkolům s největším dopadem';
 
   @override
-  String get featureProDashboard => 'Vizuální přehled a živé analytiky';
-
-  @override
-  String get featureProWhatsApp =>
-      'WhatsApp growth koučink — denní připomínky a týdenní zprávy';
+  String get featureProDashboard =>
+      'Vizuální přehled a analytika: Skóre digitálního zdraví a růstu';
 
   @override
   String get featureProUpdatedContent =>
-      'Neustále aktualizovaný obsah — nové taktiky každý měsíc';
+      'Neustále aktualizovaný obsah: Nové taktiky + digitální trendy každý měsíc';
+
+  @override
+  String get featureProWhatsApp =>
+      'WhatsApp growth koučink: Sledování úkolů přes WhatsApp';
 
   @override
   String get featureProIdTracking =>
-      'Sledování podle ID — zjistěte, co každý krok vydělá';
+      'Systém sledování podle ID: Matematicky sledujte, co každý krok vydělá';
+
+  @override
+  String get featureProTemplates =>
+      'Knihovna hotového obsahu a šablon \"Kopírovat a vložit\"';
+
+  @override
+  String get featureProSession =>
+      'Měsíční 30minutová individuální growth sezení';
 
   @override
   String get errorNetwork =>
@@ -901,6 +948,15 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Obnovit nákupy';
+
+  @override
+  String get privacyPolicy => 'Zásady ochrany osobních údajů';
+
+  @override
+  String get termsOfUse => 'Podmínky použití';
+
+  @override
+  String get subscribeAgreeTerms => 'Přihlášením k odběru souhlasíte s:';
 
   @override
   String get purchaseSuccess => 'Vítejte v Pro! Užívejte si nové funkce.';
@@ -997,4 +1053,17 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get premiumBuyNow => 'Získat Premium';
+
+  @override
+  String todayTasksFor(String name) {
+    return 'Dnešní úkoly šité na míru pro $name';
+  }
+
+  @override
+  String get moreTasksTomorrow =>
+      'Více přizpůsobených úkolů přijde zítra. Na shledanou!';
+
+  @override
+  String get allDoneToday =>
+      'Hotovo na dnes! 🎉 Nové úkoly přijdou zítra. Jsi o krok blíže ke svým cílům!';
 }

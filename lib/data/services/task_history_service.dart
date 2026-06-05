@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import '../../domain/entities/task.dart';
 
 /// Firestore'daki task_history koleksiyonuna yazma/okuma sorumluluğu.
@@ -126,7 +126,7 @@ class TaskHistoryService {
       }
     }
 
-    debugPrint('[TaskHistory] excludedIds=$excluded');
+    AppLogger.d('[TaskHistory]', 'excludedIds=$excluded');
     return excluded;
   }
 }

@@ -16,6 +16,32 @@ end
 
 def flutter_build_ios
   sh("cd .. && flutter build ipa --release --dart-define=REVENUECAT_IOS_KEY=#{ENV['REVENUECAT_IOS_KEY']}")
+  fix_objective_c_framework
+end
+
+def fix_objective_c_framework
+  archive_path = File.expand_path("../build/ios/archive/Runner.xcarchive")
+  fw = "#{archive_path}/Products/Applications/Runner.app/Frameworks/objective_c.framework/objective_c"
+  unless File.exist?(fw)
+    UI.important("objective_c.framework not found, skipping fix")
+    return
+  end
+
+  build_info = sh("vtool -show-build '#{fw}'", log: false)
+  unless build_info.include?("IOSSIMULATOR")
+    UI.success("objective_c.framework platform tag is already IOS, no fix needed")
+    return
+  end
+
+  UI.important("Fixing objective_c.framework IOSSIMULATOR → IOS platform tag...")
+  sh("vtool -set-build-version ios 14.0 26.2 -replace -output '#{fw}' '#{fw}'")
+  sh("codesign --force --sign 'Apple Distribution: Buinsoft Technology s.r.o. (59296N935Y)' '#{fw}'")
+
+  # Re-export IPA from fixed archive
+  export_options = File.expand_path("../build/ios/ipa/ExportOptions.plist")
+  ipa_dir = File.expand_path("../build/ios/ipa")
+  sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportPath '#{ipa_dir}' -exportOptionsPlist '#{export_options}' -allowProvisioningUpdates")
+  UI.success("✅ objective_c.framework fixed and IPA re-exported")
 end
 
 def flutter_build_android
@@ -32,7 +58,7 @@ platform :ios do
 
     match(
       type: "appstore",
-      app_identifier: "com.salesgrowthsteps.app",
+      app_identifier: "com.salesgrowthsteps.growapp",
       readonly: is_ci,
       api_key: key,
     )
@@ -40,12 +66,38 @@ platform :ios do
     flutter_build_ios
 
     upload_to_testflight(
-      ipa: "build/ios/ipa/growapp.ipa",
+      ipa: "build/ios/ipa/Sales Growth Steps.ipa",
       skip_waiting_for_build_processing: true,
       api_key: key,
     )
 
     UI.success("✅ iOS beta TestFlight'a yüklendi!")
+  end
+
+  desc "Sadece upload — build zaten yapılmış"
+  lane :upload do
+    key = app_store_api_key
+    upload_to_app_store(
+      ipa: "build/ios/ipa/Sales Growth Steps.ipa",
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      run_precheck_before_submit: false,
+      force: true,
+      api_key: key,
+    )
+    UI.success("✅ iOS App Store'a yüklendi!")
+  end
+
+  desc "Sadece TestFlight upload — build zaten yapılmış"
+  lane :testflight_upload do
+    key = app_store_api_key
+    upload_to_testflight(
+      ipa: "build/ios/ipa/Sales Growth Steps.ipa",
+      skip_waiting_for_build_processing: true,
+      api_key: key,
+    )
+    UI.success("✅ iOS TestFlight'a yüklendi!")
   end
 
   desc "App Store'a release yükle"
@@ -54,7 +106,7 @@ platform :ios do
 
     match(
       type: "appstore",
-      app_identifier: "com.salesgrowthsteps.app",
+      app_identifier: "com.salesgrowthsteps.growapp",
       readonly: is_ci,
       api_key: key,
     )
@@ -62,10 +114,11 @@ platform :ios do
     flutter_build_ios
 
     upload_to_app_store(
-      ipa: "build/ios/ipa/growapp.ipa",
+      ipa: "build/ios/ipa/Sales Growth Steps.ipa",
       skip_metadata: true,
       skip_screenshots: true,
       submit_for_review: false,
+      run_precheck_before_submit: false,
       api_key: key,
     )
 
@@ -86,13 +139,29 @@ platform :android do
       track: "internal",
       aab: "build/app/outputs/bundle/release/app-release.aab",
       json_key: ENV["GOOGLE_PLAY_JSON_KEY"],
-      package_name: "com.growapp.growapp",
-      skip_upload_metadata: true,
+      package_name: "com.salesgrowthsteps.app",
+      skip_upload_metadata: false,
       skip_upload_images: true,
       skip_upload_screenshots: true,
+      release_status: "draft",
     )
 
     UI.success("✅ Android beta Play Store Internal Test'e yüklendi!")
+  end
+
+  desc "Sadece upload — build zaten yapılmış (Internal Test)"
+  lane :upload do
+    upload_to_play_store(
+      track: "internal",
+      aab: "build/app/outputs/bundle/release/app-release.aab",
+      json_key: "android/growappp-3b2dd-3977f75b645f.json",
+      package_name: "com.salesgrowthsteps.app",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: "draft",
+    )
+    UI.success("✅ Android AAB Play Store Internal Test'e yüklendi!")
   end
 
   desc "Google Play Production'a yükle"
@@ -103,10 +172,12 @@ platform :android do
       track: "production",
       aab: "build/app/outputs/bundle/release/app-release.aab",
       json_key: ENV["GOOGLE_PLAY_JSON_KEY"],
-      package_name: "com.growapp.growapp",
+      package_name: "com.salesgrowthsteps.app",
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
+      release_status: "completed",
+      rollout: "1",
     )
 
     UI.success("✅ Android release Play Store'a yüklendi!")

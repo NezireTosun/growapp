@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
@@ -115,9 +115,9 @@ class EmailService {
 
     try {
       final sendReport = await send(message, smtpServer);
-      debugPrint('[EmailService] Verification code sent: ${sendReport.toString()}');
+      AppLogger.d('[EmailService]', 'Verification code sent: ${sendReport.toString()}');
     } on MailerException catch (e) {
-      debugPrint('[EmailService] Verification mail error: $e');
+      AppLogger.e('[EmailService]', 'Verification mail error', e);
       rethrow;
     }
   }
@@ -156,9 +156,9 @@ class EmailService {
 
     try {
       final sendReport = await send(message, smtpServer);
-      debugPrint('[EmailService] Password reset code sent: ${sendReport.toString()}');
+      AppLogger.d('[EmailService]', 'Password reset code sent: ${sendReport.toString()}');
     } on MailerException catch (e) {
-      debugPrint('[EmailService] Password reset mail error: $e');
+      AppLogger.e('[EmailService]', 'Password reset mail error', e);
       rethrow;
     }
   }
@@ -196,11 +196,11 @@ class EmailService {
 
     try {
       final sendReport = await send(message, smtpServer);
-      debugPrint('[EmailService] Mail gönderildi: ${sendReport.toString()}');
+      AppLogger.d('[EmailService]', 'Mail gönderildi: ${sendReport.toString()}');
     } on MailerException catch (e) {
-      debugPrint('[EmailService] Mail hatası: $e');
+      AppLogger.d('[EmailService]', 'Mail hatası: $e');
       for (final p in e.problems) {
-        debugPrint('[EmailService] Problem: ${p.code} - ${p.msg}');
+        AppLogger.d('[EmailService]', 'Problem: ${p.code} - ${p.msg}');
       }
       rethrow;
     }

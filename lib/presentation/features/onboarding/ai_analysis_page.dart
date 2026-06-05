@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,9 @@ import '../../providers/notification_list_provider.dart';
 import '../../providers/onboarding_provider.dart';
 
 class AiAnalysisPage extends StatefulWidget {
-  const AiAnalysisPage({super.key});
+  const AiAnalysisPage({super.key, this.isAddingBusiness = false});
+
+  final bool isAddingBusiness;
 
   @override
   State<AiAnalysisPage> createState() => _AiAnalysisPageState();
@@ -29,6 +32,12 @@ class _AiAnalysisPageState extends State<AiAnalysisPage>
   late AnimationController _pulseController;
   late AnimationController _rotateController;
 
+  // Provider'ları dispose öncesi saklıyoruz — Future.delayed callback'inde
+  // context artık geçersiz olabilir.
+  late OnboardingProvider _onboarding;
+  late String _userId;
+  late String _planId;
+
   List<String> _getSteps(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return [
@@ -38,6 +47,15 @@ class _AiAnalysisPageState extends State<AiAnalysisPage>
       l.analysisStep4,
       l.analysisStep5,
     ];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Provider'ları erken oku — dispose veya rebuild sonrası context geçersiz olabilir
+    _onboarding = context.read<OnboardingProvider>();
+    _userId = context.read<AuthProvider>().user?.id ?? '';
+    _planId = context.read<AuthProvider>().user?.planId ?? 'free';
   }
 
   @override
@@ -81,46 +99,88 @@ class _AiAnalysisPageState extends State<AiAnalysisPage>
     };
   }
 
+  Future<void> _doComplete(OnboardingProvider onboarding, String userId, String planId) async {
+    try {
+      await onboarding.completeOnboarding(userId)
+          .timeout(const Duration(seconds: 15));
+    } catch (e) {
+      AppLogger.e('[AiAnalysis]', 'completeOnboarding error (devam ediliyor)', e);
+    }
+
+    if (!mounted) return;
+    final businessProvider = context.read<BusinessProvider>();
+
+    // Firestore eventual consistency: yeni oluşturulan business_members kaydı
+    // hemen görünmeyebilir — başarısız olursa bir kez daha dene
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        await businessProvider.initialize(userId, planId)
+            .timeout(const Duration(seconds: 8));
+      } catch (e) {
+        AppLogger.e('[AiAnalysis]', 'businessProvider.initialize error (attempt ${attempt + 1})', e);
+      }
+      if (businessProvider.activeBusiness != null) break;
+      if (attempt == 0) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+
+    if (!mounted) return;
+    context.read<NotificationProvider>().load(userId);
+    context.read<NotificationListProvider>().load(userId);
+
+    final dashboard = context.read<DashboardProvider>();
+    final active = businessProvider.activeBusiness;
+    if (active != null) {
+      dashboard.setBusinessName(active.name);
+      dashboard.setUserAndBusiness(userId, active.id);
+      final sectorStr = active.sector ?? '';
+      final typeId = int.tryParse(sectorStr) ?? _sectorToTypeId(sectorStr);
+      dashboard.setBusinessType(typeId);
+      // api_answers Firestore eventual consistency yüzünden henüz yüklenmemiş olabilir;
+      // provider'dan, onboarding'den ve son çare olarak varsayılan değerden al
+      const defaultAnswers = {
+        'q1': 5, 'q2': 5, 'q3': 5, 'q4': 5, 'q5': 5, 'q6': 5, 'q7': 5,
+      };
+      final answers = active.apiAnswers.isNotEmpty
+          ? active.apiAnswers
+          : onboarding.apiAnswers.isNotEmpty
+              ? onboarding.apiAnswers
+              : defaultAnswers;
+      final industry = sectorStr.isNotEmpty ? sectorStr : onboarding.industryCode;
+      dashboard.setApiParams(
+        industry: industry,
+        answers: answers,
+      );
+      // loadTasks arka planda çalışsın — dashboard açılışı beklemesin
+      dashboard.loadTasks(locale: onboarding.locale, businessType: typeId)
+          .catchError((e) {
+        AppLogger.e('[AiAnalysis]', 'loadTasks error (devam ediliyor)', e);
+        return null;
+      });
+    } else {
+      AppLogger.d('[AiAnalysis]', 'activeBusiness null — dashboard boş açılacak, userId: $userId');
+    }
+  }
+
   void _onAnalysisComplete() {
     Future.delayed(const Duration(milliseconds: 600), () async {
       if (!mounted) return;
-      final onboarding = context.read<OnboardingProvider>();
-      final userId = context.read<AuthProvider>().user?.id ?? '';
-      final planId = context.read<AuthProvider>().user?.planId ?? 'free';
-
-      // Hata olsa bile dashboard'a geç — veri kısmen kaydedilmiş olabilir
       try {
-        await onboarding.completeOnboarding(userId);
+        await _doComplete(_onboarding, _userId, _planId)
+            .timeout(const Duration(seconds: 20));
       } catch (e) {
-        debugPrint('[AiAnalysis] completeOnboarding error (devam ediliyor): $e');
+        AppLogger.e('[AiAnalysis]', '_doComplete error (dashboard\'a devam ediliyor)', e);
       }
 
       if (!mounted) return;
-      final businessProvider = context.read<BusinessProvider>();
-      await businessProvider.initialize(userId, planId);
-      if (!mounted) return;
-      context.read<NotificationProvider>().load(userId);
-      context.read<NotificationListProvider>().load(userId);
-      final dashboard = context.read<DashboardProvider>();
-      final active = businessProvider.activeBusiness;
-      if (active != null) {
-        dashboard.setBusinessName(active.name);
-        dashboard.setUserAndBusiness(userId, active.id);
-        final sectorStr = active.sector ?? '';
-        final typeId = int.tryParse(sectorStr) ?? _sectorToTypeId(sectorStr);
-        dashboard.setBusinessType(typeId);
-        // api_answers önce Firestore'dan al, yoksa onboarding provider'dan al
-        final answers = active.apiAnswers.isNotEmpty
-            ? active.apiAnswers
-            : onboarding.apiAnswers;
-        dashboard.setApiParams(
-          industry: sectorStr.isNotEmpty ? sectorStr : 'rest',
-          answers: answers,
-        );
-        await dashboard.loadTasks(locale: onboarding.locale, businessType: typeId);
-        if (!mounted) return;
+      if (widget.isAddingBusiness) {
+        // Yeni işletme ekleme: dashboard'a dön (stack korunur)
+        Navigator.of(context).popUntil((r) => r.settings.name == AppRouter.dashboard);
+      } else {
+        // İlk kurulum: stack temizle, dashboard aç
+        Navigator.of(context).pushNamedAndRemoveUntil(AppRouter.dashboard, (r) => false);
       }
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRouter.dashboard, (r) => false);
     });
   }
 

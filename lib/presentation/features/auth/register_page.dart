@@ -47,15 +47,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (provider.error != null) {
       final l = AppLocalizations.of(context)!;
+      final error = provider.error ?? '';
       String message;
-      if (provider.error!.contains('email-already-in-use')) {
+      if (error.contains('email-already-in-use')) {
         message = l.emailAlreadyInUse;
-      } else if (provider.error!.contains('weak-password')) {
+      } else if (error.contains('weak-password')) {
         message = l.passwordMinLength;
-      } else if (provider.error!.contains('too-many-requests')) {
+      } else if (error.contains('too-many-requests')) {
         message = l.tooManyRequests;
       } else {
-        message = provider.error!;
+        message = error.isNotEmpty ? error : l.errorGeneric;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: AppColors.danger),

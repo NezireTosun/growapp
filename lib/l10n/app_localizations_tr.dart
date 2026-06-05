@@ -420,7 +420,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get messageSent => 'Mesajınız gönderildi!';
 
   @override
-  String get messageSentDesc => 'En kısa sürede size dönüş yapacağız.';
+  String get messageSentDesc =>
+      'En kısa sürede size dönüş yapacağız. Ekibimiz en kısa sürede sizinle iletişime geçecek.';
 
   @override
   String get deleteAccount => 'Hesabı Sil';
@@ -643,6 +644,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get completedTasksCount => 'Tamamlanan Görevler';
 
   @override
+  String get snoozed => 'Ertelenen';
+
+  @override
+  String get allTimeTaskSummary => 'Tüm Zamanlar';
+
+  @override
+  String get activeDaysLabel => 'Aktif Gün';
+
+  @override
+  String activeDaysCount(int count) {
+    return '$count gün';
+  }
+
+  @override
   String vsLastWeek(int percent) {
     return '+%$percent geçen haftaya göre';
   }
@@ -748,7 +763,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get premiumPlanPrice => '₺99/ay';
 
   @override
-  String get freePlanDesc => 'Tek bir işletmeyle başlamak için ideal.';
+  String get freePlanDesc =>
+      'İşletmenizi röntgenleyin ve ilk stratejik adımları atın.';
 
   @override
   String get premiumPlanDesc =>
@@ -789,6 +805,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get resendCode => 'Tekrar Gönder';
+
+  @override
+  String get editEmail => 'E-postayı Düzenle';
 
   @override
   String get changeEmail => 'Değiştir';
@@ -835,49 +854,76 @@ class AppLocalizationsTr extends AppLocalizations {
   String get justNow => 'şimdi';
 
   @override
-  String get proPlanPrice => '€19,99/ay';
+  String get proPlanPrice => '€19,99';
 
   @override
-  String get proPlanDesc => 'İşletmenizi büyüten tüm araçlara tam erişim.';
+  String get proPlanDesc =>
+      'Sistemi tam kapasite kurmak için eksiksiz kütüphane.';
 
   @override
-  String get featureFreeAnalysis => '7 boyutta 360° İşletme Analizi (Q1–Q7)';
+  String get perMonth => '/ ay';
 
   @override
-  String get featureFreeTopTasks =>
-      'Görünürlük & itibar için Top 30 Stratejik Görev';
+  String get monthlySubscriptionLabel => 'Otomatik yenilenen aylık abonelik';
 
   @override
-  String get featureFreeBasicDashboard => 'Temel Dashboard';
+  String get subscriptionAutoRenewNotice =>
+      'Abonelik, mevcut dönem sona ermeden en az 24 saat önce iptal edilmezse otomatik olarak aylık yenilenir. App Store hesap ayarlarınızdan istediğiniz zaman yönetebilir veya iptal edebilirsiniz.';
 
   @override
-  String get featureFreeWhatsApp => 'Uygulama + WhatsApp (bildirim yok)';
+  String get featureFreeAnalysis =>
+      'İnteraktif 360° İşletme Analizi: 7 stratejik boyutta (Q1–Q7) durumunuzu görselleştirin';
 
   @override
-  String get featureFreeAiMessages => 'Eğitimli AI Modeli — günde 5 mesaj';
+  String get featureFreePainPoint =>
+      'Temel Sıkıntı Noktalarının Analizi ve Kıyaslaması';
 
   @override
-  String get featureProAnalysis => '360° İnteraktif İşletme Analizi (Q1–Q7)';
+  String get featureFreeTasks =>
+      '15 Günlük Stratejik Görev: Temel görünürlük ve itibar adımlarına anında erişim (ID: 001–010)';
+
+  @override
+  String get featureFreeUpdatedContent =>
+      'Sürekli Güncellenen İçerik: Her ay yeni taktikler + dijital trendler';
+
+  @override
+  String get featureFreeTemplates =>
+      '\"Kopyala-Yapıştır\" Hazır İçerik ve Şablon Kütüphanesi';
+
+  @override
+  String get featureProAnalysis =>
+      'İnteraktif 360° İşletme Analizi: 7 stratejik boyutta durumunuzu görselleştirin';
+
+  @override
+  String get featureProPainPoint =>
+      'Temel Sıkıntı Noktalarının Analizi ve Kıyaslaması';
 
   @override
   String get featureProFullLibrary =>
-      'Tam Stratejik Görev Kütüphanesi — satış, kâr, sadakat ve daha fazlası';
+      'Tüm Stratejik Görevlere Erişim: En fark yaratan görevlere hızlı erişim';
 
   @override
   String get featureProDashboard =>
-      'Görsel Dashboard & Canlı Analitik Grafikler';
-
-  @override
-  String get featureProWhatsApp =>
-      'WhatsApp Büyüme Koçu — günlük hatırlatmalar & haftalık raporlar';
+      'Görsel Panel ve Analitik: Dijital Sağlık ve Büyüme Skoru';
 
   @override
   String get featureProUpdatedContent =>
-      'Sürekli Güncellenen İçerik — her ay yeni taktikler';
+      'Sürekli Güncellenen İçerik: Her ay yeni taktikler + dijital trendler';
+
+  @override
+  String get featureProWhatsApp =>
+      'WhatsApp ile Büyüme Koçu: Görevlerin WhatsApp üzerinden takibi';
 
   @override
   String get featureProIdTracking =>
-      'ID Tabanlı Takip — her adımın kazancını görün';
+      'ID Bazlı Takip Sistemi: Her adımın ne kadar kazandırdığını matematiksel olarak gör';
+
+  @override
+  String get featureProTemplates =>
+      '\"Kopyala-Yapıştır\" Hazır İçerik ve Şablon Kütüphanesi';
+
+  @override
+  String get featureProSession => 'Aylık 30 Dk. Birebir Büyüme Seansı';
 
   @override
   String get errorNetwork =>
@@ -904,6 +950,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Satın Almaları Geri Yükle';
+
+  @override
+  String get privacyPolicy => 'Gizlilik Politikası';
+
+  @override
+  String get termsOfUse => 'Kullanım Şartları';
+
+  @override
+  String get subscribeAgreeTerms =>
+      'Abone olarak aşağıdakileri kabul etmiş olursunuz:';
 
   @override
   String get purchaseSuccess =>
@@ -1001,4 +1057,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get premiumBuyNow => 'Premium Satın Al';
+
+  @override
+  String todayTasksFor(String name) {
+    return '$name için bugünün özel görevleri';
+  }
+
+  @override
+  String get moreTasksTomorrow =>
+      'Daha fazla özelleştirilmiş görev yarın geliyor. Görüşürüz!';
+
+  @override
+  String get allDoneToday =>
+      'Bugünkü görevler tamam! 🎉 Yeni görevler yarın geliyor. Hedeflerine bir adım daha yaklaştın!';
 }

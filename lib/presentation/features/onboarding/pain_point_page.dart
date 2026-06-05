@@ -45,7 +45,7 @@ class PainPointPage extends StatelessWidget {
                     OnboardingTitle(title: step?.title ?? ''),
                     if (step?.subtitle != null) ...[
                       const SizedBox(height: 8),
-                      OnboardingSubtitle(text: step!.subtitle!),
+                      OnboardingSubtitle(text: step?.subtitle ?? ''),
                     ],
                     const SizedBox(height: 32),
                     GridView.builder(

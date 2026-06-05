@@ -1,8 +1,7 @@
-app_identifier("com.growapp.growapp")
-apple_id(ENV["APPLE_ID"])
-itc_team_id(ENV["ITC_TEAM_ID"])    # App Store Connect Team ID
-team_id("8LLM8TRND9")              # Apple Developer Team ID
+app_identifier("com.salesgrowthsteps.growapp")
+apple_id("technology@buinsoft.com")
+team_id("59296N935Y")              # Apple Developer Team ID (Buinsoft Technology)
 
 # Android
 json_key_file(ENV["GOOGLE_PLAY_JSON_KEY"])
-package_name("com.growapp.growapp")
+package_name("com.salesgrowthsteps.growapp")

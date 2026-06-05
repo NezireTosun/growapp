@@ -171,7 +171,7 @@
   "messageBodyHint": "Napište svou zprávu zde...",
   "sendMessage": "Odeslat zprávu",
   "messageSent": "Vaše zpráva byla odeslána!",
-  "messageSentDesc": "Ozveme se vám co nejdříve.",
+  "messageSentDesc": "Ozveme se vám co nejdříve. Náš tým vás brzy kontaktuje.",
   "deleteAccount": "Smazat účet",
   "signOut": "Odhlásit se",
   "cancel": "Zrušit",
@@ -255,6 +255,15 @@
   "weeklyPerformance": "Týdenní výkon",
   "thisWeek": "Tento týden",
   "completedTasksCount": "Dokončené úkoly",
+  "snoozed": "Odloženo",
+  "allTimeTaskSummary": "Celkem",
+  "activeDaysLabel": "Aktivní dny",
+  "activeDaysCount": "{count} dní",
+  "@activeDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "vsLastWeek": "+{percent}% oproti minulému týdnu",
   "@vsLastWeek": {
     "placeholders": {
@@ -302,7 +311,7 @@
   "premiumPlan": "Premium",
   "freePlanPrice": "Zdarma",
   "premiumPlanPrice": "99 Kč/měs",
-  "freePlanDesc": "Ideální pro začátek s jedním podnikem.",
+  "freePlanDesc": "Rentgenujte svůj podnik a udělejte první strategické kroky.",
   "premiumPlanDesc": "Odemkněte pokročilé funkce a spravujte více podniků.",
   "featureDailyTasks": "Denní růstové úkoly",
   "featureBlog": "Blog a šablony",
@@ -316,6 +325,7 @@
   "verificationCodeSent": "Odeslali jsme ověřovací kód na",
   "verifyCode": "Ověřit kód",
   "resendCode": "Odeslat znovu",
+  "editEmail": "Upravit e-mail",
   "changeEmail": "Změnit",
   "invalidCode": "Neplatný nebo vypršený kód. Zkuste to prosím znovu.",
   "markAllRead": "Označit vše jako přečtené",
@@ -342,19 +352,25 @@
   "notifDailySummaryTitle": "Denní shrnutí",
   "notifDailySummaryBody": "Dnes jste splnili {completed} z {total} úkolů. Pokračujte!",
   "justNow": "nyní",
-  "proPlanPrice": "€19,99/měs.",
-  "proPlanDesc": "Plný přístup ke všem nástrojům, které rozvíjejí vaše podnikání.",
-  "featureFreeAnalysis": "360° obchodní analýza ve 7 dimenzích (Q1–Q7)",
-  "featureFreeTopTasks": "Top 30 strategických úkolů pro viditelnost a reputaci",
-  "featureFreeBasicDashboard": "Základní přehled",
-  "featureFreeWhatsApp": "Aplikace + WhatsApp (bez oznámení)",
-  "featureFreeAiMessages": "Trénovaný AI model — 5 zpráv/den",
-  "featureProAnalysis": "360° interaktivní obchodní analýza (Q1–Q7)",
-  "featureProFullLibrary": "Kompletní knihovna úkolů — prodej, zisk, loajalita a další",
-  "featureProDashboard": "Vizuální přehled a živé analytiky",
-  "featureProWhatsApp": "WhatsApp growth koučink — denní připomínky a týdenní zprávy",
-  "featureProUpdatedContent": "Neustále aktualizovaný obsah — nové taktiky každý měsíc",
-  "featureProIdTracking": "Sledování podle ID — zjistěte, co každý krok vydělá",
+  "proPlanPrice": "€19,99",
+  "proPlanDesc": "Kompletní knihovna pro provoz vašeho systému na plný výkon.",
+  "perMonth": "/ měsíc",
+  "monthlySubscriptionLabel": "Automaticky obnovované měsíční předplatné",
+  "subscriptionAutoRenewNotice": "Předplatné se automaticky obnovuje měsíčně, pokud není zrušeno alespoň 24 hodin před koncem aktuálního období. Spravujte nebo zrušte kdykoli v nastavení účtu App Store.",
+  "featureFreeAnalysis": "Interaktivní 360° obchodní analýza: Vizualizujte svůj stav ve 7 strategických dimenzích (Q1–Q7)",
+  "featureFreePainPoint": "Analýza a srovnání klíčových bolestivých bodů",
+  "featureFreeTasks": "15denní strategické úkoly: Okamžitý přístup k základním krokům viditelnosti a reputace (ID: 001–010)",
+  "featureFreeUpdatedContent": "Neustále aktualizovaný obsah: Nové taktiky + digitální trendy každý měsíc",
+  "featureFreeTemplates": "Knihovna hotového obsahu a šablon \"Kopírovat a vložit\"",
+  "featureProAnalysis": "Interaktivní 360° obchodní analýza: Vizualizujte svůj stav ve 7 strategických dimenzích",
+  "featureProPainPoint": "Analýza a srovnání klíčových bolestivých bodů",
+  "featureProFullLibrary": "Přístup ke všem strategickým úkolům: Rychlý přístup k úkolům s největším dopadem",
+  "featureProDashboard": "Vizuální přehled a analytika: Skóre digitálního zdraví a růstu",
+  "featureProUpdatedContent": "Neustále aktualizovaný obsah: Nové taktiky + digitální trendy každý měsíc",
+  "featureProWhatsApp": "WhatsApp growth koučink: Sledování úkolů přes WhatsApp",
+  "featureProIdTracking": "Systém sledování podle ID: Matematicky sledujte, co každý krok vydělá",
+  "featureProTemplates": "Knihovna hotového obsahu a šablon \"Kopírovat a vložit\"",
+  "featureProSession": "Měsíční 30minutová individuální growth sezení",
   "errorNetwork": "Žádné internetové připojení. Zkontrolujte svou síť.",
   "errorRateLimit": "Příliš mnoho požadavků. Chvíli počkejte a zkuste to znovu.",
   "errorGeneric": "Něco se pokazilo. Zkuste to prosím znovu.",
@@ -363,6 +379,9 @@
   "thisMonth": "Tento měsíc",
   "thisYear": "Tento rok",
   "restorePurchases": "Obnovit nákupy",
+  "privacyPolicy": "Zásady ochrany osobních údajů",
+  "termsOfUse": "Podmínky použití",
+  "subscribeAgreeTerms": "Přihlášením k odběru souhlasíte s:",
   "purchaseSuccess": "Vítejte v Pro! Užívejte si nové funkce.",
   "purchaseCancelled": "Nákup zrušen.",
   "restoreSuccess": "Nákupy úspěšně obnoveny.",
@@ -397,5 +416,15 @@
   "privacySection7Body": "Pro více informací o těchto zásadách nebo k uplatnění svých práv:\n\n• E-mail: info@salesgrowthsteps.com\n• Podpora v aplikaci: Nastavení → Podpora",
   "premiumContent": "Prémiový obsah",
   "premiumContentDesc": "Tato funkce je pouze pro prémiové členy. Přidejte se k nám a prohloubte své analýzy.",
-  "premiumBuyNow": "Získat Premium"
+  "premiumBuyNow": "Získat Premium",
+  "todayTasksFor": "Dnešní úkoly šité na míru pro {name}",
+  "@todayTasksFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTasksTomorrow": "Více přizpůsobených úkolů přijde zítra. Na shledanou!",
+  "allDoneToday": "Hotovo na dnes! 🎉 Nové úkoly přijdou zítra. Jsi o krok blíže ke svým cílům!"
 }

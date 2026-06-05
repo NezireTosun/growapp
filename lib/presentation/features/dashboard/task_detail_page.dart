@@ -54,7 +54,10 @@ class TaskDetailPage extends StatelessWidget {
           ],
         );
       },
-    );
+    ).then((_) {
+      // Dialog kapandıktan sonra confetti tetikle
+      onStatusChanged(TaskStatus.completed);
+    });
   }
 
   // ─── 2. SNOOZE — direkt kaydet ───

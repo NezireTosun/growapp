@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:growapp/core/utils/app_logger.dart';
 import '../../domain/entities/recommendation.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/repositories/task_repository.dart';
@@ -30,7 +30,7 @@ class TaskLoadingService {
       );
 
       if (hasToday) {
-        debugPrint('[TaskLoadingService] Bugünün görevleri Firestore\'dan yükleniyor');
+        AppLogger.d('[TaskLoadingService]', 'Bugünün görevleri Firestore\'dan yükleniyor');
         tasks = await _repository.getTodayAssignments(
           userId: userId,
           businessId: businessId,
@@ -43,7 +43,7 @@ class TaskLoadingService {
       if (tasks.isEmpty || tasks.length < 3) {
         if (hasToday) {
           // Eksik/bozuk doc var, önce sil
-          debugPrint('[TaskLoadingService] Eksik Firestore kaydı (${tasks.length} görev) siliniyor, API\'den yeniden çekiliyor');
+          AppLogger.d('[TaskLoadingService]', 'Eksik Firestore kaydı (${tasks.length} görev) siliniyor, API\'den yeniden çekiliyor');
           await _repository.deleteTodayAssignments(userId: userId, businessId: businessId);
         }
 
@@ -51,7 +51,7 @@ class TaskLoadingService {
             ? apiAnswers
             : {'q1': 5, 'q2': 5, 'q3': 5, 'q4': 5, 'q5': 5, 'q6': 5, 'q7': 5};
 
-        debugPrint('[TaskLoadingService] API\'den görev çekiliyor (industry=$industry, answers=${apiAnswers.isNotEmpty ? "kullanıcı" : "varsayılan"})');
+        AppLogger.d('[TaskLoadingService]', 'API\'den görev çekiliyor (industry=$industry, answers=${apiAnswers.isNotEmpty ? "kullanıcı" : "varsayılan"})');
         tasks = await _loadFromApi(
           userId: userId,
           businessId: businessId,
@@ -63,10 +63,10 @@ class TaskLoadingService {
         );
       }
     } catch (e) {
-      debugPrint('[TaskLoadingService] Yükleme hatası: $e — cache\'e düşülüyor');
+      AppLogger.d('[TaskLoadingService]', 'Yükleme hatası: $e — cache\'e düşülüyor');
       final cached = await TaskCacheService.loadTasks(userId: userId, businessId: businessId);
       if (cached != null && cached.isNotEmpty) {
-        debugPrint('[TaskLoadingService] ${cached.length} görev cache\'den yüklendi');
+        AppLogger.d('[TaskLoadingService]', '${cached.length} görev cache\'den yüklendi');
         return cached;
       }
       rethrow;
@@ -74,7 +74,7 @@ class TaskLoadingService {
 
     if (tasks.isNotEmpty) {
       await TaskCacheService.saveTasks(userId: userId, businessId: businessId, tasks: tasks);
-      debugPrint('[TaskLoadingService] ${tasks.length} görev cache\'e yazıldı');
+      AppLogger.d('[TaskLoadingService]', '${tasks.length} görev cache\'e yazıldı');
     }
 
     return tasks;
@@ -121,7 +121,7 @@ class TaskLoadingService {
       answers: apiAnswers,
     );
 
-    debugPrint('[TaskLoadingService] ${recommendations.length} öneri geldi');
+    AppLogger.d('[TaskLoadingService]', '${recommendations.length} öneri geldi');
 
     final top3 = recommendations.take(3).toList();
     final tasks = await _resolveToFullTasks(

@@ -43,15 +43,16 @@ class _LoginPageState extends State<LoginPage> {
 
     if (provider.error != null) {
       final l = AppLocalizations.of(context)!;
+      final error = provider.error ?? '';
       String message;
-      if (provider.error!.contains('account_deactivated')) {
+      if (error.contains('account_deactivated')) {
         message = l.accountDeactivated;
-      } else if (provider.error!.contains('user-not-found')) {
+      } else if (error.contains('user-not-found')) {
         message = l.userNotFound;
-      } else if (provider.error!.contains('wrong-password') ||
-          provider.error!.contains('invalid-credential')) {
+      } else if (error.contains('wrong-password') ||
+          error.contains('invalid-credential')) {
         message = l.wrongPassword;
-      } else if (provider.error!.contains('too-many-requests')) {
+      } else if (error.contains('too-many-requests')) {
         message = l.tooManyRequests;
       } else {
         message = l.loginError;
@@ -63,7 +64,8 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (provider.isAuthenticated) {
-      final user = provider.user!;
+      final user = provider.user;
+      if (user == null) return;
       if (!user.emailVerified) {
         Navigator.pushReplacementNamed(context, AppRouter.emailVerification);
         return;

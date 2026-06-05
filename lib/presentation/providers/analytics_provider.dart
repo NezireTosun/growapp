@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,6 +16,7 @@ class CategoryStat {
 
 class AnalyticsProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  static final _numericIdRegex = RegExp(r'\d+');
 
   // Demo mode flag – set to true to use fake data without Firebase
   static const bool _useFakeData = false;
@@ -51,6 +53,19 @@ class AnalyticsProvider extends ChangeNotifier {
     if (_lastWeekTotal == 0) return _thisWeekTotal > 0 ? 100 : 0;
     return (((_thisWeekTotal - _lastWeekTotal) / _lastWeekTotal) * 100).round();
   }
+
+  // All-time task summary
+  int _totalCompleted = 0;
+  int get totalCompleted => _totalCompleted;
+
+  int _totalSnoozed = 0;
+  int get totalSnoozed => _totalSnoozed;
+
+  int _totalDismissed = 0;
+  int get totalDismissed => _totalDismissed;
+
+  int _activeDays = 0;
+  int get activeDays => _activeDays;
 
   // Category distribution
   List<CategoryStat> _categories = [];
@@ -107,10 +122,11 @@ class AnalyticsProvider extends ChangeNotifier {
         _computeWeeklyPerformance(allDocs);
         _computeMonthlyPerformance(allDocs);
         _computeYearlyPerformance(allDocs);
+        _computeAllTimeStats(allDocs);
         await _loadCategoryDistribution(allDocs);
       }
     } catch (e) {
-      debugPrint('[AnalyticsProvider] Error: $e');
+      AppLogger.e('[AnalyticsProvider]', 'Error', e);
       final msg = e.toString();
       if (msg.contains('SocketException') || msg.contains('Failed host lookup')) {
         _errorMessage = 'network_error';
@@ -134,7 +150,7 @@ class AnalyticsProvider extends ChangeNotifier {
     final startDocId = '$prefix${_dateStr(startDate)}';
     final endDocId = '$prefix${_dateStr(now)}~'; // ~ sorts after digits
 
-    debugPrint('[Analytics] fetching assignments prefix=$prefix from=$startDocId to=$endDocId');
+    AppLogger.d('[Analytics]', 'fetching assignments prefix=$prefix from=$startDocId to=$endDocId');
 
     final snapshot = await _db
         .collection('daily_assignments')
@@ -142,7 +158,7 @@ class AnalyticsProvider extends ChangeNotifier {
         .where(FieldPath.documentId, isLessThanOrEqualTo: endDocId)
         .get();
 
-    debugPrint('[Analytics] fetched ${snapshot.docs.length} assignment docs');
+    AppLogger.d('[Analytics]', 'fetched ${snapshot.docs.length} assignment docs');
 
     final result = <String, Map<String, dynamic>>{};
     for (final doc in snapshot.docs) {
@@ -254,6 +270,35 @@ class AnalyticsProvider extends ChangeNotifier {
     }
   }
 
+  void _computeAllTimeStats(Map<String, Map<String, dynamic>> docs) {
+    int completed = 0;
+    int snoozed = 0;
+    int dismissed = 0;
+    int activeDays = 0;
+
+    for (final data in docs.values) {
+      final tasks = List<Map<String, dynamic>>.from(data['tasks'] ?? []);
+      int dayCompleted = 0;
+      for (final t in tasks) {
+        final status = t['status'] as String? ?? '';
+        if (status == 'completed') {
+          completed++;
+          dayCompleted++;
+        } else if (status == 'snoozed') {
+          snoozed++;
+        } else if (status == 'dismissed') {
+          dismissed++;
+        }
+      }
+      if (dayCompleted > 0) activeDays++;
+    }
+
+    _totalCompleted = completed;
+    _totalSnoozed = snoozed;
+    _totalDismissed = dismissed;
+    _activeDays = activeDays;
+  }
+
   Future<void> _loadCategoryDistribution(
       Map<String, Map<String, dynamic>> docs) async {
     final now = DateTime.now();
@@ -270,13 +315,13 @@ class AnalyticsProvider extends ChangeNotifier {
       for (final t in tasks) {
         if (t['status'] == 'completed') {
           final rawId = t['task_id'].toString();
-          final numericId = int.tryParse(RegExp(r'\d+').firstMatch(rawId)?.group(0) ?? '');
+          final numericId = int.tryParse(_numericIdRegex.firstMatch(rawId)?.group(0) ?? '');
           if (numericId != null) completedNumericIds.add(numericId);
         }
       }
     }
 
-    debugPrint('[Analytics] completedTaskIds=$completedNumericIds');
+    AppLogger.d('[Analytics]', 'completedTaskIds=$completedNumericIds');
 
     if (completedNumericIds.isEmpty) {
       _categories = [];
@@ -292,7 +337,7 @@ class AnalyticsProvider extends ChangeNotifier {
           .collection('tasks')
           .where('task_id', whereIn: batch)
           .get();
-      debugPrint('[Analytics] tasks query batch=$batch found=${snapshot.docs.length}');
+      AppLogger.d('[Analytics]', 'tasks query batch=$batch found=${snapshot.docs.length}');
       for (final doc in snapshot.docs) {
         final cat = doc.data()['category'] as String? ??
             doc.data()['category_id'] as String? ??
@@ -328,6 +373,11 @@ class AnalyticsProvider extends ChangeNotifier {
     _thisYearMonthly = [18, 22, 25, 30, 28, 35, 32, 29, 27, 30, 0, 0];
     _thisYearTotal = _thisYearMonthly.fold(0, (a, b) => a + b);
     _lastYearTotal = 210;
+
+    _totalCompleted = 256;
+    _totalSnoozed = 34;
+    _totalDismissed = 18;
+    _activeDays = 87;
 
     const total = 30;
     _categories = [

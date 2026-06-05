@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/notification_settings.dart';
@@ -24,7 +25,7 @@ class NotificationProvider extends ChangeNotifier {
         data?['notification_settings'] as Map<String, dynamic>?,
       );
     } catch (e) {
-      debugPrint('[NotificationProvider] load error: $e');
+      AppLogger.e('[NotificationProvider]', 'load error', e);
     }
 
     _isLoading = false;

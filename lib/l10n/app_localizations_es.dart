@@ -420,7 +420,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get messageSent => '¡Su mensaje ha sido enviado!';
 
   @override
-  String get messageSentDesc => 'Le responderemos lo antes posible.';
+  String get messageSentDesc =>
+      'Le responderemos lo antes posible. Nuestro equipo se pondrá en contacto con usted pronto.';
 
   @override
   String get deleteAccount => 'Eliminar cuenta';
@@ -644,6 +645,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get completedTasksCount => 'Tareas Completadas';
 
   @override
+  String get snoozed => 'Aplazado';
+
+  @override
+  String get allTimeTaskSummary => 'Total';
+
+  @override
+  String get activeDaysLabel => 'Días Activos';
+
+  @override
+  String activeDaysCount(int count) {
+    return '$count días';
+  }
+
+  @override
   String vsLastWeek(int percent) {
     return '+$percent% vs semana pasada';
   }
@@ -749,7 +764,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get premiumPlanPrice => '\$99/mes';
 
   @override
-  String get freePlanDesc => 'Perfecto para comenzar con un negocio.';
+  String get freePlanDesc =>
+      'Radiografía tu negocio y da los primeros pasos estratégicos.';
 
   @override
   String get premiumPlanDesc =>
@@ -791,6 +807,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get resendCode => 'Reenviar Código';
+
+  @override
+  String get editEmail => 'Editar correo';
 
   @override
   String get changeEmail => 'Cambiar';
@@ -837,51 +856,78 @@ class AppLocalizationsEs extends AppLocalizations {
   String get justNow => 'ahora';
 
   @override
-  String get proPlanPrice => '€19,99/mes';
+  String get proPlanPrice => '€19,99';
 
   @override
   String get proPlanDesc =>
-      'Acceso completo a todas las herramientas que hacen crecer tu negocio.';
+      'La biblioteca completa para operar tu sistema a plena capacidad.';
+
+  @override
+  String get perMonth => '/ mes';
+
+  @override
+  String get monthlySubscriptionLabel =>
+      'Suscripción mensual con renovación automática';
+
+  @override
+  String get subscriptionAutoRenewNotice =>
+      'La suscripción se renueva automáticamente cada mes a menos que se cancele al menos 24 horas antes del final del período actual. Gestiona o cancela en cualquier momento desde los ajustes de tu cuenta de App Store.';
 
   @override
   String get featureFreeAnalysis =>
-      'Análisis empresarial 360° en 7 dimensiones (Q1–Q7)';
+      'Análisis empresarial 360° interactivo: Visualiza tu situación en 7 dimensiones estratégicas (Q1–Q7)';
 
   @override
-  String get featureFreeTopTasks =>
-      'Top 30 tareas estratégicas de visibilidad y reputación';
+  String get featureFreePainPoint =>
+      'Análisis y comparación de los principales puntos de dolor';
 
   @override
-  String get featureFreeBasicDashboard => 'Panel básico';
+  String get featureFreeTasks =>
+      '15 tareas estratégicas diarias: Acceso inmediato a pasos clave de visibilidad y reputación (ID: 001–010)';
 
   @override
-  String get featureFreeWhatsApp => 'App + WhatsApp (sin notificaciones)';
+  String get featureFreeUpdatedContent =>
+      'Contenido actualizado constantemente: Nuevas tácticas + tendencias digitales cada mes';
 
   @override
-  String get featureFreeAiMessages => 'Modelo IA entrenado — 5 mensajes/día';
+  String get featureFreeTemplates =>
+      'Biblioteca de contenidos y plantillas \"Copia-Pega\" listas para usar';
 
   @override
   String get featureProAnalysis =>
-      'Análisis empresarial interactivo 360° (Q1–Q7)';
+      'Análisis empresarial 360° interactivo: Visualiza tu situación en 7 dimensiones estratégicas';
+
+  @override
+  String get featureProPainPoint =>
+      'Análisis y comparación de los principales puntos de dolor';
 
   @override
   String get featureProFullLibrary =>
-      'Biblioteca completa de tareas — ventas, beneficios, fidelidad y más';
+      'Acceso a todas las tareas estratégicas: Acceso rápido a las tareas de mayor impacto';
 
   @override
-  String get featureProDashboard => 'Panel visual y analíticas en tiempo real';
-
-  @override
-  String get featureProWhatsApp =>
-      'Coach de crecimiento WhatsApp — recordatorios diarios e informes semanales';
+  String get featureProDashboard =>
+      'Panel visual y analíticas: Puntuación de Salud Digital y Crecimiento';
 
   @override
   String get featureProUpdatedContent =>
-      'Contenido actualizado constantemente — nuevas tácticas cada mes';
+      'Contenido actualizado constantemente: Nuevas tácticas + tendencias digitales cada mes';
+
+  @override
+  String get featureProWhatsApp =>
+      'Coach de crecimiento WhatsApp: Seguimiento de tareas por WhatsApp';
 
   @override
   String get featureProIdTracking =>
-      'Seguimiento por ID — ve cuánto gana cada paso';
+      'Sistema de seguimiento por ID: Ve matemáticamente cuánto gana cada paso';
+
+  @override
+  String get featureProTemplates =>
+      'Biblioteca de contenidos y plantillas \"Copia-Pega\" listas para usar';
+
+  @override
+  String get featureProSession =>
+      'Sesión de crecimiento individual mensual de 30 min.';
 
   @override
   String get errorNetwork =>
@@ -908,6 +954,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Restaurar compras';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidad';
+
+  @override
+  String get termsOfUse => 'Términos de Uso';
+
+  @override
+  String get subscribeAgreeTerms => 'Al suscribirte aceptas:';
 
   @override
   String get purchaseSuccess =>
@@ -1007,4 +1062,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get premiumBuyNow => 'Obtener Premium';
+
+  @override
+  String todayTasksFor(String name) {
+    return 'Las tareas personalizadas de hoy para $name';
+  }
+
+  @override
+  String get moreTasksTomorrow =>
+      'Más tareas personalizadas llegan mañana. ¡Hasta entonces!';
+
+  @override
+  String get allDoneToday =>
+      '¡Todo listo por hoy! 🎉 Nuevas tareas llegan mañana. ¡Estás un paso más cerca de tus metas!';
 }

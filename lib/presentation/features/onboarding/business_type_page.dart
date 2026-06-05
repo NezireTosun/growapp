@@ -9,7 +9,12 @@ const _iconMap = <String, IconData>{
   'restaurant': Icons.restaurant,
   'coffee': Icons.coffee,
   'shopping_bag': Icons.shopping_bag_outlined,
+  'shopping_cart': Icons.shopping_cart_outlined,
+  'storefront': Icons.storefront_outlined,
   'build': Icons.build_outlined,
+  'computer': Icons.computer_outlined,
+  'cloud': Icons.cloud_outlined,
+  'devices': Icons.devices_outlined,
 };
 
 class BusinessTypePage extends StatefulWidget {

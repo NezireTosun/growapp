@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -26,7 +27,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await _authRepository.getCurrentUser();
     } catch (e) {
-      debugPrint('[AuthProvider] checkCurrentUser error: $e');
+      AppLogger.e('[AuthProvider]', 'checkCurrentUser error', e);
       _user = null;
     }
     notifyListeners();
@@ -168,7 +169,7 @@ class AuthProvider extends ChangeNotifier {
       await _authRepository.confirmNewPassword(email, code, newPassword);
     } catch (e) {
       _error = e.toString();
-      debugPrint('[AuthProvider] confirmNewPassword error: $e');
+      AppLogger.e('[AuthProvider]', 'confirmNewPassword error', e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -193,35 +194,37 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> updatePhone(String phone) async {
-    if (_user == null) return;
-    await _authRepository.updatePhone(_user!.id, phone);
+    final current = _user;
+    if (current == null) return;
+    await _authRepository.updatePhone(current.id, phone);
     _user = User(
-      id: _user!.id,
-      name: _user!.name,
-      email: _user!.email,
+      id: current.id,
+      name: current.name,
+      email: current.email,
       phone: phone,
-      planId: _user!.planId,
-      emailVerified: _user!.emailVerified,
-      isActive: _user!.isActive,
-      createdAt: _user!.createdAt,
-      lastLogin: _user!.lastLogin,
+      planId: current.planId,
+      emailVerified: current.emailVerified,
+      isActive: current.isActive,
+      createdAt: current.createdAt,
+      lastLogin: current.lastLogin,
     );
     notifyListeners();
   }
 
   Future<void> updateName(String name) async {
-    if (_user == null) return;
-    await _authRepository.updateName(_user!.id, name);
+    final current = _user;
+    if (current == null) return;
+    await _authRepository.updateName(current.id, name);
     _user = User(
-      id: _user!.id,
+      id: current.id,
       name: name,
-      email: _user!.email,
-      phone: _user!.phone,
-      planId: _user!.planId,
-      emailVerified: _user!.emailVerified,
-      isActive: _user!.isActive,
-      createdAt: _user!.createdAt,
-      lastLogin: _user!.lastLogin,
+      email: current.email,
+      phone: current.phone,
+      planId: current.planId,
+      emailVerified: current.emailVerified,
+      isActive: current.isActive,
+      createdAt: current.createdAt,
+      lastLogin: current.lastLogin,
     );
     notifyListeners();
   }

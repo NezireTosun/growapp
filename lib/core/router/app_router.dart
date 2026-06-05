@@ -4,6 +4,7 @@ import '../../presentation/features/auth/register_page.dart';
 import '../../presentation/features/auth/email_verification_page.dart';
 import '../../presentation/features/auth/forgot_password_page.dart';
 import '../../presentation/features/onboarding/onboarding_flow.dart';
+import '../../presentation/features/onboarding/ai_analysis_page.dart';
 import '../../presentation/features/dashboard/dashboard_page.dart';
 import '../../presentation/features/blog/blog_page.dart';
 import '../../presentation/features/profile/profile_page.dart';
@@ -15,6 +16,7 @@ import '../../presentation/features/notifications/notifications_page.dart';
 class AppRouter {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String aiAnalysis = '/ai-analysis';
   static const String emailVerification = '/email-verification';
   static const String login = '/login';
   static const String forgotPassword = '/forgot-password';
@@ -35,6 +37,7 @@ class AppRouter {
     login: (_) => const LoginPage(),
     forgotPassword: (_) => const ForgotPasswordPage(),
     onboarding: (_) => const OnboardingFlow(),
+    aiAnalysis: (_) => const AiAnalysisPage(),
     dashboard: (_) => const DashboardPage(),
     blog: (_) => const BlogPage(),
     analytics: (_) => const AnalyticsPage(),

@@ -44,6 +44,7 @@ class GrowApp extends StatefulWidget {
 
 class _GrowAppState extends State<GrowApp> with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  final _localeProvider = LocaleProvider();
 
   @override
   void initState() {
@@ -53,29 +54,22 @@ class _GrowAppState extends State<GrowApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _localeProvider.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Uygulama background'dan foreground'a gelince splash'a yönlendir
-    // Splash zaten auth kontrolü yapıp dashboard'a yönlendiriyor
-    if (state == AppLifecycleState.resumed) {
-      _navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRouter.splash,
-        (route) => false,
-      );
-    }
+    // Lifecycle değişikliklerinde splash'e yönlendirme kaldırıldı.
+    // Bu davranış onboarding/AI analiz gibi akışları kesiyordu.
   }
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = LocaleProvider();
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: localeProvider),
+        ChangeNotifierProvider.value(value: _localeProvider),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(AuthRepositoryImpl()),
         ),
@@ -111,6 +105,7 @@ class _GrowAppState extends State<GrowApp> with WidgetsBindingObserver {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.light,
           locale: Locale(lp.locale),
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,

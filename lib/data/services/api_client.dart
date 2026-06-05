@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import '../../domain/entities/recommendation.dart';
@@ -56,18 +56,30 @@ class ApiClient {
   /// POST with automatic token refresh on 401 and exponential backoff on 429
   Future<http.Response> _postWithRetry(String path, String body) async {
     var token = await _getToken();
+    final stopwatch = Stopwatch()..start();
 
     for (var attempt = 0; attempt < 3; attempt++) {
+      AppLogger.i('[ApiClient]', 'POST $path${attempt > 0 ? ' (attempt ${attempt + 1})' : ''}\n$body');
+
       final response = await http.post(
         Uri.parse('$_baseUrl$path'),
         headers: _headers(token),
         body: body,
-      );
+      ).timeout(const Duration(seconds: 20));
+
+      stopwatch.stop();
+      final ms = stopwatch.elapsedMilliseconds;
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        AppLogger.i('[ApiClient]', '← ${response.statusCode} ${ms}ms\n${response.body}');
+        return response;
+      }
 
       // Token expired → refresh and retry once
       if (response.statusCode == 401 && attempt == 0) {
-        debugPrint('[ApiClient] 401 received, refreshing token...');
+        AppLogger.w('[ApiClient]', '← 401 ${ms}ms — token yenileniyor');
         token = await _getToken(forceRefresh: true);
+        stopwatch..reset()..start();
         continue;
       }
 
@@ -76,21 +88,28 @@ class ApiClient {
         final retryAfterHeader = response.headers['retry-after'];
         final waitSeconds = retryAfterHeader != null
             ? int.tryParse(retryAfterHeader) ?? (1 << attempt)
-            : (1 << attempt); // 1s, 2s
-        debugPrint('[ApiClient] 429 rate limited, retrying in ${waitSeconds}s...');
+            : (1 << attempt);
+        AppLogger.w('[ApiClient]', '← 429 ${ms}ms — ${waitSeconds}s sonra tekrar');
         await Future.delayed(Duration(seconds: waitSeconds));
+        stopwatch..reset()..start();
         continue;
       }
 
+      AppLogger.e('[ApiClient]', '← ${response.statusCode} ${ms}ms\n${response.body}');
       return response;
     }
 
     // Son deneme
-    return http.post(
+    AppLogger.i('[ApiClient]', 'POST $path (final attempt)\n$body');
+    final sw = Stopwatch()..start();
+    final res = await http.post(
       Uri.parse('$_baseUrl$path'),
       headers: _headers(token),
       body: body,
-    );
+    ).timeout(const Duration(seconds: 20));
+    sw.stop();
+    AppLogger.i('[ApiClient]', '← ${res.statusCode} ${sw.elapsedMilliseconds}ms\n${res.body}');
+    return res;
   }
 
   void _handleError(http.Response response) {
@@ -138,14 +157,7 @@ class ApiClient {
       'industry': industry,
       'answers': sortedAnswers,
     });
-    debugPrint('[ApiClient] POST /api/v1/recommendations body: $requestBody');
-
-    final response = await _postWithRetry(
-      '/api/v1/recommendations',
-      requestBody,
-    );
-
-    debugPrint('[ApiClient] Response ${response.statusCode}: ${response.body}');
+    final response = await _postWithRetry('/api/v1/recommendations', requestBody);
     _handleError(response);
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;

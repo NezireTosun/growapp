@@ -171,7 +171,7 @@
   "messageBodyHint": "Schreiben Sie Ihre Nachricht hier...",
   "sendMessage": "Nachricht senden",
   "messageSent": "Ihre Nachricht wurde gesendet!",
-  "messageSentDesc": "Wir werden uns so schnell wie möglich bei Ihnen melden.",
+  "messageSentDesc": "Wir werden uns so schnell wie möglich bei Ihnen melden. Unser Team wird sich in Kürze bei Ihnen melden.",
   "deleteAccount": "Konto löschen",
   "signOut": "Abmelden",
   "cancel": "Stornieren",
@@ -255,6 +255,15 @@
   "weeklyPerformance": "Wochenleistung",
   "thisWeek": "Diese Woche",
   "completedTasksCount": "Erledigte Aufgaben",
+  "snoozed": "Verschoben",
+  "allTimeTaskSummary": "Gesamt",
+  "activeDaysLabel": "Aktive Tage",
+  "activeDaysCount": "{count} Tage",
+  "@activeDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "vsLastWeek": "+{percent}% ggü. letzter Woche",
   "@vsLastWeek": {
     "placeholders": {
@@ -302,7 +311,7 @@
   "premiumPlan": "Premium",
   "freePlanPrice": "Kostenlos",
   "premiumPlanPrice": "99€/Mo",
-  "freePlanDesc": "Perfekt für den Einstieg mit einem Unternehmen.",
+  "freePlanDesc": "Durchleuchten Sie Ihr Unternehmen und machen Sie die ersten strategischen Schritte.",
   "premiumPlanDesc": "Erweiterte Funktionen freischalten und mehrere Unternehmen verwalten.",
   "featureDailyTasks": "Tägliche Wachstumsaufgaben",
   "featureBlog": "Blog & Vorlagen",
@@ -316,6 +325,7 @@
   "verificationCodeSent": "Wir haben einen Bestätigungscode gesendet an",
   "verifyCode": "Code bestätigen",
   "resendCode": "Erneut senden",
+  "editEmail": "E-Mail bearbeiten",
   "changeEmail": "Ändern",
   "invalidCode": "Ungültiger oder abgelaufener Code. Bitte versuchen Sie es erneut.",
   "markAllRead": "Alle als gelesen markieren",
@@ -342,19 +352,25 @@
   "notifDailySummaryTitle": "Tageszusammenfassung",
   "notifDailySummaryBody": "Sie haben heute {completed} von {total} Aufgaben erledigt. Weiter so!",
   "justNow": "jetzt",
-  "proPlanPrice": "€19,99/Monat",
-  "proPlanDesc": "Vollständiger Zugang zu allen Tools, die Ihr Unternehmen wachsen lassen.",
-  "featureFreeAnalysis": "360°-Unternehmensanalyse in 7 Dimensionen (Q1–Q7)",
-  "featureFreeTopTasks": "Top 30 strategische Aufgaben für Sichtbarkeit & Reputation",
-  "featureFreeBasicDashboard": "Basis-Dashboard",
-  "featureFreeWhatsApp": "App + WhatsApp (keine Benachrichtigungen)",
-  "featureFreeAiMessages": "Trainiertes KI-Modell — 5 Nachrichten/Tag",
-  "featureProAnalysis": "360° Interaktive Unternehmensanalyse (Q1–Q7)",
-  "featureProFullLibrary": "Vollständige Aufgabenbibliothek — Umsatz, Gewinn, Treue & mehr",
-  "featureProDashboard": "Visuelles Dashboard & Live-Analysen",
-  "featureProWhatsApp": "WhatsApp-Wachstumscoach — tägliche Erinnerungen & Wochenberichte",
-  "featureProUpdatedContent": "Ständig aktualisierte Inhalte — neue Taktiken jeden Monat",
-  "featureProIdTracking": "ID-basiertes Tracking — sehen Sie den Gewinn jedes Schritts",
+  "proPlanPrice": "€19,99",
+  "proPlanDesc": "Die vollständige Bibliothek, um Ihr System mit voller Kapazität zu betreiben.",
+  "perMonth": "/ Monat",
+  "monthlySubscriptionLabel": "Automatisch erneuerndes Monatsabonnement",
+  "subscriptionAutoRenewNotice": "Das Abonnement verlängert sich automatisch monatlich, es sei denn, es wird mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt. Verwalten oder kündigen Sie jederzeit in Ihren App Store-Kontoeinstellungen.",
+  "featureFreeAnalysis": "Interaktive 360°-Unternehmensanalyse: Visualisieren Sie Ihren Stand in 7 strategischen Dimensionen (Q1–Q7)",
+  "featureFreePainPoint": "Analyse und Vergleich der wichtigsten Schmerzpunkte",
+  "featureFreeTasks": "15-Tage-Strategieaufgaben: Sofortiger Zugriff auf grundlegende Sichtbarkeits- und Reputationsschritte (ID: 001–010)",
+  "featureFreeUpdatedContent": "Ständig aktualisierte Inhalte: Neue Taktiken + digitale Trends jeden Monat",
+  "featureFreeTemplates": "\"Kopieren & Einfügen\" Fertige Inhalte & Vorlagenbibliothek",
+  "featureProAnalysis": "Interaktive 360°-Unternehmensanalyse: Visualisieren Sie Ihren Stand in 7 strategischen Dimensionen",
+  "featureProPainPoint": "Analyse und Vergleich der wichtigsten Schmerzpunkte",
+  "featureProFullLibrary": "Zugang zu allen strategischen Aufgaben: Schneller Zugriff auf die wirkungsvollsten Aufgaben",
+  "featureProDashboard": "Visuelles Dashboard & Analytik: Digitale Gesundheits- und Wachstumswertung",
+  "featureProUpdatedContent": "Ständig aktualisierte Inhalte: Neue Taktiken + digitale Trends jeden Monat",
+  "featureProWhatsApp": "WhatsApp-Wachstumscoach: Aufgabenverfolgung über WhatsApp",
+  "featureProIdTracking": "ID-basiertes Tracking-System: Sehen Sie mathematisch, was jeder Schritt einbringt",
+  "featureProTemplates": "\"Kopieren & Einfügen\" Fertige Inhalte & Vorlagenbibliothek",
+  "featureProSession": "Monatliche 30-Min. Einzelne Wachstumssitzung",
   "errorNetwork": "Keine Internetverbindung. Bitte überprüfen Sie Ihr Netzwerk.",
   "errorRateLimit": "Zu viele Anfragen. Bitte warten Sie einen Moment.",
   "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -363,6 +379,9 @@
   "thisMonth": "Diesen Monat",
   "thisYear": "Dieses Jahr",
   "restorePurchases": "Käufe wiederherstellen",
+  "privacyPolicy": "Datenschutz",
+  "termsOfUse": "Nutzungsbedingungen",
+  "subscribeAgreeTerms": "Mit dem Abonnieren stimmen Sie zu:",
   "purchaseSuccess": "Willkommen bei Pro! Genießen Sie Ihre neuen Funktionen.",
   "purchaseCancelled": "Kauf abgebrochen.",
   "restoreSuccess": "Käufe erfolgreich wiederhergestellt.",
@@ -397,5 +416,15 @@
   "privacySection7Body": "Für weitere Informationen zu dieser Datenschutzrichtlinie oder zur Ausübung Ihrer Rechte:\n\n• E-Mail: info@salesgrowthsteps.com\n• In-App-Support: Einstellungen → Support",
   "premiumContent": "Premium-Inhalt",
   "premiumContentDesc": "Diese Funktion ist nur für Premium-Mitglieder. Tritt bei uns bei, um deine Analysen zu vertiefen.",
-  "premiumBuyNow": "Premium kaufen"
+  "premiumBuyNow": "Premium kaufen",
+  "todayTasksFor": "Heutige maßgeschneiderte Aufgaben für {name}",
+  "@todayTasksFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTasksTomorrow": "Mehr individuelle Aufgaben kommen morgen. Bis dann!",
+  "allDoneToday": "Alles erledigt für heute! 🎉 Neue Aufgaben kommen morgen. Du bist deinen Zielen einen Schritt näher!"
 }

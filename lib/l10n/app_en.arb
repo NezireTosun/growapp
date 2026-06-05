@@ -171,7 +171,7 @@
   "messageBodyHint": "Write your message here...",
   "sendMessage": "Send Message",
   "messageSent": "Your message has been sent!",
-  "messageSentDesc": "We will get back to you as soon as possible.",
+  "messageSentDesc": "We will get back to you as soon as possible. Our team will reach out to you soon.",
   "deleteAccount": "Delete Account",
   "signOut": "Sign Out",
   "cancel": "Cancel",
@@ -255,6 +255,15 @@
   "weeklyPerformance": "Weekly Performance",
   "thisWeek": "This Week",
   "completedTasksCount": "Completed Tasks",
+  "snoozed": "Snoozed",
+  "allTimeTaskSummary": "All Time",
+  "activeDaysLabel": "Active Days",
+  "activeDaysCount": "{count} days",
+  "@activeDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "vsLastWeek": "+{percent}% vs last week",
   "@vsLastWeek": {
     "placeholders": {
@@ -302,7 +311,7 @@
   "premiumPlan": "Premium",
   "freePlanPrice": "Free",
   "premiumPlanPrice": "$99/mo",
-  "freePlanDesc": "Perfect for getting started with one business.",
+  "freePlanDesc": "X-ray your business and take your first strategic steps.",
   "premiumPlanDesc": "Unlock advanced features and manage multiple businesses.",
   "featureDailyTasks": "Daily Growth Tasks",
   "featureBlog": "Blog & Templates",
@@ -316,6 +325,7 @@
   "verificationCodeSent": "We've sent a verification code to",
   "verifyCode": "Verify Code",
   "resendCode": "Resend Code",
+  "editEmail": "Edit Email",
   "changeEmail": "Change",
   "invalidCode": "Invalid or expired code. Please try again.",
   "markAllRead": "Mark all read",
@@ -342,19 +352,25 @@
   "notifDailySummaryTitle": "Daily Summary",
   "notifDailySummaryBody": "You completed {completed} out of {total} tasks today. Keep the momentum going!",
   "justNow": "now",
-  "proPlanPrice": "€19.99/mo",
-  "proPlanDesc": "Full access to all tools that grow your business.",
-  "featureFreeAnalysis": "360° Business Analysis across 7 dimensions (Q1–Q7)",
-  "featureFreeTopTasks": "Top 30 Strategic Tasks for visibility & reputation",
-  "featureFreeBasicDashboard": "Basic Dashboard",
-  "featureFreeWhatsApp": "App + WhatsApp (no notifications)",
-  "featureFreeAiMessages": "Trained AI Model — 5 messages/day",
-  "featureProAnalysis": "360° Interactive Business Analysis (Q1–Q7)",
-  "featureProFullLibrary": "Full Strategic Task Library — sales, profit, loyalty & more",
-  "featureProDashboard": "Visual Dashboard & Analytics with live charts",
-  "featureProWhatsApp": "WhatsApp Growth Coach — daily reminders & weekly reports",
-  "featureProUpdatedContent": "Constantly Updated Content — new tactics every month",
-  "featureProIdTracking": "ID-Based Tracking — see what each step earns you",
+  "proPlanPrice": "€19.99",
+  "proPlanDesc": "The complete library to run your system at full capacity.",
+  "perMonth": "/ month",
+  "monthlySubscriptionLabel": "Auto-renewing monthly subscription",
+  "subscriptionAutoRenewNotice": "Subscription automatically renews monthly unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store account settings.",
+  "featureFreeAnalysis": "Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions (Q1–Q7)",
+  "featureFreePainPoint": "Core Pain Point Analysis & Benchmarking",
+  "featureFreeTasks": "15-Day Strategic Tasks: Instant access to core visibility & reputation steps (ID: 001–010)",
+  "featureFreeUpdatedContent": "Constantly Updated Content: New tactics + digital trends every month",
+  "featureFreeTemplates": "\"Copy-Paste\" Ready Content & Template Library",
+  "featureProAnalysis": "Interactive 360° Business Analysis: Visualize your status across 7 strategic dimensions",
+  "featureProPainPoint": "Core Pain Point Analysis & Benchmarking",
+  "featureProFullLibrary": "Access to All Strategic Tasks: Quick access to the highest-impact tasks",
+  "featureProDashboard": "Visual Dashboard & Analytics: Digital Health and Growth Score",
+  "featureProUpdatedContent": "Constantly Updated Content: New tactics + digital trends every month",
+  "featureProWhatsApp": "WhatsApp Growth Coach: Track your tasks via WhatsApp",
+  "featureProIdTracking": "ID-Based Tracking System: Mathematically see what each step earns you",
+  "featureProTemplates": "\"Copy-Paste\" Ready Content & Template Library",
+  "featureProSession": "Monthly 30-Min One-on-One Growth Session",
   "errorNetwork": "No internet connection. Please check your network.",
   "errorRateLimit": "Too many requests. Please wait a moment and try again.",
   "errorGeneric": "Something went wrong. Please try again.",
@@ -363,6 +379,9 @@
   "thisMonth": "This Month",
   "thisYear": "This Year",
   "restorePurchases": "Restore Purchases",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfUse": "Terms of Use",
+  "subscribeAgreeTerms": "By subscribing you agree to our:",
   "purchaseSuccess": "Welcome to Pro! Enjoy your new features.",
   "purchaseCancelled": "Purchase cancelled.",
   "restoreSuccess": "Purchases restored successfully.",
@@ -397,5 +416,15 @@
   "privacySection7Body": "For more information about this privacy policy or to exercise your rights:\n\n• Email: info@salesgrowthsteps.com\n• In-app support: Settings → Support",
   "premiumContent": "Premium Content",
   "premiumContentDesc": "This feature is for Premium members only. Join us to deepen your analytics and discover your potential.",
-  "premiumBuyNow": "Get Premium"
+  "premiumBuyNow": "Get Premium",
+  "todayTasksFor": "Today's tailored tasks for {name}",
+  "@todayTasksFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTasksTomorrow": "More customized tasks are coming tomorrow. See you then!",
+  "allDoneToday": "All done for today! 🎉 New tasks arrive tomorrow. You're one step closer to your goals!"
 }

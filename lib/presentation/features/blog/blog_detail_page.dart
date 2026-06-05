@@ -71,23 +71,25 @@ class BlogDetailPage extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
 
-                  // Kategori badge — task detail'deki dailyTaskCounter ile aynı konum
+                  // Kategori badge — task detail'deki dailyTaskCounter ile aynı stil
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(_categoryIcon, size: 11, color: color),
-                        const SizedBox(width: 4),
+                        Icon(_categoryIcon, size: 12, color: color),
+                        const SizedBox(width: 6),
                         Text(
                           categoryLabel,
                           style: AppTypography.badge.copyWith(
                             color: color,
-                            fontSize: 10,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
@@ -108,31 +110,56 @@ class BlogDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // İçerik
+                  // İçerik — task detail'deki _WhyCard stili
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: AppColors.primary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: post.content
-                          .split('\n\n')
-                          .where((p) => p.trim().isNotEmpty)
-                          .map((paragraph) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Text(
-                                  paragraph.trim(),
-                                  textAlign: TextAlign.justify,
-                                  style: AppTypography.body.copyWith(
-                                    fontSize: 13,
-                                    height: 1.7,
-                                  ),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.bolt_rounded, size: 12, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                l.whyItMakesMoney,
+                                style: AppTypography.badge.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                              ))
-                          .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...post.content
+                            .split('\n\n')
+                            .where((p) => p.trim().isNotEmpty)
+                            .map((paragraph) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Text(
+                                    paragraph.trim(),
+                                    style: AppTypography.body.copyWith(
+                                      fontSize: 14,
+                                      height: 1.65,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                )),
+                      ],
                     ),
                   ),
 

@@ -423,7 +423,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get messageSentDesc =>
-      'Wir werden uns so schnell wie möglich bei Ihnen melden.';
+      'Wir werden uns so schnell wie möglich bei Ihnen melden. Unser Team wird sich in Kürze bei Ihnen melden.';
 
   @override
   String get deleteAccount => 'Konto löschen';
@@ -648,6 +648,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get completedTasksCount => 'Erledigte Aufgaben';
 
   @override
+  String get snoozed => 'Verschoben';
+
+  @override
+  String get allTimeTaskSummary => 'Gesamt';
+
+  @override
+  String get activeDaysLabel => 'Aktive Tage';
+
+  @override
+  String activeDaysCount(int count) {
+    return '$count Tage';
+  }
+
+  @override
   String vsLastWeek(int percent) {
     return '+$percent% ggü. letzter Woche';
   }
@@ -753,7 +767,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premiumPlanPrice => '99€/Mo';
 
   @override
-  String get freePlanDesc => 'Perfekt für den Einstieg mit einem Unternehmen.';
+  String get freePlanDesc =>
+      'Durchleuchten Sie Ihr Unternehmen und machen Sie die ersten strategischen Schritte.';
 
   @override
   String get premiumPlanDesc =>
@@ -795,6 +810,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get resendCode => 'Erneut senden';
+
+  @override
+  String get editEmail => 'E-Mail bearbeiten';
 
   @override
   String get changeEmail => 'Ändern';
@@ -841,52 +859,78 @@ class AppLocalizationsDe extends AppLocalizations {
   String get justNow => 'jetzt';
 
   @override
-  String get proPlanPrice => '€19,99/Monat';
+  String get proPlanPrice => '€19,99';
 
   @override
   String get proPlanDesc =>
-      'Vollständiger Zugang zu allen Tools, die Ihr Unternehmen wachsen lassen.';
+      'Die vollständige Bibliothek, um Ihr System mit voller Kapazität zu betreiben.';
+
+  @override
+  String get perMonth => '/ Monat';
+
+  @override
+  String get monthlySubscriptionLabel =>
+      'Automatisch erneuerndes Monatsabonnement';
+
+  @override
+  String get subscriptionAutoRenewNotice =>
+      'Das Abonnement verlängert sich automatisch monatlich, es sei denn, es wird mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt. Verwalten oder kündigen Sie jederzeit in Ihren App Store-Kontoeinstellungen.';
 
   @override
   String get featureFreeAnalysis =>
-      '360°-Unternehmensanalyse in 7 Dimensionen (Q1–Q7)';
+      'Interaktive 360°-Unternehmensanalyse: Visualisieren Sie Ihren Stand in 7 strategischen Dimensionen (Q1–Q7)';
 
   @override
-  String get featureFreeTopTasks =>
-      'Top 30 strategische Aufgaben für Sichtbarkeit & Reputation';
+  String get featureFreePainPoint =>
+      'Analyse und Vergleich der wichtigsten Schmerzpunkte';
 
   @override
-  String get featureFreeBasicDashboard => 'Basis-Dashboard';
+  String get featureFreeTasks =>
+      '15-Tage-Strategieaufgaben: Sofortiger Zugriff auf grundlegende Sichtbarkeits- und Reputationsschritte (ID: 001–010)';
 
   @override
-  String get featureFreeWhatsApp => 'App + WhatsApp (keine Benachrichtigungen)';
+  String get featureFreeUpdatedContent =>
+      'Ständig aktualisierte Inhalte: Neue Taktiken + digitale Trends jeden Monat';
 
   @override
-  String get featureFreeAiMessages =>
-      'Trainiertes KI-Modell — 5 Nachrichten/Tag';
+  String get featureFreeTemplates =>
+      '\"Kopieren & Einfügen\" Fertige Inhalte & Vorlagenbibliothek';
 
   @override
   String get featureProAnalysis =>
-      '360° Interaktive Unternehmensanalyse (Q1–Q7)';
+      'Interaktive 360°-Unternehmensanalyse: Visualisieren Sie Ihren Stand in 7 strategischen Dimensionen';
+
+  @override
+  String get featureProPainPoint =>
+      'Analyse und Vergleich der wichtigsten Schmerzpunkte';
 
   @override
   String get featureProFullLibrary =>
-      'Vollständige Aufgabenbibliothek — Umsatz, Gewinn, Treue & mehr';
+      'Zugang zu allen strategischen Aufgaben: Schneller Zugriff auf die wirkungsvollsten Aufgaben';
 
   @override
-  String get featureProDashboard => 'Visuelles Dashboard & Live-Analysen';
-
-  @override
-  String get featureProWhatsApp =>
-      'WhatsApp-Wachstumscoach — tägliche Erinnerungen & Wochenberichte';
+  String get featureProDashboard =>
+      'Visuelles Dashboard & Analytik: Digitale Gesundheits- und Wachstumswertung';
 
   @override
   String get featureProUpdatedContent =>
-      'Ständig aktualisierte Inhalte — neue Taktiken jeden Monat';
+      'Ständig aktualisierte Inhalte: Neue Taktiken + digitale Trends jeden Monat';
+
+  @override
+  String get featureProWhatsApp =>
+      'WhatsApp-Wachstumscoach: Aufgabenverfolgung über WhatsApp';
 
   @override
   String get featureProIdTracking =>
-      'ID-basiertes Tracking — sehen Sie den Gewinn jedes Schritts';
+      'ID-basiertes Tracking-System: Sehen Sie mathematisch, was jeder Schritt einbringt';
+
+  @override
+  String get featureProTemplates =>
+      '\"Kopieren & Einfügen\" Fertige Inhalte & Vorlagenbibliothek';
+
+  @override
+  String get featureProSession =>
+      'Monatliche 30-Min. Einzelne Wachstumssitzung';
 
   @override
   String get errorNetwork =>
@@ -914,6 +958,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Käufe wiederherstellen';
+
+  @override
+  String get privacyPolicy => 'Datenschutz';
+
+  @override
+  String get termsOfUse => 'Nutzungsbedingungen';
+
+  @override
+  String get subscribeAgreeTerms => 'Mit dem Abonnieren stimmen Sie zu:';
 
   @override
   String get purchaseSuccess =>
@@ -1011,4 +1064,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get premiumBuyNow => 'Premium kaufen';
+
+  @override
+  String todayTasksFor(String name) {
+    return 'Heutige maßgeschneiderte Aufgaben für $name';
+  }
+
+  @override
+  String get moreTasksTomorrow =>
+      'Mehr individuelle Aufgaben kommen morgen. Bis dann!';
+
+  @override
+  String get allDoneToday =>
+      'Alles erledigt für heute! 🎉 Neue Aufgaben kommen morgen. Du bist deinen Zielen einen Schritt näher!';
 }

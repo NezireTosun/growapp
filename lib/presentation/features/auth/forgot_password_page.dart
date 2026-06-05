@@ -1,3 +1,4 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -95,7 +96,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (e.contains('unauthenticated') || e.contains('permission-denied')) return l.loginError;
     if (e.contains('network') || e.contains('unavailable') || e.contains('deadline-exceeded')) return l.errorNetwork;
     if (e.contains('internal') || e.contains('unknown')) return l.errorGeneric;
-    debugPrint('[ForgotPassword] unhandled error: $error');
+    AppLogger.w('[ForgotPassword]', 'unhandled error: $error');
     return l.invalidCode;
   }
 

@@ -159,6 +159,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStreakRow(l, p),
+          const SizedBox(height: 16),
+          _buildAllTimeSummary(l, p),
           const SizedBox(height: 28),
           _buildChartSection(
             title: l.weeklyPerformance,
@@ -250,7 +252,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '+${p.completedToday} bugün',
+                  l.todayPlus(p.completedToday),
                   style: AppTypography.caption.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -259,6 +261,132 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ───────── All-Time Summary ─────────
+
+  Widget _buildAllTimeSummary(AppLocalizations l, AnalyticsProvider p) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.allTimeTaskSummary,
+                  style: AppTypography.cardTitle.copyWith(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      l.activeDaysCount(p.activeDays),
+                      style: AppTypography.caption.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.activeDaysLabel,
+            style: AppTypography.caption.copyWith(
+              fontSize: 11,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: _buildSummaryStatCard(
+                icon: Icons.check_circle_rounded,
+                color: AppColors.success,
+                label: l.completed,
+                value: p.totalCompleted,
+              )),
+              const SizedBox(width: 10),
+              Expanded(child: _buildSummaryStatCard(
+                icon: Icons.snooze_rounded,
+                color: AppColors.warning,
+                label: l.snoozed,
+                value: p.totalSnoozed,
+              )),
+              const SizedBox(width: 10),
+              Expanded(child: _buildSummaryStatCard(
+                icon: Icons.cancel_rounded,
+                color: AppColors.danger,
+                label: l.dismissed,
+                value: p.totalDismissed,
+              )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryStatCard({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required int value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 22, color: color),
+          const SizedBox(height: 8),
+          Text(
+            '$value',
+            style: AppTypography.cardTitle.copyWith(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTypography.caption.copyWith(
+              fontSize: 11,
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -557,7 +685,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, AppRouter.subscription),
+                onPressed: () => Navigator.pushNamed(context, AppRouter.subscription),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

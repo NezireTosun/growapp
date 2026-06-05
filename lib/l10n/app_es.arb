@@ -171,7 +171,7 @@
   "messageBodyHint": "Escriba su mensaje aquí...",
   "sendMessage": "Enviar mensaje",
   "messageSent": "¡Su mensaje ha sido enviado!",
-  "messageSentDesc": "Le responderemos lo antes posible.",
+  "messageSentDesc": "Le responderemos lo antes posible. Nuestro equipo se pondrá en contacto con usted pronto.",
   "deleteAccount": "Eliminar cuenta",
   "signOut": "Desconectar",
   "cancel": "Cancelar",
@@ -255,6 +255,15 @@
   "weeklyPerformance": "Rendimiento Semanal",
   "thisWeek": "Esta Semana",
   "completedTasksCount": "Tareas Completadas",
+  "snoozed": "Aplazado",
+  "allTimeTaskSummary": "Total",
+  "activeDaysLabel": "Días Activos",
+  "activeDaysCount": "{count} días",
+  "@activeDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "vsLastWeek": "+{percent}% vs semana pasada",
   "@vsLastWeek": {
     "placeholders": {
@@ -302,7 +311,7 @@
   "premiumPlan": "Premium",
   "freePlanPrice": "Gratis",
   "premiumPlanPrice": "$99/mes",
-  "freePlanDesc": "Perfecto para comenzar con un negocio.",
+  "freePlanDesc": "Radiografía tu negocio y da los primeros pasos estratégicos.",
   "premiumPlanDesc": "Desbloquea funciones avanzadas y gestiona múltiples negocios.",
   "featureDailyTasks": "Tareas de Crecimiento Diarias",
   "featureBlog": "Blog y Plantillas",
@@ -316,6 +325,7 @@
   "verificationCodeSent": "Hemos enviado un código de verificación a",
   "verifyCode": "Verificar Código",
   "resendCode": "Reenviar Código",
+  "editEmail": "Editar correo",
   "changeEmail": "Cambiar",
   "invalidCode": "Código inválido o expirado. Por favor, inténtalo de nuevo.",
   "markAllRead": "Marcar todo como leído",
@@ -342,19 +352,25 @@
   "notifDailySummaryTitle": "Resumen Diario",
   "notifDailySummaryBody": "Completaste {completed} de {total} tareas hoy. ¡Sigue así!",
   "justNow": "ahora",
-  "proPlanPrice": "€19,99/mes",
-  "proPlanDesc": "Acceso completo a todas las herramientas que hacen crecer tu negocio.",
-  "featureFreeAnalysis": "Análisis empresarial 360° en 7 dimensiones (Q1–Q7)",
-  "featureFreeTopTasks": "Top 30 tareas estratégicas de visibilidad y reputación",
-  "featureFreeBasicDashboard": "Panel básico",
-  "featureFreeWhatsApp": "App + WhatsApp (sin notificaciones)",
-  "featureFreeAiMessages": "Modelo IA entrenado — 5 mensajes/día",
-  "featureProAnalysis": "Análisis empresarial interactivo 360° (Q1–Q7)",
-  "featureProFullLibrary": "Biblioteca completa de tareas — ventas, beneficios, fidelidad y más",
-  "featureProDashboard": "Panel visual y analíticas en tiempo real",
-  "featureProWhatsApp": "Coach de crecimiento WhatsApp — recordatorios diarios e informes semanales",
-  "featureProUpdatedContent": "Contenido actualizado constantemente — nuevas tácticas cada mes",
-  "featureProIdTracking": "Seguimiento por ID — ve cuánto gana cada paso",
+  "proPlanPrice": "€19,99",
+  "proPlanDesc": "La biblioteca completa para operar tu sistema a plena capacidad.",
+  "perMonth": "/ mes",
+  "monthlySubscriptionLabel": "Suscripción mensual con renovación automática",
+  "subscriptionAutoRenewNotice": "La suscripción se renueva automáticamente cada mes a menos que se cancele al menos 24 horas antes del final del período actual. Gestiona o cancela en cualquier momento desde los ajustes de tu cuenta de App Store.",
+  "featureFreeAnalysis": "Análisis empresarial 360° interactivo: Visualiza tu situación en 7 dimensiones estratégicas (Q1–Q7)",
+  "featureFreePainPoint": "Análisis y comparación de los principales puntos de dolor",
+  "featureFreeTasks": "15 tareas estratégicas diarias: Acceso inmediato a pasos clave de visibilidad y reputación (ID: 001–010)",
+  "featureFreeUpdatedContent": "Contenido actualizado constantemente: Nuevas tácticas + tendencias digitales cada mes",
+  "featureFreeTemplates": "Biblioteca de contenidos y plantillas \"Copia-Pega\" listas para usar",
+  "featureProAnalysis": "Análisis empresarial 360° interactivo: Visualiza tu situación en 7 dimensiones estratégicas",
+  "featureProPainPoint": "Análisis y comparación de los principales puntos de dolor",
+  "featureProFullLibrary": "Acceso a todas las tareas estratégicas: Acceso rápido a las tareas de mayor impacto",
+  "featureProDashboard": "Panel visual y analíticas: Puntuación de Salud Digital y Crecimiento",
+  "featureProUpdatedContent": "Contenido actualizado constantemente: Nuevas tácticas + tendencias digitales cada mes",
+  "featureProWhatsApp": "Coach de crecimiento WhatsApp: Seguimiento de tareas por WhatsApp",
+  "featureProIdTracking": "Sistema de seguimiento por ID: Ve matemáticamente cuánto gana cada paso",
+  "featureProTemplates": "Biblioteca de contenidos y plantillas \"Copia-Pega\" listas para usar",
+  "featureProSession": "Sesión de crecimiento individual mensual de 30 min.",
   "errorNetwork": "Sin conexión a internet. Por favor, comprueba tu red.",
   "errorRateLimit": "Demasiadas solicitudes. Por favor, espera un momento.",
   "errorGeneric": "Algo salió mal. Por favor, inténtalo de nuevo.",
@@ -397,5 +413,18 @@
   "privacySection7Body": "Para más información sobre esta política de privacidad o para ejercer tus derechos:\n\n• Correo: info@salesgrowthsteps.com\n• Soporte en la app: Ajustes → Soporte",
   "premiumContent": "Contenido Premium",
   "premiumContentDesc": "Esta función es solo para miembros Premium. Únete para profundizar en tus análisis.",
-  "premiumBuyNow": "Obtener Premium"
+  "premiumBuyNow": "Obtener Premium",
+  "privacyPolicy": "Política de Privacidad",
+  "termsOfUse": "Términos de Uso",
+  "subscribeAgreeTerms": "Al suscribirte aceptas:",
+  "allDoneToday": "¡Todo listo por hoy! 🎉 Nuevas tareas llegan mañana. ¡Estás un paso más cerca de tus metas!",
+  "todayTasksFor": "Las tareas personalizadas de hoy para {name}",
+  "@todayTasksFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTasksTomorrow": "Más tareas personalizadas llegan mañana. ¡Hasta entonces!"
 }

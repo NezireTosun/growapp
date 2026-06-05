@@ -35,7 +35,7 @@ class _BusinessNamePageState extends State<BusinessNamePage> {
 
     return OnboardingScaffold(
       title: step?.title ?? l.businessNameFallback,
-      onBack: () {},
+      onBack: () => Navigator.of(context).pop(),
       bottomButton: OnboardingPrimaryButton(
         text: l.continueButton,
         onPressed: () {

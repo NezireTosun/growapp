@@ -1,5 +1,5 @@
+import 'package:growapp/core/utils/app_logger.dart';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/entities/app_notification.dart';
@@ -58,12 +58,12 @@ class TaskRepositoryImpl implements TaskRepository {
     final docId = _assignmentDocId(userId, businessId, today);
     final doc = await _db.collection('daily_assignments').doc(docId).get();
 
-    debugPrint('[TaskRepo] docId=$docId exists=${doc.exists}');
+    AppLogger.d('[TaskRepo]', 'docId=$docId exists=${doc.exists}');
     if (doc.exists) {
       final taskEntries = List<Map<String, dynamic>>.from(doc.data()!['tasks'] ?? []);
-      debugPrint('[TaskRepo] taskEntries=$taskEntries');
+      AppLogger.d('[TaskRepo]', 'taskEntries=$taskEntries');
       final tasks = await _loadAssignedTasks(taskEntries, locale);
-      debugPrint('[TaskRepo] loaded ${tasks.length} tasks from Firestore');
+      AppLogger.d('[TaskRepo]', 'loaded ${tasks.length} tasks from Firestore');
       return tasks;
     }
 
@@ -153,7 +153,8 @@ class TaskRepositoryImpl implements TaskRepository {
 
         available.shuffle(Random());
         for (final d in available.take(newTasksNeeded)) {
-          carryOverEntries.add({'task_id': d.data()['task_id'] as int, 'status': 'pending'});
+          final rawId = d.data()['task_id'] ?? d.id;
+          carryOverEntries.add({'task_id': rawId, 'status': 'pending'});
         }
       }
     }
@@ -170,12 +171,14 @@ class TaskRepositoryImpl implements TaskRepository {
     final tasks = await _loadAssignedTasks(carryOverEntries, locale);
 
     if (tasks.isNotEmpty) {
+      final notifTitle = _localizedNotifTitle(locale);
+      final notifBody = _localizedNotifBody(locale, tasks.length);
       await _db.collection('notifications').add({
         'user_id': userId,
         'business_id': businessId,
         'type': NotificationType.taskAssigned.name,
-        'title': 'Yeni görevler atandı!',
-        'body': '${tasks.length} görevin var. Hadi işletmeni büyütelim!',
+        'title': notifTitle,
+        'body': notifBody,
         'is_read': false,
         'created_at': FieldValue.serverTimestamp(),
         'data': null,
@@ -227,7 +230,7 @@ class TaskRepositoryImpl implements TaskRepository {
       }
 
       if (!taskDoc.exists) {
-        debugPrint('[TaskRepository] task $taskId bulunamadı, atlanıyor');
+        AppLogger.d('[TaskRepository]', 'task $taskId bulunamadı, atlanıyor');
         continue;
       }
 
@@ -377,7 +380,7 @@ class TaskRepositoryImpl implements TaskRepository {
     tasksMap[taskId] = {
       ...?existing,
       'dismiss_reason': reason.name,
-      if (note != null) 'note': note,
+      'note': ?note,
     };
 
     await historyRef.set({'tasks': tasksMap}, SetOptions(merge: true));
@@ -477,7 +480,7 @@ class TaskRepositoryImpl implements TaskRepository {
       'tasks': [],
       'updated_at': FieldValue.serverTimestamp(),
     });
-    debugPrint('[TaskRepo] Bugünün assignment doc\'u sıfırlandı: $docId');
+    AppLogger.d('[TaskRepo]', 'Bugünün assignment doc\'u sıfırlandı: $docId');
   }
 
   // ─── SAVE DAILY ASSIGNMENTS ───
@@ -492,7 +495,7 @@ class TaskRepositoryImpl implements TaskRepository {
     final docId = _assignmentDocId(userId, businessId, today);
 
     final taskList = tasks.map((t) => {'task_id': t.id, 'status': 'pending'}).toList();
-    debugPrint('[TaskRepo] saveDailyAssignments docId=$docId tasks=$taskList');
+    AppLogger.d('[TaskRepo]', 'saveDailyAssignments docId=$docId tasks=$taskList');
     await _db.collection('daily_assignments').doc(docId).set({
       'user_id': userId,
       'business_id': businessId,
@@ -501,7 +504,7 @@ class TaskRepositoryImpl implements TaskRepository {
       'created_at': FieldValue.serverTimestamp(),
       'updated_at': FieldValue.serverTimestamp(),
     });
-    debugPrint('[TaskRepo] saveDailyAssignments başarılı');
+    AppLogger.d('[TaskRepo]', 'saveDailyAssignments başarılı');
   }
 
   // ─── HELPERS ───
@@ -512,4 +515,20 @@ class TaskRepositoryImpl implements TaskRepository {
       orElse: () => TaskStatus.pending,
     );
   }
+
+  String _localizedNotifTitle(String locale) => switch (locale) {
+    'tr' => 'Yeni görevler atandı!',
+    'de' => 'Neue Aufgaben zugewiesen!',
+    'es' => '¡Nuevas tareas asignadas!',
+    'cs' => 'Nové úkoly přiřazeny!',
+    _    => 'New tasks assigned!',
+  };
+
+  String _localizedNotifBody(String locale, int count) => switch (locale) {
+    'tr' => '$count görevin var. Hadi işletmeni büyütelim!',
+    'de' => 'Du hast $count neue Aufgaben. Lass uns dein Unternehmen wachsen lassen!',
+    'es' => 'Tienes $count tareas nuevas. ¡Hagamos crecer tu negocio!',
+    'cs' => 'Máš $count nových úkolů. Pojďme rozvíjet tvoje podnikání!',
+    _    => 'You have $count new tasks. Let\'s grow your business!',
+  };
 }
