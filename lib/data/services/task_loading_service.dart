@@ -39,6 +39,7 @@ class TaskLoadingService {
           businessId: businessId,
           businessType: businessType,
           locale: locale,
+          industry: industry,
         );
       }
 
@@ -72,6 +73,7 @@ class TaskLoadingService {
             businessId: businessId,
             businessType: businessType,
             locale: locale,
+            industry: industry,
           );
         }
       }
@@ -100,6 +102,7 @@ class TaskLoadingService {
     required int businessType,
     required String locale,
     required List<DailyTask> currentTasks,
+    String? industry,
   }) async {
     try {
       final tasks = await _repository.getTodayAssignments(
@@ -107,6 +110,7 @@ class TaskLoadingService {
         businessId: businessId,
         businessType: businessType,
         locale: locale,
+        industry: industry,
       );
       if (tasks.isNotEmpty) {
         await TaskCacheService.saveTasks(userId: userId, businessId: businessId, tasks: tasks);

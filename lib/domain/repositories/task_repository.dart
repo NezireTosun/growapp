@@ -13,6 +13,7 @@ abstract class TaskRepository {
     required String businessId,
     required int businessType,
     String locale = 'tr',
+    String? industry,
   });
 
   /// Update task status in daily_assignments collection.

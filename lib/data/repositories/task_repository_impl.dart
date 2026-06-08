@@ -53,6 +53,7 @@ class TaskRepositoryImpl implements TaskRepository {
     required String businessId,
     required int businessType,
     String locale = 'tr',
+    String? industry,
   }) async {
     final today = _todayDate();
     final docId = _assignmentDocId(userId, businessId, today);
@@ -71,6 +72,7 @@ class TaskRepositoryImpl implements TaskRepository {
       userId: userId,
       businessId: businessId,
       businessType: businessType,
+      industry: industry,
       today: today,
       docId: docId,
       locale: locale,
@@ -81,6 +83,7 @@ class TaskRepositoryImpl implements TaskRepository {
     required String userId,
     required String businessId,
     required int businessType,
+    String? industry,
     required String today,
     required String docId,
     required String locale,
@@ -115,10 +118,10 @@ class TaskRepositoryImpl implements TaskRepository {
           .where('is_active', isEqualTo: true)
           .get();
 
-      // businessType=0 ise (bilinmiyor) tüm aktif task'lara bak
-      var filteredDocs = snapshot.docs
-          .where((d) => d.data()['business_type'] == businessType)
-          .toList();
+      // industry string'i varsa ona göre, yoksa businessType integer'a göre filtrele
+      var filteredDocs = industry != null && industry.isNotEmpty
+          ? snapshot.docs.where((d) => d.data()['industry'] == industry).toList()
+          : snapshot.docs.where((d) => d.data()['business_type'] == businessType).toList();
       if (filteredDocs.isEmpty) {
         filteredDocs = snapshot.docs.toList();
       }
