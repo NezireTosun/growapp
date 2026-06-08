@@ -94,6 +94,7 @@ class TaskLocalizationService {
   static const _industryToBusinessType = {
     'cafe': 1,
     'rest': 2,
+    'restaurant': 2,
     'ecommerce': 3,
     'saas': 4,
   };

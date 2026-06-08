@@ -118,9 +118,10 @@ class TaskRepositoryImpl implements TaskRepository {
           .where('is_active', isEqualTo: true)
           .get();
 
-      // industry string'i varsa ona göre, yoksa businessType integer'a göre filtrele
+      // industry string'i varsa ona göre filtrele ('rest' → 'restaurant' da eşleşir)
+      final industryAliases = industry == 'rest' ? {'rest', 'restaurant'} : {industry};
       var filteredDocs = industry != null && industry.isNotEmpty
-          ? snapshot.docs.where((d) => d.data()['industry'] == industry).toList()
+          ? snapshot.docs.where((d) => industryAliases.contains(d.data()['industry'])).toList()
           : snapshot.docs.where((d) => d.data()['business_type'] == businessType).toList();
       if (filteredDocs.isEmpty) {
         filteredDocs = snapshot.docs.toList();
