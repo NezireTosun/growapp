@@ -58,11 +58,11 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
     final Query<Map<String, dynamic>> query;
     if (businessType == 'ecommerce') {
       query = _db.collection('questions')
-          .where('business_type', isEqualTo: 'ecommerce')
+          .where('business_type', isEqualTo: 3)
           .orderBy('order_no');
     } else if (businessType == 'saas') {
       query = _db.collection('questions')
-          .where('business_type', isEqualTo: 'saas')
+          .where('business_type', isEqualTo: 4)
           .orderBy('order_no');
     } else {
       query = _db.collection('questions')
