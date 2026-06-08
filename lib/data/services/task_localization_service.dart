@@ -79,7 +79,7 @@ class TaskLocalizationService {
           data['category_id'] as String? ??
           data['main_category'] as String? ??
           '',
-      businessType: data['business_type'] as int? ?? 0,
+      businessType: _resolveBusinessType(data),
       cooldownDays: data['cool_down_days'] as int? ?? data['cooldown_days'] as int? ?? 0,
       difficultyLevel: data['difficulty_level'] as String? ?? 'medium',
       whyTitle: nonEmpty(localized(data['why_title'], locale)),
@@ -89,6 +89,20 @@ class TaskLocalizationService {
       templateTitle: nonEmpty(localized(data['template_title'], locale)),
       shareTemplate: nonEmpty(localized(data['template_text'], locale)),
     );
+  }
+
+  static const _industryToBusinessType = {
+    'cafe': 1,
+    'rest': 2,
+    'ecommerce': 3,
+    'saas': 4,
+  };
+
+  int _resolveBusinessType(Map<String, dynamic> data) {
+    final bt = data['business_type'];
+    if (bt is int && bt != 0) return bt;
+    final industry = data['industry'] as String? ?? '';
+    return _industryToBusinessType[industry] ?? 0;
   }
 
   TaskImpact _mapImpact(int score) {
