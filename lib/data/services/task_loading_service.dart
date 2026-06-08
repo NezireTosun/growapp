@@ -10,6 +10,9 @@ class TaskLoadingService {
   final TaskRepository _repository;
   final ApiClient _apiClient;
 
+  // API'nin desteklediği business type ID'leri (1=cafe, 2=rest)
+  static const _apiSupportedTypes = {1, 2};
+
   TaskLoadingService(this._repository, this._apiClient);
 
   Future<List<DailyTask>> loadTasks({
@@ -39,28 +42,38 @@ class TaskLoadingService {
         );
       }
 
-      // Firestore'da kayıt yoksa, boşsa veya 3'ten az görev içeriyorsa → API'den çek
+      // Firestore'da kayıt yoksa, boşsa veya 3'ten az görev içeriyorsa → yükle
       if (tasks.isEmpty || tasks.length < 3) {
         if (hasToday) {
-          // Eksik/bozuk doc var, önce sil
-          AppLogger.d('[TaskLoadingService]', 'Eksik Firestore kaydı (${tasks.length} görev) siliniyor, API\'den yeniden çekiliyor');
+          AppLogger.d('[TaskLoadingService]', 'Eksik Firestore kaydı (${tasks.length} görev) siliniyor, yeniden çekiliyor');
           await _repository.deleteTodayAssignments(userId: userId, businessId: businessId);
         }
 
-        final effectiveAnswers = apiAnswers.isNotEmpty
-            ? apiAnswers
-            : {'q1': 5, 'q2': 5, 'q3': 5, 'q4': 5, 'q5': 5, 'q6': 5, 'q7': 5};
+        if (_apiSupportedTypes.contains(businessType)) {
+          final effectiveAnswers = apiAnswers.isNotEmpty
+              ? apiAnswers
+              : {'q1': 5, 'q2': 5, 'q3': 5, 'q4': 5, 'q5': 5, 'q6': 5, 'q7': 5};
 
-        AppLogger.d('[TaskLoadingService]', 'API\'den görev çekiliyor (industry=$industry, answers=${apiAnswers.isNotEmpty ? "kullanıcı" : "varsayılan"})');
-        tasks = await _loadFromApi(
-          userId: userId,
-          businessId: businessId,
-          businessType: businessType,
-          locale: locale,
-          industry: industry,
-          apiAnswers: effectiveAnswers,
-          scoreToImpact: scoreToImpact,
-        );
+          AppLogger.d('[TaskLoadingService]', 'API\'den görev çekiliyor (industry=$industry)');
+          tasks = await _loadFromApi(
+            userId: userId,
+            businessId: businessId,
+            businessType: businessType,
+            locale: locale,
+            industry: industry,
+            apiAnswers: effectiveAnswers,
+            scoreToImpact: scoreToImpact,
+          );
+        } else {
+          // saas, ecommerce vb. — API desteklemiyor, direkt Firestore'dan çek
+          AppLogger.d('[TaskLoadingService]', 'Firestore\'dan görev çekiliyor (industry=$industry, businessType=$businessType)');
+          tasks = await _repository.getTodayAssignments(
+            userId: userId,
+            businessId: businessId,
+            businessType: businessType,
+            locale: locale,
+          );
+        }
       }
     } catch (e) {
       AppLogger.d('[TaskLoadingService]', 'Yükleme hatası: $e — cache\'e düşülüyor');
