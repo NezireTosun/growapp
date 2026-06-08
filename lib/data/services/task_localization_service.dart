@@ -99,10 +99,9 @@ class TaskLocalizationService {
   };
 
   int _resolveBusinessType(Map<String, dynamic> data) {
-    final bt = data['business_type'];
-    if (bt is int && bt != 0) return bt;
     final industry = data['industry'] as String? ?? '';
-    return _industryToBusinessType[industry] ?? 0;
+    if (industry.isNotEmpty) return _industryToBusinessType[industry] ?? 0;
+    return data['business_type'] as int? ?? 0;
   }
 
   TaskImpact _mapImpact(int score) {
