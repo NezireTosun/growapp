@@ -72,9 +72,6 @@ class BusinessProvider extends ChangeNotifier {
       _isPro = false;
     }
 
-    // TODO: TEST OVERRIDE — kaldır production'a geçmeden önce
-    _isPro = true;
-
     // RevenueCat pro ise planId'yi override et — Firestore'daki stale 'free' değerini yoksay
     final effectivePlanId = _isPro ? 'pro' : planId;
 

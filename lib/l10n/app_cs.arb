@@ -254,6 +254,7 @@
   },
   "weeklyPerformance": "Týdenní výkon",
   "thisWeek": "Tento týden",
+  "lastWeek": "Minulý týden",
   "completedTasksCount": "Dokončené úkoly",
   "snoozed": "Odloženo",
   "allTimeTaskSummary": "Celkem",

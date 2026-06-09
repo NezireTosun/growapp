@@ -260,6 +260,7 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
 
     if (_userId != null && _businessId != null) {
+      final previousStatus = _tasks[index].status;
       _repository.updateTaskStatus(
         userId: _userId!,
         businessId: _businessId!,
@@ -267,6 +268,12 @@ class DashboardProvider extends ChangeNotifier {
         status: status,
       ).catchError((e) {
         AppLogger.e('[DashboardProvider]', 'updateTaskStatus error', e);
+        // Firestore yazımı başarısız olduysa local state'i geri al
+        final rollbackIndex = _tasks.indexWhere((t) => t.id == taskId);
+        if (rollbackIndex != -1) {
+          _tasks[rollbackIndex] = _tasks[rollbackIndex].copyWith(status: previousStatus);
+          notifyListeners();
+        }
       });
     }
   }

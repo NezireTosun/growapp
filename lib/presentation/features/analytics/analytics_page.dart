@@ -172,6 +172,19 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             l: l,
             periodLabel: l.thisWeek,
           ),
+          if (p.lastWeekTotal > 0) ...[
+            const SizedBox(height: 16),
+            _buildChartSection(
+              title: l.weeklyPerformance,
+              total: p.lastWeekTotal,
+              changePercent: 0,
+              bars: p.lastWeekDaily,
+              labels: _weekdayLabels(Localizations.localeOf(context).languageCode),
+              highlightIndex: -1,
+              l: l,
+              periodLabel: l.lastWeek,
+            ),
+          ],
           if (p.categories.isNotEmpty) ...[
             const SizedBox(height: 28),
             _buildCategorySection(l, p),

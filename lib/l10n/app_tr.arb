@@ -254,6 +254,7 @@
   },
   "weeklyPerformance": "Haftalık Performans",
   "thisWeek": "Bu Hafta",
+  "lastWeek": "Geçen Hafta",
   "completedTasksCount": "Tamamlanan Görevler",
   "snoozed": "Ertelenen",
   "allTimeTaskSummary": "Tüm Zamanlar",

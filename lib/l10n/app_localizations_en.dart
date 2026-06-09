@@ -637,6 +637,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisWeek => 'This Week';
 
   @override
+  String get lastWeek => 'Last Week';
+
+  @override
   String get completedTasksCount => 'Completed Tasks';
 
   @override

@@ -53,22 +53,18 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
 
   @override
   Future<List<SurveyQuestion>> getSurveyQuestions(String businessType, {String locale = 'tr'}) async {
-    // ecommerce has its own question set (q1_ecom..q7_ecom, business_type='ecommerce')
-    // cafe/rest use legacy questions without a business_type field (doc IDs: q1..q7)
-    final Query<Map<String, dynamic>> query;
+    // doc IDs: q1..q7 (cafe/rest), q1_eco..q7_eco (ecommerce), q1_saas..q7_saas (saas)
+    final List<String> docIds;
     if (businessType == 'ecommerce') {
-      query = _db.collection('questions')
-          .where('business_type', isEqualTo: 3)
-          .orderBy('order_no');
+      docIds = ['q1_eco', 'q2_eco', 'q3_eco', 'q4_eco', 'q5_eco', 'q6_eco', 'q7_eco'];
     } else if (businessType == 'saas') {
-      query = _db.collection('questions')
-          .where('business_type', isEqualTo: 4)
-          .orderBy('order_no');
+      docIds = ['q1_saas', 'q2_saas', 'q3_saas', 'q4_saas', 'q5_saas', 'q6_saas', 'q7_saas'];
     } else {
-      query = _db.collection('questions')
-          .where(FieldPath.documentId, whereIn: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7']);
+      docIds = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'];
     }
-    final snapshot = await query.get();
+    final snapshot = await _db.collection('questions')
+        .where(FieldPath.documentId, whereIn: docIds)
+        .get();
 
     final questions = <SurveyQuestion>[];
     for (final doc in snapshot.docs) {

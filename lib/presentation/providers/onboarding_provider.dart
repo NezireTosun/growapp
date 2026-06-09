@@ -105,7 +105,8 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
 
     final type = _businessTypes[index];
-    _surveyQuestions = List.of(await _repository.getSurveyQuestions(type.id, locale: _locale));
+    final industry = _industryMap[type.id] ?? type.id;
+    _surveyQuestions = List.of(await _repository.getSurveyQuestions(industry, locale: _locale));
     _surveyQuestions.sort((a, b) => a.order.compareTo(b.order));
     _currentSurveyIndex = 0;
     _surveyAnswers.clear();

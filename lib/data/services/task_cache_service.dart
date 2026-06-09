@@ -21,7 +21,8 @@ class TaskCacheService {
       '$_keyDate${userId}_$businessId';
 
   static String _today() {
-    final now = DateTime.now();
+    // toLocal() ile DST geçişlerinde yanlış gün hesabını önle
+    final now = DateTime.now().toLocal();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 

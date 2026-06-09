@@ -254,6 +254,7 @@
   },
   "weeklyPerformance": "Weekly Performance",
   "thisWeek": "This Week",
+  "lastWeek": "Last Week",
   "completedTasksCount": "Completed Tasks",
   "snoozed": "Snoozed",
   "allTimeTaskSummary": "All Time",

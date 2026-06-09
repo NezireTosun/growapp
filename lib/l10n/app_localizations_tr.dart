@@ -641,6 +641,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get thisWeek => 'Bu Hafta';
 
   @override
+  String get lastWeek => 'Geçen Hafta';
+
+  @override
   String get completedTasksCount => 'Tamamlanan Görevler';
 
   @override

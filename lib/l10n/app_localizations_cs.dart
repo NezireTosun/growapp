@@ -637,6 +637,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get thisWeek => 'Tento týden';
 
   @override
+  String get lastWeek => 'Minulý týden';
+
+  @override
   String get completedTasksCount => 'Dokončené úkoly';
 
   @override

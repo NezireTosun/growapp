@@ -1298,6 +1298,12 @@ abstract class AppLocalizations {
   /// **'This Week'**
   String get thisWeek;
 
+  /// No description provided for @lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Week'**
+  String get lastWeek;
+
   /// No description provided for @completedTasksCount.
   ///
   /// In en, this message translates to:

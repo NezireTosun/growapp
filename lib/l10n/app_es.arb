@@ -254,6 +254,7 @@
   },
   "weeklyPerformance": "Rendimiento Semanal",
   "thisWeek": "Esta Semana",
+  "lastWeek": "Semana Pasada",
   "completedTasksCount": "Tareas Completadas",
   "snoozed": "Aplazado",
   "allTimeTaskSummary": "Total",

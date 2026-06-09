@@ -254,6 +254,7 @@
   },
   "weeklyPerformance": "Wochenleistung",
   "thisWeek": "Diese Woche",
+  "lastWeek": "Letzte Woche",
   "completedTasksCount": "Erledigte Aufgaben",
   "snoozed": "Verschoben",
   "allTimeTaskSummary": "Gesamt",

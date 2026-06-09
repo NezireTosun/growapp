@@ -76,7 +76,17 @@ class NotificationListProvider extends ChangeNotifier {
     for (final n in unread) {
       batch.update(_db.collection('notifications').doc(n.id), {'is_read': true});
     }
-    await batch.commit();
+    try {
+      await batch.commit();
+    } catch (e) {
+      AppLogger.e('[NotificationListProvider]', 'markAllAsRead batch error', e);
+      // Optimistic update geri al
+      _notifications = _notifications.map((n) {
+        final wasUnread = unread.any((u) => u.id == n.id);
+        return wasUnread ? n.copyWith(isRead: false) : n;
+      }).toList();
+      notifyListeners();
+    }
   }
 
   /// Create a notification in Firestore (called when tasks are assigned, reminders, etc.)

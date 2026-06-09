@@ -61,7 +61,7 @@ class TaskRepositoryImpl implements TaskRepository {
 
     AppLogger.d('[TaskRepo]', 'docId=$docId exists=${doc.exists}');
     if (doc.exists) {
-      final taskEntries = List<Map<String, dynamic>>.from(doc.data()!['tasks'] ?? []);
+      final taskEntries = List<Map<String, dynamic>>.from(doc.data()?['tasks'] ?? []);
       AppLogger.d('[TaskRepo]', 'taskEntries=$taskEntries');
       final tasks = await _loadAssignedTasks(taskEntries, locale);
       AppLogger.d('[TaskRepo]', 'loaded ${tasks.length} tasks from Firestore');

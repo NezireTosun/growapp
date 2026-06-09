@@ -20,8 +20,10 @@ class OnboardingScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -37,9 +39,17 @@ class OnboardingScaffold extends StatelessWidget {
                 OnboardingSubtitle(text: subtitle!),
               ],
               const SizedBox(height: 32),
-              ...children,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: bottomInset),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: children,
+                  ),
+                ),
+              ),
               if (bottomButton != null) ...[
-                const Spacer(),
+                const SizedBox(height: 16),
                 bottomButton!,
                 const SizedBox(height: 32),
               ],

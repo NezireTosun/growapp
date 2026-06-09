@@ -49,6 +49,9 @@ class AnalyticsProvider extends ChangeNotifier {
   int _lastWeekTotal = 0;
   int get lastWeekTotal => _lastWeekTotal;
 
+  List<int> _lastWeekDaily = List.filled(7, 0);
+  List<int> get lastWeekDaily => _lastWeekDaily;
+
   int get weekChangePercent {
     if (_lastWeekTotal == 0) return _thisWeekTotal > 0 ? 100 : 0;
     return (((_thisWeekTotal - _lastWeekTotal) / _lastWeekTotal) * 100).round();
@@ -214,9 +217,12 @@ class AnalyticsProvider extends ChangeNotifier {
 
     final lastMonday = thisMonday.subtract(const Duration(days: 7));
     _lastWeekTotal = 0;
+    _lastWeekDaily = List.filled(7, 0);
     for (int i = 0; i < 7; i++) {
       final date = lastMonday.add(Duration(days: i));
-      _lastWeekTotal += _countCompletedInDoc(docs[_dateStr(date)]);
+      final completed = _countCompletedInDoc(docs[_dateStr(date)]);
+      _lastWeekDaily[i] = completed;
+      _lastWeekTotal += completed;
     }
   }
 
@@ -364,6 +370,7 @@ class AnalyticsProvider extends ChangeNotifier {
 
     _thisWeekDaily = [5, 4, 6, 3, 4, 5, 3];
     _thisWeekTotal = _thisWeekDaily.fold(0, (a, b) => a + b);
+    _lastWeekDaily = [3, 2, 4, 4, 3, 3, 3];
     _lastWeekTotal = 22;
 
     _thisMonthDaily = List.generate(30, (i) => i % 3 == 0 ? 3 : i % 3 == 1 ? 2 : 1);

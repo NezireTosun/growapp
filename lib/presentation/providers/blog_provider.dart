@@ -43,11 +43,13 @@ class BlogProvider extends ChangeNotifier {
   }
 
   Future<void> loadPosts({String? locale, String? userId}) async {
+    final userChanged = userId != null && userId != _userId;
     if (locale != null) _locale = locale;
     if (userId != null) _userId = userId;
 
     // Postlar zaten yüklüyse sadece likes'ı yenile, tekrar fetch etme
-    if (_posts.isNotEmpty) {
+    // Ama kullanıcı değişmişse likes'ı tazele
+    if (_posts.isNotEmpty && !userChanged) {
       if (_userId != null) await _loadUserLikes();
       return;
     }
